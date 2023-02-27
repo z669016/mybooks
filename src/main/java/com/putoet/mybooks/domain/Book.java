@@ -4,11 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public record Book(BookId id, ISBN isbn, String title, List<Author> authors, String description, List<String> keywords,
-                   List<FormatType> formats) {
+public record Book(BookId id, String title, List<Author> authors, String description, List<String> keywords, List<FormatType> formats) {
     public Book {
         Objects.requireNonNull(id);
-        Objects.requireNonNull(isbn);
         Objects.requireNonNull(title);
         Objects.requireNonNull(authors);
         Objects.requireNonNull(description);
@@ -30,7 +28,7 @@ public record Book(BookId id, ISBN isbn, String title, List<Author> authors, Str
 
         var updated = new ArrayList<>(formats);
         updated.add(format);
-        return new Book(id, isbn, title, authors, description, keywords, updated);
+        return new Book(id, title, authors, description, keywords, updated);
     }
 
     public Book addKeyword(String keyword) {
@@ -43,7 +41,7 @@ public record Book(BookId id, ISBN isbn, String title, List<Author> authors, Str
 
         var updated = new ArrayList<>(keywords);
         updated.add(keyword.strip().toLowerCase());
-        return new Book(id, isbn, title, authors, description, updated, formats);
+        return new Book(id, title, authors, description, updated, formats);
     }
 
     public Book addAuthor(Author author) {
@@ -54,12 +52,12 @@ public record Book(BookId id, ISBN isbn, String title, List<Author> authors, Str
 
         var updated = new ArrayList<>(authors);
         updated.add(author);
-        return new Book(id, isbn, title, updated, description, keywords, formats);
+        return new Book(id, title, updated, description, keywords, formats);
     }
 
     public Book description(String description) {
         Objects.requireNonNull(description);
 
-        return new Book(id, isbn, title, authors, description, keywords, formats);
+        return new Book(id, title, authors, description, keywords, formats);
     }
 }

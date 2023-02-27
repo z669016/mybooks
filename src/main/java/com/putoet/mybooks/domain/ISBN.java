@@ -1,12 +1,13 @@
 package com.putoet.mybooks.domain;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 /**
  * Based on gist <a href="https://gist.github.com/kymmt90/a45ae122faeb78096b2c">kymmt90/Isbn.java</a>
  */
-record ISBN(String original, String prefix, String group, String publisher, String bookName, String checkDigit) {
+public record ISBN(String original, String prefix, String group, String publisher, String bookName, String checkDigit) {
     public static final int LENGTH = 13;
     public static final int OLD_LENGTH = 10;
 
@@ -99,8 +100,6 @@ record ISBN(String original, String prefix, String group, String publisher, Stri
     }
 
     public static ISBN withISBN(String number) {
-        Objects.requireNonNull(number);
-
         if (!isValid(number)) throw new IllegalArgumentException();
 
         if (removeHyphen(number).length() == OLD_LENGTH)

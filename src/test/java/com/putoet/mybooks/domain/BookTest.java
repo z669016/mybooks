@@ -9,8 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 class BookTest {
-    private static final BookId id = BookId.withoutId();
-    private static final ISBN isbn = ISBN.withISBN("978-1-83921-196-6");
+    private static final BookId id = new BookId(BookId.BookIdScheme.ISBN, "978-1-83921-196-6");
     private static final String title = "Get Your Hands Dirty on Clean Architecture";
     private static final Author author = mock(Author.class);
     private static final List<Author> authors = List.of(author);
@@ -22,32 +21,32 @@ class BookTest {
             After reading this book, you'll have all the knowledge you need to create applications using the hexagonal architecture style of web development.""";
     private static final List<String> keywords = List.of("architecture", "adapters", "ports");
     private static final List<FormatType> formats = List.of(FormatType.EPUB);
-    private static final Book book = new Book(id, isbn, title, authors, description, keywords, formats);
+    private static final Book book = new Book(id, title, authors, description, keywords, formats);
 
     @Test
     void constructor() {
         // Null values are not allowed for any attribute
-        assertThrows(NullPointerException.class, () -> new Book(null, null, null, null, null, null, null));
-        assertThrows(NullPointerException.class, () -> new Book(id, null, null, null, null, null, null));
-        assertThrows(NullPointerException.class, () -> new Book(id, isbn, null, null, null, null, null));
-        assertThrows(NullPointerException.class, () -> new Book(id, isbn, title, null, null, null, null));
-        assertThrows(NullPointerException.class, () -> new Book(id, isbn, title, authors, null, null, null));
-        assertThrows(NullPointerException.class, () -> new Book(id, isbn, title, authors, description, null, null));
-        assertThrows(NullPointerException.class, () -> new Book(id, isbn, title, authors, description, keywords, null));
+        assertThrows(NullPointerException.class, () -> new Book(null,null, null, null, null, null));
+        assertThrows(NullPointerException.class, () -> new Book(id, null, null, null, null, null));
+        assertThrows(NullPointerException.class, () -> new Book(id, null, null, null, null, null));
+        assertThrows(NullPointerException.class, () -> new Book(id, title, null, null, null, null));
+        assertThrows(NullPointerException.class, () -> new Book(id, title, authors, null, null, null));
+        assertThrows(NullPointerException.class, () -> new Book(id, title, authors, description, null, null));
+        assertThrows(NullPointerException.class, () -> new Book(id, title, authors, description, keywords, null));
 
         // Title and list of authors may not be empty
-        assertThrows(IllegalArgumentException.class, () -> new Book(id, isbn, "", authors, description, keywords, formats));
-        assertThrows(IllegalArgumentException.class, () -> new Book(id, isbn, " ", authors, description, keywords, formats));
-        assertThrows(IllegalArgumentException.class, () -> new Book(id, isbn, title, List.of(), description, keywords, formats));
+        assertThrows(IllegalArgumentException.class, () -> new Book(id, "", authors, description, keywords, formats));
+        assertThrows(IllegalArgumentException.class, () -> new Book(id, " ", authors, description, keywords, formats));
+        assertThrows(IllegalArgumentException.class, () -> new Book(id, title, List.of(), description, keywords, formats));
 
 
         // Description, formats and keywords may be empty
-        new Book(id, isbn, title, authors, "", keywords, formats);
-        new Book(id, isbn, title, authors, description, List.of(), formats);
-        new Book(id, isbn, title, authors, description, keywords, List.of());
+        new Book(id, title, authors, "", keywords, formats);
+        new Book(id, title, authors, description, List.of(), formats);
+        new Book(id, title, authors, description, keywords, List.of());
 
         // correctly constructed book
-        new Book(id, isbn, title, authors, description, keywords, formats);
+        new Book(id, title, authors, description, keywords, formats);
     }
 
     @Test

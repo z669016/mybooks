@@ -1,9 +1,16 @@
 package com.putoet.mybooks.domain;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * Record Author
+ * @param id AuthorId - unique identification for the author
+ * @param name String - lastname, firstname
+ * @param sites Map<SiteType,Site> - map of website references for the author
+ */
 public record Author(AuthorId id, String name, Map<SiteType,Site> sites) {
     public Author {
         Objects.requireNonNull(id);
@@ -12,6 +19,10 @@ public record Author(AuthorId id, String name, Map<SiteType,Site> sites) {
 
         if (name.isBlank())
             throw new IllegalArgumentException("Author name must not be blank.");
+    }
+
+    public Author(AuthorId id, String name) {
+        this(id, name, new HashMap<>());
     }
 
     public Optional<Site> github() {
@@ -36,10 +47,5 @@ public record Author(AuthorId id, String name, Map<SiteType,Site> sites) {
 
     public Optional<Site> site(String name) {
         return Optional.ofNullable(sites.get(SiteType.OTHER(name)));
-    }
-
-    @Override
-    public String toString() {
-        return name;
     }
 }

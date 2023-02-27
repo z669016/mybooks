@@ -1,7 +1,7 @@
 package com.putoet.mybooks.application.port.in;
 
-import com.putoet.mybooks.application.AuthorService;
-import com.putoet.mybooks.application.port.out.AuthorRepository;
+import com.putoet.mybooks.application.BookInquiryService;
+import com.putoet.mybooks.application.port.out.BookRepository;
 import com.putoet.mybooks.domain.Author;
 import com.putoet.mybooks.domain.AuthorId;
 import com.putoet.mybooks.domain.AuthorTest;
@@ -17,13 +17,13 @@ class AuthorByIdTest {
     private final Author author = AuthorTest.author;
     private final AuthorId id = author.id();
 
-    private AuthorRepository authorRepository;
+    private BookRepository authorRepository;
     private AuthorById authorById;
 
     @BeforeEach
     void setup() {
-        authorRepository = mock(AuthorRepository.class);
-        authorById = new AuthorService(authorRepository);
+        authorRepository = mock(BookRepository.class);
+        authorById = new BookInquiryService(authorRepository);
     }
 
     @Test

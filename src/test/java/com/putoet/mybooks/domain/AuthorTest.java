@@ -59,11 +59,6 @@ public class AuthorTest {
     }
 
     @Test
-    void testToString() {
-        assertEquals(name, author.toString());
-    }
-
-    @Test
     void github() {
         assertEquals(github, author.github().map(Site::url).orElseThrow());
     }

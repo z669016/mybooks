@@ -1,9 +1,10 @@
 package com.putoet.mybooks.framework;
 
-import com.putoet.mybooks.application.port.out.AuthorRepository;
+import com.putoet.mybooks.application.port.out.BookRepository;
 import com.putoet.mybooks.domain.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
@@ -16,22 +17,27 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Repository
-@Component("authorRepository")
-public class H2AuthorRepository implements AuthorRepository {
+public class H2BookRepository implements BookRepository {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final JdbcTemplate template;
 
-    public H2AuthorRepository(JdbcTemplate template) {
+    public H2BookRepository(JdbcTemplate template) {
         logger.info("AuthorRepository initialized with JDBC template " + template.getDataSource());
         this.template = template;
     }
 
     @Override
-    public List<Author> findAuthorByName(String name) {
+    public List<Author> findAuthors() {
         return template.query(
-                "select id, name from author where name like ?",
-                this::authorMapper, name);
+                "select id, name from author", this::authorMapper);
+    }
+
+    @Override
+    public List<Author> findAuthorsByName(String name) {
+        return template.query(
+                "select id, name from author where lower(name) like ?",
+                this::authorMapper, "%" + name.toLowerCase() + "%");
     }
 
     @Override
@@ -42,10 +48,51 @@ public class H2AuthorRepository implements AuthorRepository {
     }
 
     @Override
+    public List<Book> findBooks() {
+        return template.query(
+                "select id_type, id, title, description from book",
+                this::bookMapper);
+    }
+
+    @Override
+    public List<Book> findBooksByTitle(String title) {
+        throw new UnsupportedOperationException("findBooksByTitle");
+    }
+
+    @Override
+    public Book findBookById(BookId bookId) {
+        throw new UnsupportedOperationException("findBookById");
+    }
+
+    @Override
+    public List<Book> findBooksByAuthorId(AuthorId authorId) {
+        throw new UnsupportedOperationException("findBooksByAuthorId");
+    }
+
+    @Override
     public Author persist(Author author) {
         return null;
     }
 
+    private Book bookMapper(ResultSet row, int rowNum) throws SQLException {
+        final String book_id_type = row.getString("id_type");
+        final String book_id = row.getString("id");
+        final List<Author> authors = findAuthorsForBook(book_id_type, book_id);
+
+        return new Book(new BookId(BookId.BookIdScheme.valueOf(book_id_type), book_id)
+                , row.getString("title")
+                , authors
+                , ""
+                , List.of()
+                , List.of()
+        );
+    }
+
+    private List<Author> findAuthorsForBook(String bookIdType, String bookId) {
+        return template.query(
+                "select id, name from author where id in (select author_id from book_author where book_id_type = ? and book_id = ?)",
+                this::authorMapper, bookIdType, bookId);
+    }
 
     private Author authorMapper(ResultSet row, int rowNum) throws SQLException {
         final String authorId = row.getString("id");

@@ -1,7 +1,7 @@
 package com.putoet.mybooks.application.port.in;
 
-import com.putoet.mybooks.application.AuthorService;
-import com.putoet.mybooks.application.port.out.AuthorRepository;
+import com.putoet.mybooks.application.BookService;
+import com.putoet.mybooks.application.port.out.BookRepository;
 import com.putoet.mybooks.domain.Author;
 import com.putoet.mybooks.domain.AuthorTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,13 +18,13 @@ class RegisterAuthorTest {
     private final Author author = AuthorTest.author;
     private final RegisterAuthorCommand command = new RegisterAuthorCommand(author.name(), author.sites());
 
-    private AuthorRepository authorRepository;
+    private BookRepository authorRepository;
     private RegisterAuthor registerAuthor;
 
     @BeforeEach
     void setup() {
-        authorRepository = mock(AuthorRepository.class);
-        registerAuthor = new AuthorService(authorRepository);
+        authorRepository = mock(BookRepository.class);
+        registerAuthor = new BookService(authorRepository);
     }
 
     @Test
@@ -39,7 +39,7 @@ class RegisterAuthorTest {
 
     @Test
     void registerAuthorFailed() {
-        given(authorRepository.findAuthorByName(any())).willReturn(null);
+        given(authorRepository.findAuthorsByName(any())).willReturn(null);
 
         assertThrows(IllegalStateException.class, () -> registerAuthor.registerAuthor(command));
     }
