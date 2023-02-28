@@ -15,7 +15,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class RegisterAuthorTest {
-    private final Author author = AuthorTest.author;
+    private final Author author = AuthorTest.AUTHOR;
     private final RegisterAuthorCommand command = new RegisterAuthorCommand(author.name(), author.sites());
 
     private BookRepository authorRepository;
@@ -29,7 +29,7 @@ class RegisterAuthorTest {
 
     @Test
     void registerAuthor() {
-        when(authorRepository.persist(any())).thenAnswer((Answer<Author>) invocation -> (Author) invocation.getArguments()[0]);
+        when(authorRepository.createAuthor(any())).thenAnswer((Answer<Author>) invocation -> (Author) invocation.getArguments()[0]);
 
         final var registered = registerAuthor.registerAuthor(command);
         assertNotNull(registered.id());

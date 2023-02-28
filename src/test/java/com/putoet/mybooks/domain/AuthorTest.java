@@ -16,7 +16,7 @@ public class AuthorTest {
     private static final String blog_name = "blog";
     private static final Map<SiteType, Site> sites = new HashMap<>();
 
-    public static final Author author = new Author(id, name, sites);
+    public static final Author AUTHOR = new Author(id, name, sites);
 
     private static URL github;
     private static URL twitter;
@@ -60,31 +60,31 @@ public class AuthorTest {
 
     @Test
     void github() {
-        assertEquals(github, author.github().map(Site::url).orElseThrow());
+        assertEquals(github, AUTHOR.github().map(Site::url).orElseThrow());
     }
 
     @Test
     void twitter() {
-        assertEquals(twitter, author.twitter().map(Site::url).orElseThrow());
+        assertEquals(twitter, AUTHOR.twitter().map(Site::url).orElseThrow());
     }
 
     @Test
     void facebook() {
-        assertEquals(facebook, author.facebook().map(Site::url).orElseThrow());
+        assertEquals(facebook, AUTHOR.facebook().map(Site::url).orElseThrow());
     }
 
     @Test
     void linkedIn() {
-        assertEquals(linkedIn, author.linkedIn().map(Site::url).orElseThrow());
+        assertEquals(linkedIn, AUTHOR.linkedIn().map(Site::url).orElseThrow());
     }
 
     @Test
     void homePage() {
-        assertEquals(homePage, author.homePage().map(Site::url).orElseThrow());
+        assertEquals(homePage, AUTHOR.homePage().map(Site::url).orElseThrow());
     }
 
     @Test
     void site() {
-        assertEquals(blog, author.site(blog_name).map(Site::url).orElseThrow());
+        assertEquals(blog, AUTHOR.site(blog_name).map(Site::url).orElseThrow());
     }
 }

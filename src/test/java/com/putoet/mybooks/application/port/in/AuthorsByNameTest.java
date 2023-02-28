@@ -15,7 +15,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 class AuthorsByNameTest {
-    private final Author author = AuthorTest.author;
+    private final Author author = AuthorTest.AUTHOR;
     private final String name = author.name();
 
     private BookRepository authorRepository;

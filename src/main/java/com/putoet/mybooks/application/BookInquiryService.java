@@ -1,7 +1,7 @@
 package com.putoet.mybooks.application;
 
 import com.putoet.mybooks.application.port.in.*;
-import com.putoet.mybooks.application.port.out.BookReadOnlyRepository;
+import com.putoet.mybooks.application.port.out.BookInquiryRepository;
 import com.putoet.mybooks.domain.Author;
 import com.putoet.mybooks.domain.AuthorId;
 import com.putoet.mybooks.domain.Book;
@@ -12,11 +12,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-@Service("authorService")
+@Service("bookInquiryService")
 public class BookInquiryService implements Books, BooksByTitle, BookById, Authors, AuthorsByName, AuthorById, BooksByAuthorName {
-    private final BookReadOnlyRepository bookRepository;
+    private final BookInquiryRepository bookRepository;
 
-    public BookInquiryService(BookReadOnlyRepository bookRepository) {
+    public BookInquiryService(BookInquiryRepository bookRepository) {
         this.bookRepository = bookRepository;
     }
 

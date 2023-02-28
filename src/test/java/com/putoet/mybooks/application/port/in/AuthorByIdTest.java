@@ -14,7 +14,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 class AuthorByIdTest {
-    private final Author author = AuthorTest.author;
+    private final Author author = AuthorTest.AUTHOR;
     private final AuthorId id = author.id();
 
     private BookRepository authorRepository;

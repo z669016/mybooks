@@ -7,7 +7,7 @@ import com.putoet.mybooks.domain.BookId;
 
 import java.util.List;
 
-public interface BookReadOnlyRepository {
+public interface BookInquiryRepository {
     List<Author> findAuthors();
     List<Author> findAuthorsByName(String name);
     Author findAuthorById(AuthorId authorId);

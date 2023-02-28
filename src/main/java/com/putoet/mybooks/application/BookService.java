@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
-@Service("authorService")
-public class BookService extends BookInquiryService implements RegisterAuthor {
+@Service("bookService")
+public class BookService extends BookInquiryService implements RegisterAuthor, ForgetAuthor, UpdateAuthor {
     private final BookRepository authorRepository;
 
     public BookService(BookRepository authorRepository) {
@@ -19,13 +19,25 @@ public class BookService extends BookInquiryService implements RegisterAuthor {
 
     @Override
     public Author registerAuthor(RegisterAuthorCommand command) {
-        Objects.requireNonNull(command);
+        Objects.requireNonNull(command, "To register an author, provide the author details");
 
         final var author = new Author(AuthorId.withoutId(), command.name(), command.sites());
-        final var registered = authorRepository.persist(author);
+        final var registered = authorRepository.createAuthor(author);
         if (registered == null)
             throw new IllegalStateException("Unable to persist " + author);
 
         return registered;
+    }
+
+    @Override
+    public void forgetAuthor(AuthorId authorId) {
+        Objects.requireNonNull(authorId, "To forget an author, provide the id   ");
+
+//        final var registered = authorRepository.delete(authorId);
+    }
+
+    @Override
+    public Author updateAuthor(Author author) {
+        return null;
     }
 }

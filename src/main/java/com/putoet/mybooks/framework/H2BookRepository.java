@@ -4,9 +4,7 @@ import com.putoet.mybooks.application.port.out.BookRepository;
 import com.putoet.mybooks.domain.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 import java.net.MalformedURLException;
@@ -44,7 +42,7 @@ public class H2BookRepository implements BookRepository {
     public Author findAuthorById(AuthorId id) {
         return template.queryForObject(
                 "select id, name from author where id=?",
-                this::authorMapper, id);
+                this::authorMapper, id.uuid());
     }
 
     @Override
@@ -67,11 +65,6 @@ public class H2BookRepository implements BookRepository {
     @Override
     public List<Book> findBooksByAuthorId(AuthorId authorId) {
         throw new UnsupportedOperationException("findBooksByAuthorId");
-    }
-
-    @Override
-    public Author persist(Author author) {
-        return null;
     }
 
     private Book bookMapper(ResultSet row, int rowNum) throws SQLException {
@@ -115,5 +108,20 @@ public class H2BookRepository implements BookRepository {
         } catch (MalformedURLException exc) {
             throw new SQLException("Invalid URL for site with id '" + id + "'", exc);
         }
+    }
+
+    @Override
+    public Author createAuthor(Author author) {
+        int count = template.update("insert into author values (?, ?)", author.id().uuid(), author.name());
+        if (count == 1) {
+            for (Site site : author.sites().values()) {
+                count = template.update("insert into site values (?, ?, ?, ?)",
+                        site.id().uuid(), author.id().uuid(), site.type().name(), site.url().toString());
+                if (count != 1)
+                    throw new IllegalArgumentException("Could not insert author: " + author);
+            }
+        }
+
+        return author;
     }
 }

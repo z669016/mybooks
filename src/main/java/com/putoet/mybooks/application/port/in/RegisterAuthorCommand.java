@@ -14,7 +14,6 @@ public record RegisterAuthorCommand(String name, Map<SiteType, Site> sites) {
         Objects.requireNonNull(sites);
         if (name.isBlank())
             throw new IllegalArgumentException("Author name must not be blank.");
-
     }
 
     public static RegisterAuthorCommandBuilder withName(String name) {

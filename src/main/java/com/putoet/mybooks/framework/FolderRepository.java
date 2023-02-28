@@ -1,7 +1,7 @@
 package com.putoet.mybooks.framework;
 
 import com.google.common.base.Joiner;
-import com.putoet.mybooks.application.port.out.BookReadOnlyRepository;
+import com.putoet.mybooks.application.port.out.BookInquiryRepository;
 import com.putoet.mybooks.domain.*;
 import nl.siegmann.epublib.domain.Identifier;
 import nl.siegmann.epublib.domain.Metadata;
@@ -23,7 +23,7 @@ import java.util.stream.Stream;
  * Repository based on the file system. Loads recursively the data from EPUB files in the root folder provided at
  * construction, and extracts Book and Author data from the files. Data cannot be written to this repository
  */
-public class FolderRepository implements BookReadOnlyRepository {
+public class FolderRepository implements BookInquiryRepository {
     private final Path folder;
     private final Set<String> files;
     private final Map<AuthorId,Author> authors;
