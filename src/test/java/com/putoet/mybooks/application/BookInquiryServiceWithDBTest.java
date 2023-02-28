@@ -16,17 +16,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class BookInquiryServiceTestWithDB {
+class BookInquiryServiceWithDBTest {
 
     @Autowired
     private JdbcTemplate template;
 
-    private H2BookRepository repository;
     private BookInquiryService service;
 
     @BeforeEach
     void setup() {
-        repository = new H2BookRepository(template);
+        H2BookRepository repository = new H2BookRepository(template);
         service = new BookInquiryService(repository);
     }
 

@@ -16,16 +16,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class BookServiceTestWithDB {
+class BookServiceWithDBTest {
     @Autowired
     private JdbcTemplate template;
 
-    private H2BookRepository repository;
     private BookService service;
 
     @BeforeEach
     void setup() {
-        repository = new H2BookRepository(template);
+        H2BookRepository repository = new H2BookRepository(template);
         service = new BookService(repository);
     }
 
@@ -39,7 +38,7 @@ class BookServiceTestWithDB {
         assertNotNull(author);
         assertNotNull(author.id());
 
-        final List<Author> authors = repository.findAuthors();
+        final List<Author> authors = service.authors();
         assertEquals(2, authors.size());
     }
 }

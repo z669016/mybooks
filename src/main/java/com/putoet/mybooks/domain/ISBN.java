@@ -1,7 +1,6 @@
 package com.putoet.mybooks.domain;
 
 import java.util.Objects;
-import java.util.Optional;
 import java.util.regex.Pattern;
 
 /**

@@ -74,6 +74,7 @@ public class FolderRepository implements BookInquiryRepository {
         throw new IllegalArgumentException("Invalid format: " + format);
     }
 
+    @SuppressWarnings("unused")
     protected static BookId extractBookId(List<Identifier> identifiers) {
         Optional<String> identifier = findIdentifier(identifiers, Identifier.Scheme.ISBN);
         if (identifier.isPresent())
