@@ -55,7 +55,10 @@ public class AuthorTest {
         assertThrows(IllegalArgumentException.class, () -> new Author(id, "  ", sites));
 
         // should be fine
-        new Author(id, name, sites);
+        final Author author = new Author(id, name);
+        assertEquals(id, author.id());
+        assertEquals(name, author.name());
+        assertEquals(0, author.sites().size());
     }
 
     @Test

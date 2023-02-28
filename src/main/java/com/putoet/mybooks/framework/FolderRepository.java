@@ -59,9 +59,9 @@ public class FolderRepository implements BookInquiryRepository {
             final BookId bookId = extractBookId(metadata.getIdentifiers());
             final String title = metadata.getTitles().get(0);
             final List<Author> authors = extractAuthors(metadata.getAuthors());
-            final String descripton = String.join("\n", metadata.getTitles());
+            final String description = String.join("\n", metadata.getTitles());
             final List<FormatType> formats = extractFormat(metadata.getFormat());
-            return new Book(bookId, title, authors, descripton, List.of(), formats);
+            return new Book(bookId, title, authors, description, List.of(), formats);
         } catch (IOException exc) {
             throw new IllegalArgumentException("Could not read epub file " + fileName);
         }

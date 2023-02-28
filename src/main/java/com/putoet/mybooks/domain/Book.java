@@ -36,11 +36,12 @@ public record Book(BookId id, String title, List<Author> authors, String descrip
         if (keyword.isBlank())
             throw new IllegalArgumentException("Book keyword must not be blank.");
 
+        keyword = keyword.strip().toLowerCase();
         if (keywords.contains(keyword))
             throw new IllegalArgumentException("Book keywords already contains '" + keyword + "'");
 
         var updated = new ArrayList<>(keywords);
-        updated.add(keyword.strip().toLowerCase());
+        updated.add(keyword);
         return new Book(id, title, authors, description, updated, formats);
     }
 

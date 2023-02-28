@@ -56,15 +56,22 @@ class BookTest {
         assertNotEquals(book, updated);
         assertEquals(2, updated.formats().size());
         assertTrue(updated.formats().contains(FormatType.PDF));
+
+        assertThrows(IllegalArgumentException.class, () -> updated.addFormat(FormatType.PDF));
     }
 
     @Test
     void addKeyword() {
+        assertThrows(NullPointerException.class, () -> book.addKeyword(null));
+        assertThrows(IllegalArgumentException.class, () -> book.addKeyword(" "));
+
         final var updated = book.addKeyword(" Hexagonal");
 
         assertNotEquals(book, updated);
         assertEquals(4, updated.keywords().size());
         assertTrue(updated.keywords().contains("hexagonal"));
+
+        assertThrows(IllegalArgumentException.class, () -> updated.addKeyword("hexagonal"));
     }
 
     @Test
@@ -75,6 +82,8 @@ class BookTest {
         assertNotEquals(book, updated);
         assertEquals(2, updated.authors().size());
         assertTrue(updated.authors().contains(me));
+
+        assertThrows(IllegalArgumentException.class, () -> updated.addAuthor(me));
     }
 
     @Test
