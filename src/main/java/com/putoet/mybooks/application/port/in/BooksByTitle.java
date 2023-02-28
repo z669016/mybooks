@@ -5,5 +5,5 @@ import com.putoet.mybooks.domain.Book;
 import java.util.List;
 
 public interface BooksByTitle {
-    List<Book> bookByTitle(String title);
+    List<Book> booksByTitle(String title);
 }

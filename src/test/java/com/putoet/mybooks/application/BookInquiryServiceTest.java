@@ -1,14 +1,13 @@
 package com.putoet.mybooks.application;
 
 import com.putoet.mybooks.application.port.out.BookInquiryRepository;
-import com.putoet.mybooks.domain.Author;
-import com.putoet.mybooks.domain.AuthorId;
-import com.putoet.mybooks.domain.AuthorTest;
+import com.putoet.mybooks.domain.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -26,6 +25,7 @@ class BookInquiryServiceTest {
     @Test
     void authorsByName() {
         assertThrows(NullPointerException.class, () -> service.authorsByName(null));
+        assertThrows(IllegalArgumentException.class, () -> service.authorsByName(" "));
 
         when(repository.findAuthorsByName("tim")).thenReturn(List.of());
         when(repository.findAuthorsByName("tom")).thenReturn(List.of(AuthorTest.AUTHOR));
@@ -63,21 +63,48 @@ class BookInquiryServiceTest {
 
     @Test
     void books() {
-        // TODO
+        when(repository.findBooks()).thenReturn(List.of());
+        final List<Book> books = service.books();
+
+        verify(repository, times(1)).findBooks();
+        assertEquals(0, books.size());
     }
 
     @Test
     void bookByTitle() {
-        // TODO
+        assertThrows(NullPointerException.class, () -> service.booksByTitle(null));
+        assertThrows(IllegalArgumentException.class, () -> service.booksByTitle(" "));
+
+        when(repository.findBooksByTitle(any())).thenReturn(List.of());
+        final List<Book> books = service.booksByTitle("architecture");
+
+        verify(repository, times(1)).findBooksByTitle("architecture");
+        assertEquals(0, books.size());
     }
 
     @Test
     void bookById() {
-        // TODO
+        assertThrows(NullPointerException.class, () -> service.bookById(null));
+
+        when(repository.findBookById(any())).thenReturn(null);
+        final BookId id = new BookId(BookId.BookIdScheme.UUID, UUID.randomUUID().toString());
+        final Optional<Book> book = service.bookById(id);
+
+        verify(repository, times(1)).findBookById(id);
+        assertFalse(book.isPresent());
     }
 
     @Test
     void bookByAuthorName() {
-        // TODO
+        assertThrows(NullPointerException.class, () -> service.booksByAuthorName(null));
+        assertThrows(IllegalArgumentException.class, () -> service.booksByAuthorName(" "));
+
+        when(repository.findAuthorsByName("tom")).thenReturn(List.of(AuthorTest.AUTHOR));
+        when(repository.findBooksByAuthorId(AuthorTest.AUTHOR.id())).thenReturn(List.of());
+        final List<Book> books = service.booksByAuthorName("tom");
+
+        verify(repository, times(1)).findAuthorsByName("tom");
+        verify(repository, times(1)).findBooksByAuthorId(AuthorTest.AUTHOR.id());
+        assertEquals(0, books.size());
     }
 }

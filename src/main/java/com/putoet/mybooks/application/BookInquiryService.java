@@ -47,7 +47,7 @@ public class BookInquiryService implements Books, BooksByTitle, BookById, Author
     }
 
     @Override
-    public List<Book> bookByTitle(String title) {
+    public List<Book> booksByTitle(String title) {
         Objects.requireNonNull(title, "(Part of the) book title must be provided for a title based search");
         if (title.isBlank())
             throw new IllegalArgumentException("booksByTitle must not be called with a blank title.");
@@ -63,13 +63,12 @@ public class BookInquiryService implements Books, BooksByTitle, BookById, Author
     }
 
     @Override
-    public List<Book> bookByAuthorName(String name) {
+    public List<Book> booksByAuthorName(String name) {
         Objects.requireNonNull(name, "Author name must be provided for author name based book search");
         if (name.isBlank())
             throw new IllegalArgumentException("booksByAuthorName must not be called with a blank name.");
 
         final List<Author> authors = authorsByName(name);
-
         return authors.stream()
                 .flatMap(author -> bookRepository.findBooksByAuthorId(author.id()).stream())
                 .toList();
