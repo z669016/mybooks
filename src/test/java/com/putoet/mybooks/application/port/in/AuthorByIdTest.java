@@ -45,6 +45,6 @@ class AuthorByIdTest {
 
     @Test
     void error() {
-        assertThrows(NullPointerException.class, () -> authorById.authorById(null));
+        assertThrows(ServiceException.class, () -> authorById.authorById(null));
     }
 }

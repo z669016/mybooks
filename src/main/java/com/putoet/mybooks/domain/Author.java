@@ -1,6 +1,6 @@
 package com.putoet.mybooks.domain;
 
-import java.util.HashMap;
+import java.net.URL;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -11,7 +11,7 @@ import java.util.Optional;
  * @param name String - lastname, firstname
  * @param sites Map<SiteType,Site> - map of website references for the author
  */
-public record Author(AuthorId id, String name, Map<SiteType,Site> sites) {
+public record Author(AuthorId id, String name, Map<SiteType, URL> sites) {
     public Author {
         Objects.requireNonNull(id);
         Objects.requireNonNull(name);
@@ -22,30 +22,31 @@ public record Author(AuthorId id, String name, Map<SiteType,Site> sites) {
     }
 
     public Author(AuthorId id, String name) {
-        this(id, name, new HashMap<>());
+        this(id, name, Map.of());
     }
 
     public Optional<Site> github() {
-        return Optional.ofNullable(sites.get(SiteType.GITHUB));
+        return site(SiteType.GITHUB);
     }
 
     public Optional<Site> twitter() {
-        return Optional.ofNullable(sites.get(SiteType.TWITTER));
+        return site(SiteType.TWITTER);
     }
 
     public Optional<Site> facebook() {
-        return Optional.ofNullable(sites.get(SiteType.FACEBOOK));
+        return site(SiteType.FACEBOOK);
     }
 
     public Optional<Site> linkedIn() {
-        return Optional.ofNullable(sites.get(SiteType.LINKEDIN));
+        return site(SiteType.LINKEDIN);
     }
 
     public Optional<Site> homePage() {
-        return Optional.ofNullable(sites.get(SiteType.HOMEPAGE));
+        return site(SiteType.HOMEPAGE);
     }
 
-    public Optional<Site> site(String name) {
-        return Optional.ofNullable(sites.get(SiteType.OTHER(name)));
+    public Optional<Site> site(SiteType type) {
+
+        return !sites.containsKey(type) ? Optional.empty() : Optional.of(new Site(type, sites.get(type)));
     }
 }

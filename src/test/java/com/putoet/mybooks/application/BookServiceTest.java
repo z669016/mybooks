@@ -1,11 +1,13 @@
 package com.putoet.mybooks.application;
 
 import com.putoet.mybooks.application.port.in.RegisterAuthorCommand;
+import com.putoet.mybooks.application.port.in.ServiceException;
+import com.putoet.mybooks.application.port.in.SetAuthorSiteCommand;
+import com.putoet.mybooks.application.port.in.UpdateAuthorCommand;
 import com.putoet.mybooks.application.port.out.BookRepository;
 import com.putoet.mybooks.domain.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -26,25 +28,60 @@ class BookServiceTest {
 
     @Test
     void registerAuthor() throws MalformedURLException {
-        assertThrows(NullPointerException.class, () -> service.registerAuthor(null));
+        assertThrows(ServiceException.class, () -> service.registerAuthor(null));
 
-        final String name = "Putten, Margot van";
-        final URL url = new URL("https://nl.linkedin.com/in/margot-van-putten-3a115615");
+        final String name = "Name, My";
+        final URL url = new URL("https://nu.nl");
 
         final RegisterAuthorCommand command = RegisterAuthorCommand.withName(name)
                 .withSite(SiteType.LINKEDIN, url)
                 .build();
 
         final AuthorId id = AuthorId.withoutId();
-        final Author author = new Author(id, name, Map.of(SiteType.LINKEDIN, new Site(SiteId.withoutId(), SiteType.LINKEDIN, url)));
-        when(repository.createAuthor(any())).thenReturn(author);
+        final Author author = new Author(id, name, Map.of(SiteType.LINKEDIN, url));
+        when(repository.createAuthor(name, author.sites())).thenReturn(author);
 
-        service.registerAuthor(command);
+        final Author created = service.registerAuthor(command);
 
-        final ArgumentCaptor<Author> captor = ArgumentCaptor.forClass(Author.class);
-        verify(repository).createAuthor(captor.capture());
-        assertEquals(name, captor.getValue().name());
-        assertNotNull(captor.getValue().sites().get(SiteType.LINKEDIN));
-        assertEquals(url, captor.getValue().sites().get(SiteType.LINKEDIN).url());
+        assertEquals(author, created);
+    }
+
+    @Test
+    void forgetAuthor() {
+        assertThrows(ServiceException.class, () -> service.forgetAuthor(null));
+
+        final AuthorId id = AuthorId.withoutId();
+        service.forgetAuthor(id);
+        verify(repository).forgetAuthor(id);
+    }
+
+    @Test
+    void updateAuthor() {
+        assertThrows(ServiceException.class, () -> service.updateAuthor(null));
+
+        final AuthorId id = AuthorId.withoutId();
+        final String name = "New, Name";
+        final Author author = new Author(id, name, Map.of());
+        when(repository.updateAuthor(id, name)).thenReturn(author);
+
+        final Author updated = service.updateAuthor(new UpdateAuthorCommand(id, name));
+        verify(repository).updateAuthor(id, name);
+        assertEquals(author, updated);
+    }
+
+    @Test
+    void setAuthorSite() throws MalformedURLException {
+        assertThrows(ServiceException.class, () -> service.setAuthorSite(null));
+
+        final AuthorId id = AuthorId.withoutId();
+        final Author author = new Author(id, "New, name", Map.of());
+        when(repository.findAuthorById(id)).thenReturn(author);
+
+        final URL url = new URL("https://nu.nl");
+
+        service.setAuthorSite(new SetAuthorSiteCommand(id, SiteType.LINKEDIN, url));
+
+        verify(repository).findAuthorById(id);
+        verify(repository).setAuthorSite(id, SiteType.LINKEDIN, url);
     }
 }

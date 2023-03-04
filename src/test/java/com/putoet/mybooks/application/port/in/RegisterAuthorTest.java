@@ -6,7 +6,6 @@ import com.putoet.mybooks.domain.Author;
 import com.putoet.mybooks.domain.AuthorTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.stubbing.Answer;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -18,18 +17,18 @@ class RegisterAuthorTest {
     private final Author author = AuthorTest.AUTHOR;
     private final RegisterAuthorCommand command = new RegisterAuthorCommand(author.name(), author.sites());
 
-    private BookRepository authorRepository;
+    private BookRepository bookRepository;
     private RegisterAuthor registerAuthor;
 
     @BeforeEach
     void setup() {
-        authorRepository = mock(BookRepository.class);
-        registerAuthor = new BookService(authorRepository);
+        bookRepository = mock(BookRepository.class);
+        registerAuthor = new BookService(bookRepository);
     }
 
     @Test
     void registerAuthor() {
-        when(authorRepository.createAuthor(any())).thenAnswer((Answer<Author>) invocation -> (Author) invocation.getArguments()[0]);
+        when(bookRepository.createAuthor(author.name(),author.sites())).thenReturn(author);
 
         final var registered = registerAuthor.registerAuthor(command);
         assertNotNull(registered.id());
@@ -39,13 +38,13 @@ class RegisterAuthorTest {
 
     @Test
     void registerAuthorFailed() {
-        given(authorRepository.findAuthorsByName(any())).willReturn(null);
+        given(bookRepository.findAuthorsByName(any())).willReturn(null);
 
-        assertThrows(IllegalStateException.class, () -> registerAuthor.registerAuthor(command));
+        assertThrows(ServiceException.class, () -> registerAuthor.registerAuthor(command));
     }
 
     @Test
     void error() {
-        assertThrows(NullPointerException.class, () -> registerAuthor.registerAuthor(null));
+        assertThrows(ServiceException.class, () -> registerAuthor.registerAuthor(null));
     }
 }

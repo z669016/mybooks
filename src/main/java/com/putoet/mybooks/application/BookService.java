@@ -6,38 +6,53 @@ import com.putoet.mybooks.domain.Author;
 import com.putoet.mybooks.domain.AuthorId;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
-
 @Service("bookService")
-public class BookService extends BookInquiryService implements RegisterAuthor, ForgetAuthor, UpdateAuthor {
-    private final BookRepository authorRepository;
+public class BookService extends BookInquiryService implements
+        RegisterAuthor, ForgetAuthor, UpdateAuthor, SetAuthorSite {
+    private final BookRepository bookRepository;
 
-    public BookService(BookRepository authorRepository) {
-        super(authorRepository);
-        this.authorRepository = authorRepository;
+    public BookService(BookRepository bookRepository) {
+        super(bookRepository);
+        this.bookRepository = bookRepository;
     }
 
     @Override
     public Author registerAuthor(RegisterAuthorCommand command) {
-        Objects.requireNonNull(command, "To register an author, provide the author details");
+        if (command == null)
+            ServiceError.AUTHOR_DETAILS_REQUIRED.raise();
 
-        final var author = new Author(AuthorId.withoutId(), command.name(), command.sites());
-        final var registered = authorRepository.createAuthor(author);
-        if (registered == null)
-            throw new IllegalStateException("Unable to persist " + author);
+        final Author author = bookRepository.createAuthor(command.name(), command.sites());
+        if (author == null)
+            ServiceError.AUTHOR_NOT_CREATED.raise();
 
-        return registered;
+        return author;
     }
 
     @Override
     public void forgetAuthor(AuthorId authorId) {
-        Objects.requireNonNull(authorId, "To forget an author, provide the id   ");
+        if (authorId == null)
+            ServiceError.AUTHOR_ID_REQUIRED.raise();
 
-//        final var registered = authorRepository.delete(authorId);
+        bookRepository.forgetAuthor(authorId);
     }
 
     @Override
-    public Author updateAuthor(Author author) {
-        return null;
+    public Author updateAuthor(UpdateAuthorCommand command) {
+        if (command == null)
+            ServiceError.AUTHOR_DETAILS_REQUIRED.raise();
+
+        return bookRepository.updateAuthor(command.id(), command.name());
+    }
+
+    @Override
+    public Author setAuthorSite(SetAuthorSiteCommand command) {
+        if (command == null)
+            ServiceError.AUTHOR_SITE_DETAILS_REQUIRED.raise();
+
+        final Author author = bookRepository.findAuthorById(command.authorId());
+        if (author == null)
+            ServiceError.AUTHOR_FOR_ID_NOT_FOUND.raise(command.authorId().toString());
+
+        return bookRepository.setAuthorSite(command.authorId(), command.type(), command.url());
     }
 }

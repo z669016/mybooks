@@ -14,7 +14,7 @@ public class AuthorTest {
     private static final AuthorId id = AuthorId.withoutId();
     private static final String name = "Tom Hombergs";
     private static final String blog_name = "blog";
-    private static final Map<SiteType, Site> sites = new HashMap<>();
+    private static final Map<SiteType, URL> sites = new HashMap<>();
 
     public static final Author AUTHOR = new Author(id, name, sites);
 
@@ -36,12 +36,12 @@ public class AuthorTest {
         } catch (MalformedURLException ignored) {
         }
 
-        sites.put(SiteType.GITHUB, new Site(SiteId.withoutId(), SiteType.GITHUB, github));
-        sites.put(SiteType.TWITTER, new Site(SiteId.withoutId(), SiteType.TWITTER, twitter));
-        sites.put(SiteType.LINKEDIN, new Site(SiteId.withoutId(), SiteType.LINKEDIN, linkedIn));
-        sites.put(SiteType.FACEBOOK, new Site(SiteId.withoutId(), SiteType.FACEBOOK, facebook));
-        sites.put(SiteType.HOMEPAGE, new Site(SiteId.withoutId(), SiteType.HOMEPAGE, homePage));
-        sites.put(SiteType.OTHER(blog_name), new Site(SiteId.withoutId(), SiteType.OTHER(blog_name), blog));
+        sites.put(SiteType.GITHUB, github);
+        sites.put(SiteType.TWITTER, twitter);
+        sites.put(SiteType.LINKEDIN, linkedIn);
+        sites.put(SiteType.FACEBOOK, facebook);
+        sites.put(SiteType.HOMEPAGE, homePage);
+        sites.put(new SiteType(blog_name), blog);
     }
 
     @Test
@@ -88,6 +88,6 @@ public class AuthorTest {
 
     @Test
     void site() {
-        assertEquals(blog, AUTHOR.site(blog_name).map(Site::url).orElseThrow());
+        assertEquals(blog, AUTHOR.site(new SiteType(blog_name)).map(Site::url).orElseThrow());
     }
 }

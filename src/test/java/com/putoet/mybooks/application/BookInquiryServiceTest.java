@@ -1,5 +1,7 @@
 package com.putoet.mybooks.application;
 
+import com.putoet.mybooks.application.port.in.ServiceError;
+import com.putoet.mybooks.application.port.in.ServiceException;
 import com.putoet.mybooks.application.port.out.BookInquiryRepository;
 import com.putoet.mybooks.domain.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,8 +26,8 @@ class BookInquiryServiceTest {
 
     @Test
     void authorsByName() {
-        assertThrows(NullPointerException.class, () -> service.authorsByName(null));
-        assertThrows(IllegalArgumentException.class, () -> service.authorsByName(" "));
+        assertThrows(ServiceException.class, () -> service.authorsByName(null));
+        assertThrows(ServiceException.class, () -> service.authorsByName(" "));
 
         when(repository.findAuthorsByName("tim")).thenReturn(List.of());
         when(repository.findAuthorsByName("tom")).thenReturn(List.of(AuthorTest.AUTHOR));
@@ -39,7 +41,7 @@ class BookInquiryServiceTest {
 
     @Test
     void authorById() {
-        assertThrows(NullPointerException.class, () -> service.authorById(null));
+        assertThrows(ServiceException.class, () -> service.authorById(null));
 
         when(repository.findAuthorById(any())).thenReturn(null);
         when(repository.findAuthorById(AuthorTest.AUTHOR.id())).thenReturn(AuthorTest.AUTHOR);
@@ -53,7 +55,7 @@ class BookInquiryServiceTest {
 
     @Test
     void authors() {
-        assertThrows(NullPointerException.class, () -> service.authorsByName(null));
+        assertThrows(ServiceException.class, () -> service.authorsByName(null));
 
         when(repository.findAuthors()).thenReturn(List.of(AuthorTest.AUTHOR, AuthorTest.AUTHOR));
 
@@ -72,8 +74,8 @@ class BookInquiryServiceTest {
 
     @Test
     void bookByTitle() {
-        assertThrows(NullPointerException.class, () -> service.booksByTitle(null));
-        assertThrows(IllegalArgumentException.class, () -> service.booksByTitle(" "));
+        assertThrows(ServiceException.class, () -> service.booksByTitle(null));
+        assertThrows(ServiceException.class, () -> service.booksByTitle(" "));
 
         when(repository.findBooksByTitle(any())).thenReturn(List.of());
         final List<Book> books = service.booksByTitle("architecture");
@@ -84,7 +86,7 @@ class BookInquiryServiceTest {
 
     @Test
     void bookById() {
-        assertThrows(NullPointerException.class, () -> service.bookById(null));
+        assertThrows(ServiceException.class, () -> service.bookById(null));
 
         when(repository.findBookById(any())).thenReturn(null);
         final BookId id = new BookId(BookId.BookIdScheme.UUID, UUID.randomUUID().toString());
@@ -96,8 +98,8 @@ class BookInquiryServiceTest {
 
     @Test
     void bookByAuthorName() {
-        assertThrows(NullPointerException.class, () -> service.booksByAuthorName(null));
-        assertThrows(IllegalArgumentException.class, () -> service.booksByAuthorName(" "));
+        assertThrows(ServiceException.class, () -> service.booksByAuthorName(null));
+        assertThrows(ServiceException.class, () -> service.booksByAuthorName(" "));
 
         when(repository.findAuthorsByName("tom")).thenReturn(List.of(AuthorTest.AUTHOR));
         when(repository.findBooksByAuthorId(AuthorTest.AUTHOR.id())).thenReturn(List.of());

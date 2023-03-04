@@ -46,7 +46,7 @@ class AuthorsByNameTest {
 
     @Test
     void error() {
-        assertThrows(NullPointerException.class, () -> authorsByName.authorsByName(null));
-        assertThrows(IllegalArgumentException.class, () -> authorsByName.authorsByName(""));
+        assertThrows(ServiceException.class, () -> authorsByName.authorsByName(null));
+        assertThrows(ServiceException.class, () -> authorsByName.authorsByName(""));
     }
 }

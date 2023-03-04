@@ -3,8 +3,6 @@ package com.putoet.mybooks.application.port.in;
 import com.putoet.mybooks.domain.SiteType;
 import org.junit.jupiter.api.Test;
 
-import java.util.Map;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class RegisterAuthorCommandTest {
@@ -12,10 +10,8 @@ class RegisterAuthorCommandTest {
 
     @Test
     void constructor() {
-        assertThrows(NullPointerException.class, () -> new RegisterAuthorCommand(null, null));
-        assertThrows(NullPointerException.class, () -> new RegisterAuthorCommand(name, null));
-
-        assertThrows(IllegalArgumentException.class, () -> new RegisterAuthorCommand(" ", Map.of()));
+        assertThrows(RegisterAuthor.RegisterAuthorError.class, () -> new RegisterAuthorCommand(null, null));
+        assertThrows(RegisterAuthor.RegisterAuthorError.class, () -> new RegisterAuthorCommand(name, null));
     }
 
     @Test
@@ -30,7 +26,7 @@ class RegisterAuthorCommandTest {
         final RegisterAuthorCommand command = RegisterAuthorCommand
                 .withName(name)
                 .withSite("NOS", "https://nos.nl")
-                .withSite(SiteType.OTHER("NU.NL"), "https://nu.nl")
+                .withSite(new SiteType("NU.NL"), "https://nu.nl")
                 .build();
 
         assertEquals(name, command.name());

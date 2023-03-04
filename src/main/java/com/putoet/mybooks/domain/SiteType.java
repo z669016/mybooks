@@ -8,16 +8,14 @@ public record SiteType(String name) {
     public static final String LINKEDIN_NAME = "LinkedIn";
     public static final String FACEBOOK_NAME = "Facebook";
     public static final String HOMEPAGE_NAME = "Home page";
+    public static final String INSTAGRAM_NAME = "Instagram";
 
     public static final SiteType GITHUB = new SiteType(GITHUB_NAME);
     public static final SiteType TWITTER = new SiteType(TWITTER_NAME);
     public static final SiteType LINKEDIN = new SiteType(LINKEDIN_NAME);
     public static final SiteType FACEBOOK = new SiteType(FACEBOOK_NAME);
     public static final SiteType HOMEPAGE = new SiteType(HOMEPAGE_NAME);
-
-    public static SiteType OTHER(String name) {
-        return new SiteType(name);
-    }
+    public static final SiteType INSTAGRAM = new SiteType(INSTAGRAM_NAME);
 
     public SiteType {
         Objects.requireNonNull(name);

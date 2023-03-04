@@ -11,11 +11,22 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @JdbcTest
 class H2AuthorRepositoryTest {
+    private static final String NAME = "Author, Name";
+    private static final SiteType TYPE = SiteType.HOMEPAGE;
+    private static final URL SITE_URL;
+
+    static {
+        try {
+            SITE_URL = new URL("https://nu.nl");
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
@@ -38,20 +49,67 @@ class H2AuthorRepositoryTest {
     }
 
     @Test
-    void createAuthor() throws MalformedURLException {
-        Author author = new Author(AuthorId.withoutId()
-                , "Putten, Margot van"
-                , Map.of(SiteType.LINKEDIN, new Site(SiteId.withoutId(), SiteType.LINKEDIN,
-                    new URL("https://nl.linkedin.com/in/margot-van-putten-3a115615"))
-                )
-        );
-
+    void findAuthorById() {
         final H2BookRepository repository = new H2BookRepository(jdbcTemplate);
-        author = repository.createAuthor(author);
+        assertNull(repository.findAuthorById(AuthorId.withoutId()));
+
+        final AuthorId authorId = repository.findAuthors().get(0).id();
+        assertEquals(authorId, repository.findAuthorById(authorId).id());
+    }
+
+    @Test
+    void createAuthor() throws MalformedURLException {
+        final H2BookRepository repository = new H2BookRepository(jdbcTemplate);
+        final int count = repository.findAuthors().size();
+
+        final Author author = repository.createAuthor(NAME, Map.of(TYPE, SITE_URL));
 
         assertNotNull(author);
+        assertNotNull(author.id());
+        assertEquals(NAME, author.name());
+        assertEquals(1, author.sites().size());
+        assertEquals(SITE_URL, author.sites().get(SiteType.HOMEPAGE));
+        assertEquals(count + 1, repository.findAuthors().size());
+        assertEquals(NAME, repository.findAuthorById(author.id()).name());
+    }
 
-        final List<Author> authors = repository.findAuthors();
-        assertEquals(2, authors.size());
+    @Test
+    void updateAuthor() throws MalformedURLException {
+        final H2BookRepository repository = new H2BookRepository(jdbcTemplate);
+
+        final String oldName = "Old, Name";
+        final String newName = "New, Name";
+
+        Author author = repository.createAuthor(oldName, Map.of(TYPE, SITE_URL));
+        repository.updateAuthor(author.id(), newName);
+
+        author = repository.findAuthorById(author.id());
+        assertEquals(newName, author.name());
+        assertEquals(author.sites(), Map.of(TYPE, SITE_URL));
+    }
+
+    @Test
+    void forgetAuthor() {
+        final H2BookRepository repository = new H2BookRepository(jdbcTemplate);
+
+        final String oldName = "Old, Name";
+
+        Author author = repository.createAuthor(oldName, Map.of(TYPE, SITE_URL));
+        author = repository.findAuthorById(author.id());
+        assertNotNull(author);
+        repository.forgetAuthor(author.id());
+        author = repository.findAuthorById(author.id());
+        assertNull(author);
+    }
+
+    @Test
+    void setAuthorSite() {
+        final H2BookRepository repository = new H2BookRepository(jdbcTemplate);
+        Author author = repository.createAuthor("Old,Name", Map.of());
+
+        assertEquals(0, author.sites().size());
+        author = repository.setAuthorSite(author.id(), TYPE, SITE_URL);
+        assertEquals(1, author.sites().size());
+        assertEquals(SITE_URL, author.sites().get(TYPE));
     }
 }

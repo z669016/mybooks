@@ -2,6 +2,6 @@ package com.putoet.mybooks.application.port.in;
 
 import com.putoet.mybooks.domain.Author;
 
-public interface UpdateAuthor {
-    Author updateAuthor(UpdateAuthorCommand command);
+public interface SetAuthorSite {
+    Author setAuthorSite(SetAuthorSiteCommand command);
 }

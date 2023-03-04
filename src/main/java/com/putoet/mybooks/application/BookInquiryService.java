@@ -2,18 +2,16 @@ package com.putoet.mybooks.application;
 
 import com.putoet.mybooks.application.port.in.*;
 import com.putoet.mybooks.application.port.out.BookInquiryRepository;
-import com.putoet.mybooks.domain.Author;
-import com.putoet.mybooks.domain.AuthorId;
-import com.putoet.mybooks.domain.Book;
-import com.putoet.mybooks.domain.BookId;
+import com.putoet.mybooks.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service("bookInquiryService")
-public class BookInquiryService implements Books, BooksByTitle, BookById, Authors, AuthorsByName, AuthorById, BooksByAuthorName {
+public class BookInquiryService implements
+        Books, BooksByTitle, BookById, Authors, AuthorsByName, AuthorById, BooksByAuthorName,
+        AuthorSiteTypes {
     private final BookInquiryRepository bookRepository;
 
     public BookInquiryService(BookInquiryRepository bookRepository) {
@@ -22,16 +20,16 @@ public class BookInquiryService implements Books, BooksByTitle, BookById, Author
 
     @Override
     public List<Author> authorsByName(String name) {
-        Objects.requireNonNull(name, "Author name must be provided for name based search");
-        if (name.isBlank())
-            throw new IllegalArgumentException("authorByName must not be called with a blank name.");
+        if (name== null || name.isBlank())
+            ServiceError.AUTHOR_NAME_REQUIRED.raise();
 
         return bookRepository.findAuthorsByName(name);
     }
 
     @Override
     public Optional<Author> authorById(AuthorId id) {
-        Objects.requireNonNull(id, "Author id must be provided for an id based search");
+        if (id == null)
+            ServiceError.AUTHOR_ID_REQUIRED.raise();
 
         return Optional.ofNullable(bookRepository.findAuthorById(id));
     }
@@ -48,29 +46,41 @@ public class BookInquiryService implements Books, BooksByTitle, BookById, Author
 
     @Override
     public List<Book> booksByTitle(String title) {
-        Objects.requireNonNull(title, "(Part of the) book title must be provided for a title based search");
-        if (title.isBlank())
-            throw new IllegalArgumentException("booksByTitle must not be called with a blank title.");
+        if (title== null || title.isBlank())
+            ServiceError.BOOK_TITLE_REQUIRED.raise();
 
         return bookRepository.findBooksByTitle(title);
     }
 
     @Override
     public Optional<Book> bookById(BookId bookId) {
-        Objects.requireNonNull(bookId, "Book id must be provided for an id based search");
+        if (bookId == null)
+            ServiceError.BOOK_ID_REQUIRED.raise();
 
         return Optional.ofNullable(bookRepository.findBookById(bookId));
     }
 
     @Override
     public List<Book> booksByAuthorName(String name) {
-        Objects.requireNonNull(name, "Author name must be provided for author name based book search");
-        if (name.isBlank())
-            throw new IllegalArgumentException("booksByAuthorName must not be called with a blank name.");
+        if (name == null || name.isBlank())
+            ServiceError.AUTHOR_NAME_REQUIRED.raise();
 
         final List<Author> authors = authorsByName(name);
         return authors.stream()
                 .flatMap(author -> bookRepository.findBooksByAuthorId(author.id()).stream())
                 .toList();
+    }
+
+    @Override
+    public List<String> authorSiteTypes() {
+        return List.of(
+                SiteType.HOMEPAGE_NAME,
+                SiteType.FACEBOOK_NAME,
+                SiteType.GITHUB_NAME,
+                SiteType.LINKEDIN_NAME,
+                SiteType.TWITTER_NAME,
+                SiteType.INSTAGRAM_NAME,
+                "Other"
+                );
     }
 }
