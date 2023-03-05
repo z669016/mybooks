@@ -115,7 +115,7 @@ public class H2BookRepository implements BookRepository {
     }
 
     @Override
-    public Author createAuthor(String name, Map<SiteType,URL> sites) {
+    public Author registerAuthor(String name, Map<SiteType,URL> sites) {
         final AuthorId id = AuthorId.withoutId();
         int count = template.update("insert into author values (?, ?)", id.uuid(), name);
         if (count != 1)

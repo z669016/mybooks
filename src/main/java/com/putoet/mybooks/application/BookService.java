@@ -4,7 +4,11 @@ import com.putoet.mybooks.application.port.in.*;
 import com.putoet.mybooks.application.port.out.BookRepository;
 import com.putoet.mybooks.domain.Author;
 import com.putoet.mybooks.domain.AuthorId;
+import com.putoet.mybooks.domain.SiteType;
 import org.springframework.stereotype.Service;
+
+import java.net.URL;
+import java.util.Map;
 
 @Service("bookService")
 public class BookService extends BookInquiryService implements
@@ -17,11 +21,11 @@ public class BookService extends BookInquiryService implements
     }
 
     @Override
-    public Author registerAuthor(RegisterAuthorCommand command) {
-        if (command == null)
-            ServiceError.AUTHOR_DETAILS_REQUIRED.raise();
+    public Author registerAuthor(String name, Map<SiteType, URL> sites) {
+        if (name == null || name.isBlank())
+            ServiceError.AUTHOR_NAME_REQUIRED.raise();
 
-        final Author author = bookRepository.createAuthor(command.name(), command.sites());
+        final Author author = bookRepository.registerAuthor(name, sites != null ? sites : Map.of());
         if (author == null)
             ServiceError.AUTHOR_NOT_CREATED.raise();
 
@@ -37,22 +41,28 @@ public class BookService extends BookInquiryService implements
     }
 
     @Override
-    public Author updateAuthor(UpdateAuthorCommand command) {
-        if (command == null)
-            ServiceError.AUTHOR_DETAILS_REQUIRED.raise();
+    public Author updateAuthor(AuthorId authorId, String name) {
+        if (authorId == null)
+            ServiceError.AUTHOR_ID_REQUIRED.raise();
+        if (name == null || name.isBlank())
+            ServiceError.AUTHOR_NAME_REQUIRED.raise();
 
-        return bookRepository.updateAuthor(command.id(), command.name());
+        return bookRepository.updateAuthor(authorId, name);
     }
 
     @Override
-    public Author setAuthorSite(SetAuthorSiteCommand command) {
-        if (command == null)
-            ServiceError.AUTHOR_SITE_DETAILS_REQUIRED.raise();
+    public Author setAuthorSite(AuthorId authorId, SiteType type, URL url) {
+        if (authorId == null)
+            ServiceError.AUTHOR_ID_REQUIRED.raise();
+        if (type == null)
+            ServiceError.AUTHOR_SITE_TYPE_REQUIRED.raise();
+        if (url == null)
+            ServiceError.AUTHOR_SITE_URL_INVALID.raise();
 
-        final Author author = bookRepository.findAuthorById(command.authorId());
+        final Author author = bookRepository.findAuthorById(authorId);
         if (author == null)
-            ServiceError.AUTHOR_FOR_ID_NOT_FOUND.raise(command.authorId().toString());
+            ServiceError.AUTHOR_FOR_ID_NOT_FOUND.raise(authorId.toString());
 
-        return bookRepository.setAuthorSite(command.authorId(), command.type(), command.url());
+        return bookRepository.setAuthorSite(authorId, type, url);
     }
 }

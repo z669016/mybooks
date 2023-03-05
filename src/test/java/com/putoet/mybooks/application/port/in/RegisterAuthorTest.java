@@ -7,6 +7,8 @@ import com.putoet.mybooks.domain.AuthorTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -15,7 +17,6 @@ import static org.mockito.Mockito.when;
 
 class RegisterAuthorTest {
     private final Author author = AuthorTest.AUTHOR;
-    private final RegisterAuthorCommand command = new RegisterAuthorCommand(author.name(), author.sites());
 
     private BookRepository bookRepository;
     private RegisterAuthor registerAuthor;
@@ -28,9 +29,9 @@ class RegisterAuthorTest {
 
     @Test
     void registerAuthor() {
-        when(bookRepository.createAuthor(author.name(),author.sites())).thenReturn(author);
+        when(bookRepository.registerAuthor(author.name(),author.sites())).thenReturn(author);
 
-        final var registered = registerAuthor.registerAuthor(command);
+        final var registered = registerAuthor.registerAuthor(author.name(), author.sites());
         assertNotNull(registered.id());
         assertEquals(author.name(), registered.name());
         assertEquals(author.sites(), registered.sites());
@@ -40,11 +41,11 @@ class RegisterAuthorTest {
     void registerAuthorFailed() {
         given(bookRepository.findAuthorsByName(any())).willReturn(null);
 
-        assertThrows(ServiceException.class, () -> registerAuthor.registerAuthor(command));
+        assertThrows(ServiceException.class, () -> registerAuthor.registerAuthor("name", Map.of()));
     }
 
     @Test
     void error() {
-        assertThrows(ServiceException.class, () -> registerAuthor.registerAuthor(null));
+        assertThrows(ServiceException.class, () -> registerAuthor.registerAuthor(null, null));
     }
 }

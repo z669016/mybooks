@@ -58,11 +58,11 @@ class H2AuthorRepositoryTest {
     }
 
     @Test
-    void createAuthor() throws MalformedURLException {
+    void registerAuthor() {
         final H2BookRepository repository = new H2BookRepository(jdbcTemplate);
         final int count = repository.findAuthors().size();
 
-        final Author author = repository.createAuthor(NAME, Map.of(TYPE, SITE_URL));
+        final Author author = repository.registerAuthor(NAME, Map.of(TYPE, SITE_URL));
 
         assertNotNull(author);
         assertNotNull(author.id());
@@ -74,13 +74,13 @@ class H2AuthorRepositoryTest {
     }
 
     @Test
-    void updateAuthor() throws MalformedURLException {
+    void updateAuthor() {
         final H2BookRepository repository = new H2BookRepository(jdbcTemplate);
 
         final String oldName = "Old, Name";
         final String newName = "New, Name";
 
-        Author author = repository.createAuthor(oldName, Map.of(TYPE, SITE_URL));
+        Author author = repository.registerAuthor(oldName, Map.of(TYPE, SITE_URL));
         repository.updateAuthor(author.id(), newName);
 
         author = repository.findAuthorById(author.id());
@@ -94,7 +94,7 @@ class H2AuthorRepositoryTest {
 
         final String oldName = "Old, Name";
 
-        Author author = repository.createAuthor(oldName, Map.of(TYPE, SITE_URL));
+        Author author = repository.registerAuthor(oldName, Map.of(TYPE, SITE_URL));
         author = repository.findAuthorById(author.id());
         assertNotNull(author);
         repository.forgetAuthor(author.id());
@@ -105,7 +105,7 @@ class H2AuthorRepositoryTest {
     @Test
     void setAuthorSite() {
         final H2BookRepository repository = new H2BookRepository(jdbcTemplate);
-        Author author = repository.createAuthor("Old,Name", Map.of());
+        Author author = repository.registerAuthor("Old,Name", Map.of());
 
         assertEquals(0, author.sites().size());
         author = repository.setAuthorSite(author.id(), TYPE, SITE_URL);

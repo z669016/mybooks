@@ -1,6 +1,5 @@
 package com.putoet.mybooks.application;
 
-import com.putoet.mybooks.application.port.in.RegisterAuthorCommand;
 import com.putoet.mybooks.domain.*;
 import com.putoet.mybooks.framework.H2BookRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,7 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,12 +31,9 @@ class BookServiceWithDBTest {
     }
 
     @Test
-    void registerAuthor() {
-        final RegisterAuthorCommand command = RegisterAuthorCommand.withName("Putten, Margot van")
-                .withSite(SiteType.LINKEDIN, "https://nl.linkedin.com/in/margot-van-putten-3a115615")
-                .build();
-
-        final Author author = service.registerAuthor(command);
+    void registerAuthor() throws MalformedURLException {
+        final Author author = service.registerAuthor("Author, Name",
+                Map.of(SiteType.HOMEPAGE,  new URL("https://nu.nl")));
         assertNotNull(author);
         assertNotNull(author.id());
 
