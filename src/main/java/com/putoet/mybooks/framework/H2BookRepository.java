@@ -182,7 +182,7 @@ public class H2BookRepository implements BookRepository {
     public void forgetAuthor(AuthorId authorId) {
         logger.info("forgetAuthor({})", authorId);
 
-        int count = template.update("delete author where author_id = ?", authorId.uuid());
+        int count = template.update("delete from author where author_id = ?", authorId.uuid());
         if (count != 1)
             ServiceError.AUTHOR_FOR_ID_NOT_FOUND.raise();
     }

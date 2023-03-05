@@ -18,5 +18,6 @@ class SiteTypeTest {
         assertEquals(SiteType.LINKEDIN_NAME, SiteType.LINKEDIN.name());
         assertEquals(SiteType.FACEBOOK_NAME, SiteType.FACEBOOK.name());
         assertEquals(SiteType.HOMEPAGE_NAME, SiteType.HOMEPAGE.name());
+        assertEquals(SiteType.INSTAGRAM_NAME, SiteType.INSTAGRAM.name());
     }
 }

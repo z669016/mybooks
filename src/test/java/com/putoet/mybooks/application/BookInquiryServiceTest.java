@@ -1,6 +1,5 @@
 package com.putoet.mybooks.application;
 
-import com.putoet.mybooks.application.port.in.ServiceError;
 import com.putoet.mybooks.application.port.in.ServiceException;
 import com.putoet.mybooks.application.port.out.BookInquiryRepository;
 import com.putoet.mybooks.domain.*;

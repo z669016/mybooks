@@ -72,14 +72,15 @@ class BookServiceTest {
 
         final AuthorId id = AuthorId.withoutId();
         final Author author = new Author(id, "New, name", Map.of());
-        when(repository.findAuthorById(id)).thenReturn(author);
-
         final URL url = new URL("https://nu.nl");
+        when(repository.findAuthorById(id)).thenReturn(author);
+        when(repository.setAuthorSite(id, SiteType.LINKEDIN, url)).thenReturn(author);
 
-        service.setAuthorSite(id, SiteType.LINKEDIN, url);
-
+        final Author updated = service.setAuthorSite(id, SiteType.LINKEDIN, url);
         verify(repository).findAuthorById(id);
         verify(repository).setAuthorSite(id, SiteType.LINKEDIN, url);
+
+        assertNotNull(updated);
     }
 
     @Test
