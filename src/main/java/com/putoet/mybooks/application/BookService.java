@@ -2,17 +2,16 @@ package com.putoet.mybooks.application;
 
 import com.putoet.mybooks.application.port.in.*;
 import com.putoet.mybooks.application.port.out.BookRepository;
-import com.putoet.mybooks.domain.Author;
-import com.putoet.mybooks.domain.AuthorId;
-import com.putoet.mybooks.domain.SiteType;
+import com.putoet.mybooks.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 
 @Service("bookService")
 public class BookService extends BookInquiryService implements
-        RegisterAuthor, ForgetAuthor, UpdateAuthor, SetAuthorSite {
+        RegisterAuthor, ForgetAuthor, UpdateAuthor, SetAuthorSite, RegisterBook {
     private final BookRepository bookRepository;
 
     public BookService(BookRepository bookRepository) {
@@ -27,7 +26,7 @@ public class BookService extends BookInquiryService implements
 
         final Author author = bookRepository.registerAuthor(name, sites != null ? sites : Map.of());
         if (author == null)
-            ServiceError.AUTHOR_NOT_CREATED.raise();
+            ServiceError.AUTHOR_NOT_REGISTERED.raise();
 
         return author;
     }
@@ -64,5 +63,21 @@ public class BookService extends BookInquiryService implements
             ServiceError.AUTHOR_FOR_ID_NOT_FOUND.raise(authorId.toString());
 
         return bookRepository.setAuthorSite(authorId, type, url);
+    }
+
+    @Override
+    public Book registerBook(BookId bookId, String title, List<Author> authors, String description, List<FormatType> formats) {
+        if (bookId == null)
+            ServiceError.BOOK_ID_REQUIRED.raise();
+        if (title == null || title.isBlank())
+            ServiceError.BOOK_TITLE_REQUIRED.raise();
+        if (authors == null || authors.isEmpty())
+            ServiceError.BOOK_AUTHORS_REQUIRED.raise();
+        if (description == null || description.isBlank())
+            ServiceError.BOOK_DESCRIPTION_REQUIRED.raise();
+        if (formats == null || formats.isEmpty())
+            ServiceError.BOOK_FORMAT_REQUIRED.raise();
+
+        return bookRepository.registerBook(bookId, title, authors, description, formats);
     }
 }

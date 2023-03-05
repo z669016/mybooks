@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -79,5 +80,31 @@ class BookServiceTest {
 
         verify(repository).findAuthorById(id);
         verify(repository).setAuthorSite(id, SiteType.LINKEDIN, url);
+    }
+
+    @Test
+    void registerBook() {
+        final Author author = new Author(AuthorId.withoutId(), "New, name", Map.of());
+        final BookId bookId = new BookId(BookId.BookIdScheme.ISBN, "978-1839211966");
+        final String title = "Get Your Hands Dirty on Clean Architecture";
+        final List<Author> authors = List.of(author);
+        final String description = "A hands-on guide to creating clean web applications with code examples in Java";
+        final List<FormatType> formats = List.of(FormatType.EPUB);
+        final Book book = new Book(bookId, title, authors, description, List.of(), formats);
+
+        assertThrows(ServiceException.class, () -> service.registerBook(null, null, null, null, null));
+        assertThrows(ServiceException.class, () -> service.registerBook(bookId, null, null, null, null));
+        assertThrows(ServiceException.class, () -> service.registerBook(bookId, " ", null, null, null));
+        assertThrows(ServiceException.class, () -> service.registerBook(bookId, title, null, null, null));
+        assertThrows(ServiceException.class, () -> service.registerBook(bookId, title, authors, null, null));
+        assertThrows(ServiceException.class, () -> service.registerBook(bookId, title, authors, " ", null));
+        assertThrows(ServiceException.class, () -> service.registerBook(bookId, title, authors, description, null));
+
+        when(repository.registerBook(bookId, title, authors, description, formats)).thenReturn(book);
+        final Book created = service.registerBook(bookId, title, authors, description, formats);
+
+        verify(repository).registerBook(bookId, title, authors, description, formats);
+        assertNotNull(created);
+        assertEquals(book, created);
     }
 }

@@ -112,4 +112,27 @@ class H2AuthorRepositoryTest {
         assertEquals(1, author.sites().size());
         assertEquals(SITE_URL, author.sites().get(TYPE));
     }
+
+
+    @Test
+    void registerBook() {
+        final H2BookRepository repository = new H2BookRepository(jdbcTemplate);
+
+        final Author author = repository.findAuthorsByName("tom").get(0);
+        final BookId bookId = new BookId(BookId.BookIdScheme.ISBN, "978-1839211966");
+        final String title = "Get Your Hands Dirty on Clean Architecture";
+        final List<Author> authors = List.of(author);
+        final String description = "A hands-on guide to creating clean web applications with code examples in Java";
+        final List<FormatType> formats = List.of(FormatType.EPUB);
+
+        final Book book = repository.registerBook(bookId, title, authors, description, formats);
+        assertNotNull(book);
+        assertEquals(bookId, book.id());
+        assertEquals(title, book.title());
+        assertEquals(authors, book.authors());
+        assertEquals(description, book.description());
+        assertEquals(formats, book.formats());
+
+        assertEquals(book, repository.findBooksByAuthorId(author.id()).get(0));
+    }
 }
