@@ -108,4 +108,10 @@ class BookInquiryServiceTest {
         verify(repository, times(1)).findBooksByAuthorId(AuthorTest.AUTHOR.id());
         assertEquals(0, books.size());
     }
+
+    @Test
+    void authorSiteTypes() {
+        final List<String> types = service.authorSiteTypes();
+        assertEquals(6, types.size());
+    }
 }
