@@ -6,6 +6,8 @@ import com.putoet.mybooks.domain.*;
 import nl.siegmann.epublib.domain.Identifier;
 import nl.siegmann.epublib.domain.Metadata;
 import nl.siegmann.epublib.epub.EpubReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -24,12 +26,15 @@ import java.util.stream.Stream;
  * construction, and extracts Book and Author data from the files. Data cannot be written to this repository
  */
 public class FolderRepository implements BookInquiryRepository {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final Path folder;
     private final Set<String> files;
     private final Map<AuthorId,Author> authors;
     private final Map<BookId, Book> books;
 
     public FolderRepository(Path folder) {
+        logger.info("FolderRepository({})", folder);
         Objects.requireNonNull(folder, "Book folder must be provided");
 
         this.folder = folder;
@@ -141,28 +146,38 @@ public class FolderRepository implements BookInquiryRepository {
 
     @Override
     public List<Author> findAuthors() {
+        logger.info("findAuthors()");
+
         return authors.values().stream().toList();
     }
 
     @Override
     public List<Author> findAuthorsByName(String name) {
+        logger.info("findAuthorsByName({})", name);
+
         return authors.values().stream()
                 .filter(author -> author.name().toLowerCase().contains(name.toLowerCase()))
                 .toList();
     }
 
     @Override
-    public Author findAuthorById(AuthorId id) {
-        return authors.get(id);
+    public Author findAuthorById(AuthorId authorId) {
+        logger.info("findAuthorById({})", authorId);
+
+        return authors.get(authorId);
     }
 
     @Override
     public List<Book> findBooks() {
+        logger.info("findBooks()");
+
         return books.values().stream().toList();
     }
 
     @Override
     public List<Book> findBooksByTitle(String title) {
+        logger.info("findBooksByTitle({})", title);
+
         return books.values().stream()
                 .filter(book -> book.title().toLowerCase().contains(title.toLowerCase()))
                 .toList();
@@ -170,11 +185,15 @@ public class FolderRepository implements BookInquiryRepository {
 
     @Override
     public Book findBookById(BookId bookId) {
+        logger.info("findBookById({})", bookId);
+
         return books.get(bookId);
     }
 
     @Override
     public List<Book> findBooksByAuthorId(AuthorId authorId) {
+        logger.info("findBooksByAuthorId({})", authorId);
+
         return books.values().stream()
                 .filter(book -> book.authors().stream().anyMatch(author -> author.id().equals(authorId)))
                 .toList();

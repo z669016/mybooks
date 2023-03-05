@@ -3,6 +3,8 @@ package com.putoet.mybooks.application;
 import com.putoet.mybooks.application.port.in.*;
 import com.putoet.mybooks.application.port.out.BookInquiryRepository;
 import com.putoet.mybooks.domain.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,14 +14,20 @@ import java.util.Optional;
 public class BookInquiryService implements
         Books, BooksByTitle, BookById, Authors, AuthorsByName, AuthorById, BooksByAuthorName,
         AuthorSiteTypes {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final BookInquiryRepository bookRepository;
 
     public BookInquiryService(BookInquiryRepository bookRepository) {
         this.bookRepository = bookRepository;
+
+        logger.info("BookInquiryService({})", bookRepository);
     }
 
     @Override
     public List<Author> authorsByName(String name) {
+        logger.info("authorsByName({})", name);
+
         if (name== null || name.isBlank())
             ServiceError.AUTHOR_NAME_REQUIRED.raise();
 
@@ -27,25 +35,32 @@ public class BookInquiryService implements
     }
 
     @Override
-    public Optional<Author> authorById(AuthorId id) {
-        if (id == null)
+    public Optional<Author> authorById(AuthorId authorId) {
+        logger.info("authorById({})", authorId);
+        if (authorId == null)
             ServiceError.AUTHOR_ID_REQUIRED.raise();
 
-        return Optional.ofNullable(bookRepository.findAuthorById(id));
+        return Optional.ofNullable(bookRepository.findAuthorById(authorId));
     }
 
     @Override
     public List<Author> authors() {
+        logger.info("authors()");
+
         return bookRepository.findAuthors();
     }
 
     @Override
     public List<Book> books() {
+        logger.info("books()");
+
         return bookRepository.findBooks();
     }
 
     @Override
     public List<Book> booksByTitle(String title) {
+        logger.info("booksByTitle({})", title);
+
         if (title== null || title.isBlank())
             ServiceError.BOOK_TITLE_REQUIRED.raise();
 
@@ -54,6 +69,8 @@ public class BookInquiryService implements
 
     @Override
     public Optional<Book> bookById(BookId bookId) {
+        logger.info("bookById({})", bookId);
+
         if (bookId == null)
             ServiceError.BOOK_ID_REQUIRED.raise();
 
@@ -62,6 +79,8 @@ public class BookInquiryService implements
 
     @Override
     public List<Book> booksByAuthorName(String name) {
+        logger.info("booksByAuthorName({})", name);
+
         if (name == null || name.isBlank())
             ServiceError.AUTHOR_NAME_REQUIRED.raise();
 
@@ -73,6 +92,8 @@ public class BookInquiryService implements
 
     @Override
     public List<String> authorSiteTypes() {
+        logger.info("authorSiteTypes()");
+
         return List.of(
                 SiteType.HOMEPAGE_NAME,
                 SiteType.FACEBOOK_NAME,

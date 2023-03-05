@@ -72,8 +72,10 @@ public class H2BookRepository implements BookRepository {
     public List<Book> findBooksByTitle(String title) {
         logger.info("findBooksByTitle({})", title);
 
-        if (title == null || title.isBlank())
+        if (title == null || title.isBlank()) {
+            logger.error(ServiceError.BOOK_TITLE_REQUIRED.name());
             ServiceError.BOOK_TITLE_REQUIRED.raise();
+        }
 
         throw new UnsupportedOperationException("findBooksByTitle");
     }
@@ -82,8 +84,10 @@ public class H2BookRepository implements BookRepository {
     public Book findBookById(BookId bookId) {
         logger.info("findBookById({})", bookId);
 
-        if (bookId == null)
+        if (bookId == null) {
+            logger.error(ServiceError.BOOK_ID_REQUIRED.name());
             ServiceError.BOOK_ID_REQUIRED.raise();
+        }
 
         return template.queryForObject("select book_id_type, book_id, title, description from book where book_id_type = ? and book_id = ?",
                 this::bookMapper, bookId.schema().name(), bookId.id());
@@ -183,8 +187,10 @@ public class H2BookRepository implements BookRepository {
         logger.info("forgetAuthor({})", authorId);
 
         int count = template.update("delete from author where author_id = ?", authorId.uuid());
-        if (count != 1)
+        if (count != 1) {
+            logger.error("{}: {}", ServiceError.AUTHOR_FOR_ID_NOT_FOUND.name(), authorId );
             ServiceError.AUTHOR_FOR_ID_NOT_FOUND.raise();
+        }
     }
 
     @Override
@@ -193,9 +199,10 @@ public class H2BookRepository implements BookRepository {
 
         int count = template.update("merge into site (author_id, name, url) values (?, ?, ?)", authorId.uuid(),type.name(),url.toString());
 
-        if (count != 1)
+        if (count != 1) {
+            logger.error("{}: {} {}", ServiceError.AUTHOR_SITE_NOT_SET, authorId, type);
             ServiceError.AUTHOR_SITE_NOT_SET.raise(authorId + " " + type);
-
+        }
         return findAuthorById(authorId);
     }
 
@@ -206,7 +213,7 @@ public class H2BookRepository implements BookRepository {
         int count = template.update("insert into book (book_id_type, book_id, title, description) values (?, ?, ?, ?)",
                 bookId.schema().name(), bookId.id(), title, description);
         if (count != 1) {
-            logger.error("Failed to insert book({}, {}, {}, {})", bookId, title, authors, description);
+            logger.error("{}: {}, {}, {}, {}", ServiceError.BOOK_NOT_REGISTERED.name(), bookId, title, authors, description);
             ServiceError.BOOK_NOT_REGISTERED.raise(bookId.toString());
         }
 
@@ -214,7 +221,7 @@ public class H2BookRepository implements BookRepository {
             count = template.update("insert into book_author (book_id_type, book_id, author_id) values (?, ?, ?)",
                     bookId.schema().name(), bookId.id(), author.id().uuid().toString());
             if (count != 1) {
-                logger.error("Failed to insert book_author({}, {})", bookId, author);
+                logger.error("{}: {}, {})", ServiceError.BOOK_NOT_REGISTERED.name(), bookId, author);
                 ServiceError.BOOK_NOT_REGISTERED.raise(bookId + " " + author);
             }
         }
@@ -223,7 +230,7 @@ public class H2BookRepository implements BookRepository {
             count = template.update("insert into book_format (book_id_type, book_id, format) values (?, ?, ?)",
                     bookId.schema().name(), bookId.id(), format.name());
             if (count != 1) {
-                logger.error("Failed to insert book_format({}, {}, {})", bookId.schema(), bookId.id(), format.name());
+                logger.error("{}: {}, {}, {})", ServiceError.BOOK_NOT_REGISTERED.name(), bookId.schema(), bookId.id(), format.name());
                 ServiceError.BOOK_NOT_REGISTERED.raise(bookId + " " + format);
             }
         }
