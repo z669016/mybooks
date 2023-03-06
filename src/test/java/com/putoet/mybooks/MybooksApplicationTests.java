@@ -24,10 +24,6 @@ class MybooksApplicationTests {
 	private JdbcTemplate jdbcTemplate;
 
 	@Test
-	void contextLoads() {
-	}
-
-	@Test
 	void loadBooks() {
 		final H2BookRepository database = new H2BookRepository(jdbcTemplate);
 		final FolderRepository folder = new FolderRepository(Paths.get(LEANPUB));
