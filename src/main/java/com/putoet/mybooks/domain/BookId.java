@@ -21,7 +21,17 @@ public record BookId(BookIdScheme schema, String id) {
         Objects.requireNonNull(id, "BookId id must not be null");
 
         switch (schema) {
-            case UUID -> UUID.fromString(id);
+            case UUID -> {
+                try {
+                    id = id.toLowerCase();
+                    id = id.replace("urn:","");
+                    id = id.replace("uuid:","");
+
+                    UUID.fromString(id);
+                } catch (RuntimeException exc) {
+                    throw new IllegalArgumentException("Invalid UUID '" + id + "'", exc);
+                }
+            }
             case URI -> {
                 try {
                     new URI(id);

@@ -4,6 +4,7 @@ insert into author (author_id, name) values ('b0a61cbf-aed7-44f2-86b8-d1414cf4ec
 insert into author (author_id, name) values ('69c40138-1246-4a33-98d2-be764301c9f0', 'Adzic, Gojko');
 insert into author (author_id, name) values ('53ccafde-e889-4796-a55d-17f5d0e8b267', 'Brandolini, Alberto');
 insert into author (author_id, name) values ('884a10b7-b5ba-4937-8476-016af188baaf', 'Brown, Simon');
+
 -- insert into book (book_id_type, book_id, title, description) values ('URL', 'https://leanpub.com/humansvscomputers', 'Humans vs Computers', 'Humans vs Computers');
 -- insert into book_author (book_id_type, book_id, author_id) values ('URL', 'https://leanpub.com/humansvscomputers', '69c40138-1246-4a33-98d2-be764301c9f0');
 -- insert into book_format (book_id_type, book_id, format) values ('URL', 'https://leanpub.com/humansvscomputers', 'EPUB');

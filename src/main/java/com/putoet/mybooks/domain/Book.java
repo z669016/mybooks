@@ -16,8 +16,8 @@ public record Book(BookId id, String title, List<Author> authors, String descrip
         if (title.isBlank())
             throw new IllegalArgumentException("Book title must not be blank.");
 
-        if (authors.isEmpty())
-            throw new IllegalArgumentException("Book author list must not be empty.");
+//        if (authors.isEmpty())
+//            throw new IllegalArgumentException("Book author list must not be empty.");
     }
 
     public Book addFormat(FormatType format) {

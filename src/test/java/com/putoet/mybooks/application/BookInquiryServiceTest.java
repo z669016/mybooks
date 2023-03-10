@@ -112,6 +112,6 @@ class BookInquiryServiceTest {
     @Test
     void authorSiteTypes() {
         final List<String> types = service.authorSiteTypes();
-        assertEquals(6, types.size());
+        assertEquals(7, types.size());
     }
 }

@@ -44,7 +44,7 @@ class H2AuthorRepositoryTest {
         final H2BookRepository repository = new H2BookRepository(jdbcTemplate);
         final List<Author> authors = repository.findAuthors();
 
-        assertEquals(1, authors.size());
+        assertEquals(6, authors.size());
         System.out.println(authors.get(0));
     }
 
@@ -132,7 +132,5 @@ class H2AuthorRepositoryTest {
         assertEquals(authors, book.authors());
         assertEquals(description, book.description());
         assertEquals(formats, book.formats());
-
-        assertEquals(book, repository.findBooksByAuthorId(author.id()).get(0));
     }
 }

@@ -26,7 +26,7 @@ import java.util.stream.Stream;
  * construction, and extracts Book and Author data from the files. Data cannot be written to this repository
  */
 public class FolderRepository implements BookInquiryRepository {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final Logger logger = LoggerFactory.getLogger(FolderRepository.class);
 
     private final Path folder;
     private final Set<String> files;
@@ -50,25 +50,36 @@ public class FolderRepository implements BookInquiryRepository {
     }
 
     protected static Map<BookId, Book> booksForFiles(Set<String> files) {
-        return files.stream()
-                .map(FolderRepository::bookForFile)
-                .collect(Collectors.toMap(Book::id, book -> book));
+        final Map<BookId, Book> books = new HashMap<>();
+        for (String fileName : files) {
+            Book book = bookForFile(fileName);
+            if (books.containsKey(book.id())) {
+                logger.warn("Duplicate id {}, generated new book id for {}", book.id(), book.title());
+                book = new Book(new BookId(), book.title(), book.authors(), book.description(), book.keywords(), book.formats());
+            }
+            books.put(book.id(), book);
+        }
+
+        return books;
     }
 
 
     protected static Book bookForFile(String fileName) {
         final EpubReader epubReader = new EpubReader();
         try (FileInputStream fis = new FileInputStream(fileName)) {
+            logger.info("Reading {}", fileName);
             final Metadata metadata = epubReader.readEpub(fis).getMetadata();
 
-            final BookId bookId = extractBookId(metadata.getIdentifiers());
+            final BookId bookId = extractBookId(fileName, metadata.getIdentifiers());
             final String title = metadata.getTitles().get(0);
             final List<Author> authors = extractAuthors(metadata.getAuthors());
             final String description = String.join("\n", metadata.getTitles());
             final List<FormatType> formats = extractFormat(metadata.getFormat());
+
             return new Book(bookId, title, authors, description, List.of(), formats);
-        } catch (IOException exc) {
-            throw new IllegalArgumentException("Could not read epub file " + fileName);
+        } catch (IOException | RuntimeException exc) {
+            logger.error("Error reading epub '{}': {}", fileName, exc.getMessage());
+            throw new IllegalArgumentException("Could not read epub file " + fileName, exc);
         }
     }
 
@@ -80,49 +91,46 @@ public class FolderRepository implements BookInquiryRepository {
     }
 
     @SuppressWarnings("unused")
-    protected static BookId extractBookId(List<Identifier> identifiers) {
-        Optional<String> identifier = findIdentifier(identifiers, Identifier.Scheme.ISBN);
-        if (identifier.isPresent())
-            return new BookId(BookId.BookIdScheme.ISBN, identifier.get());
+    protected static BookId extractBookId(String fileName, List<Identifier> identifiers) {
+        if (identifiers.isEmpty())
+            return new BookId(BookId.BookIdScheme.UUID, UUID.randomUUID().toString());
 
-        identifier = findIdentifier(identifiers, Identifier.Scheme.URL);
-        if (identifier.isPresent())
-            return new BookId(BookId.BookIdScheme.URL, identifier.get());
+        final Optional<String> isbn = findISBNIdentifier(identifiers);
+        String id = (isbn.orElseGet(() -> identifiers.get(0).getValue()).toLowerCase());
+        id = id.replace("urn:","");
+        id = id.replace("uuid:","");
+        id = id.replace("isbn:","");
+        id = id.replace("isbn","");
+        id = id.trim();
+        id = id.replace(' ', '-');
 
-        identifier = findIdentifier(identifiers, Identifier.Scheme.URI);
-        if (identifier.isPresent())
-            return new BookId(BookId.BookIdScheme.URI, identifier.get());
+        if (ISBN.isValid(id))
+            return new BookId(BookId.BookIdScheme.ISBN, id);
 
-        identifier = findIdentifier(identifiers, Identifier.Scheme.UUID);
-        if (identifier.isPresent())
-            return new BookId(BookId.BookIdScheme.UUID, identifier.get());
+        try {
+            final URL url = new URL(id);
+            return new BookId(BookId.BookIdScheme.URL, id);
+        } catch (MalformedURLException ignored) {}
 
-        identifier = findIdentifier(identifiers, "");
-        if (identifier.isPresent()) {
-            final String id = identifier.get();
-            if (ISBN.isValid(id))
-                return new BookId(BookId.BookIdScheme.ISBN, id);
-
-            try {
-                final URL url = new URL(id);
-                return new BookId(BookId.BookIdScheme.URL, id);
-            } catch (MalformedURLException ignored) {}
-
-            try {
-                final URI url = new URI(id);
-                return new BookId(BookId.BookIdScheme.URI, id);
-            } catch (URISyntaxException ignored) {}
-
+        try {
+            final UUID uuid = UUID.fromString(id);
             return new BookId(BookId.BookIdScheme.UUID, id);
-        }
+        } catch (IllegalArgumentException ignored){}
 
-        throw new IllegalArgumentException("Could not make any BookId for " + identifiers);
+        try {
+            // URI's cannot be trusted (I found) so, replace them with UUID
+            final URI uri = new URI(id);
+            return new BookId(BookId.BookIdScheme.UUID, UUID.randomUUID().toString());
+        } catch (URISyntaxException ignored) {}
+
+        logger.warn("Invalid book identifier '{}' for {}, generated a uuid", id, fileName);
+        return new BookId(BookId.BookIdScheme.UUID, UUID.randomUUID().toString());
     }
 
-    private static Optional<String> findIdentifier(List<Identifier> identifiers, String schema) {
+    private static Optional<String> findISBNIdentifier(List<Identifier> identifiers) {
         return identifiers.stream()
-                .filter(i -> i.getScheme().equals(schema))
-                .map(Identifier::toString)
+                .filter(i -> i.getScheme().equalsIgnoreCase(Identifier.Scheme.ISBN))
+                .map(Identifier::getValue)
                 .findFirst();
     }
 
