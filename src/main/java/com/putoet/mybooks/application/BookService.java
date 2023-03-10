@@ -89,8 +89,6 @@ public class BookService extends BookInquiryService implements
             ServiceError.BOOK_ID_REQUIRED.raise();
         if (title == null || title.isBlank())
             ServiceError.BOOK_TITLE_REQUIRED.raise();
-        if (authors == null || authors.isEmpty())
-            ServiceError.BOOK_AUTHORS_REQUIRED.raise();
         if (description == null || description.isBlank())
             ServiceError.BOOK_DESCRIPTION_REQUIRED.raise();
         if (formats == null || formats.isEmpty())
