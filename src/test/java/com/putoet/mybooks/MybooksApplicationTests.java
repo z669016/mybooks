@@ -50,7 +50,8 @@ class MybooksApplicationTests {
 		for (Book book : inquiry.books()) {
 			final List<Author> authors = book.authors().stream()
 							.map(author -> storedAuthors.get(author.name()))
-									.toList();
+					.distinct()
+					.toList();
 			try {
 				service.registerBook(book.id(), book.title(), authors, book.description(), book.formats());
 			} catch (RuntimeException exc) {
