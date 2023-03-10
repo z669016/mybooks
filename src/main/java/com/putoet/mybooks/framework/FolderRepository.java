@@ -30,7 +30,7 @@ public class FolderRepository implements BookInquiryRepository {
 
     private final Path folder;
     private final Set<String> files;
-    private final Map<AuthorId,Author> authors;
+    private final Map<AuthorId, Author> authors;
     private final Map<BookId, Book> books;
 
     public FolderRepository(Path folder) {
@@ -97,10 +97,10 @@ public class FolderRepository implements BookInquiryRepository {
 
         final Optional<String> isbn = findISBNIdentifier(identifiers);
         String id = (isbn.orElseGet(() -> identifiers.get(0).getValue()).toLowerCase());
-        id = id.replace("urn:","");
-        id = id.replace("uuid:","");
-        id = id.replace("isbn:","");
-        id = id.replace("isbn","");
+        id = id.replace("urn:", "");
+        id = id.replace("uuid:", "");
+        id = id.replace("isbn:", "");
+        id = id.replace("isbn", "");
         id = id.trim();
         id = id.replace(' ', '-');
 
@@ -110,18 +110,21 @@ public class FolderRepository implements BookInquiryRepository {
         try {
             final URL url = new URL(id);
             return new BookId(BookId.BookIdScheme.URL, id);
-        } catch (MalformedURLException ignored) {}
+        } catch (MalformedURLException ignored) {
+        }
 
         try {
             final UUID uuid = UUID.fromString(id);
             return new BookId(BookId.BookIdScheme.UUID, id);
-        } catch (IllegalArgumentException ignored){}
+        } catch (IllegalArgumentException ignored) {
+        }
 
         try {
             // URI's cannot be trusted (I found) so, replace them with UUID
             final URI uri = new URI(id);
             return new BookId(BookId.BookIdScheme.UUID, UUID.randomUUID().toString());
-        } catch (URISyntaxException ignored) {}
+        } catch (URISyntaxException ignored) {
+        }
 
         logger.warn("Invalid book identifier '{}' for {}, generated a uuid", id, fileName);
         return new BookId(BookId.BookIdScheme.UUID, UUID.randomUUID().toString());
@@ -136,8 +139,33 @@ public class FolderRepository implements BookInquiryRepository {
 
     private static List<Author> extractAuthors(List<nl.siegmann.epublib.domain.Author> authors) {
         return authors.stream()
-                .map(author -> new Author(AuthorId.withoutId(), author.getLastname() + ", " + author.getFirstname(), new HashMap<>()))
+                .map(author -> author.getFirstname() + " " + author.getLastname())
+                .map(name -> name.replace(" and ", ", "))
+                .map(name -> name.replace("\n", " "))
+                .map(name -> name.split(", "))
+                .flatMap(Arrays::stream)
+                .filter(name -> !name.isBlank())
+                .map(FolderRepository::splitName)
+                .map(name -> new Author(AuthorId.withoutId(), name, new HashMap<>()))
                 .toList();
+    }
+
+    private static String splitName(String name) {
+        name = name.trim();
+        int last = name.lastIndexOf(' ');
+        if (last != -1) {
+            String lastName = name.substring(last + 1);
+            String firstName = name.substring(0, last);
+
+            if (lastName.toLowerCase().startsWith("jr") && firstName.lastIndexOf(' ') != -1) {
+                last = firstName.lastIndexOf(' ');
+                lastName = firstName.substring(last + 1) + " " + lastName;
+                firstName = firstName.substring(0, last);
+            }
+            name = lastName + ", " + firstName;
+        }
+
+        return name;
     }
 
     protected static Set<String> listEpubFiles(Path folder) {
