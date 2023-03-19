@@ -19,7 +19,7 @@ public class EPUBBookLoader {
     private static final Logger logger = LoggerFactory.getLogger(EPUBBookLoader.class);
 
     public static Book bookForFile(String fileName) {
-        final nl.siegmann.epublib.domain.Book epub = EPUBBookLoader.readEpub(fileName);
+        final nl.siegmann.epublib.domain.Book epub = readEpub(fileName);
         final Metadata metadata = epub.getMetadata();
 
         final BookId bookId = extractBookId(fileName, metadata.getIdentifiers());
@@ -36,6 +36,17 @@ public class EPUBBookLoader {
         try (FileInputStream fis = new FileInputStream(fileName)) {
             logger.info("Reading {}", fileName);
             return epubReader.readEpub(fis);
+        } catch (IOException | RuntimeException exc) {
+            logger.error("Error reading epub '{}': {}", fileName, exc.getMessage());
+            throw new IllegalArgumentException("Could not read epub file " + fileName, exc);
+        }
+    }
+
+    protected static nl.siegmann.epublib.domain.Book readEpubLazy(String fileName) {
+        try {
+            final EpubReader epubReader = new EpubReader();
+            logger.info("Reading {}", fileName);
+            return epubReader.readEpubLazy(fileName, "utf-8");
         } catch (IOException | RuntimeException exc) {
             logger.error("Error reading epub '{}': {}", fileName, exc.getMessage());
             throw new IllegalArgumentException("Could not read epub file " + fileName, exc);

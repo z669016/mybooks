@@ -4,6 +4,7 @@ import com.putoet.mybooks.application.BookInquiryService;
 import com.putoet.mybooks.application.BookService;
 import com.putoet.mybooks.domain.Author;
 import com.putoet.mybooks.domain.Book;
+import com.putoet.mybooks.framework.EPUBBookLoader;
 import com.putoet.mybooks.framework.FolderRepository;
 import com.putoet.mybooks.framework.H2BookRepository;
 import org.junit.jupiter.api.Test;
@@ -13,11 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @SpringBootTest
 class MybooksApplicationTests {
@@ -64,5 +63,16 @@ class MybooksApplicationTests {
 
         System.out.println("All stored books:");
         service.books().stream().sorted(Comparator.comparing(Book::title)).forEach(book -> System.out.println(book.title()));
+    }
+
+    @Test
+    void validateBooks() {
+        final Path folder = Paths.get(BOOKS);
+        final Set<String> epubFiles = FolderRepository.listEpubFiles(folder);
+
+        long start = System.currentTimeMillis();
+        epubFiles.parallelStream().forEach(EPUBBookLoader::bookForFile);
+        long end = System.currentTimeMillis();
+        System.out.printf("Loading %d books took %.4f ms\n", epubFiles.size(), (end-start)/1000.0);
     }
 }
