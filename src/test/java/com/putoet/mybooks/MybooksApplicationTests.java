@@ -22,7 +22,6 @@ import java.util.*;
 class MybooksApplicationTests {
     private static final String BOOKS = "/Users/renevanputten/OneDrive/Documents/Books";
     private static final String LEANPUB = "/Users/renevanputten/OneDrive/Documents/Books/leanpub";
-
     private static final Logger logger = LoggerFactory.getLogger(MybooksApplicationTests.class);
 
     @Autowired
@@ -30,6 +29,7 @@ class MybooksApplicationTests {
 
     @Test
     void loadBooks() {
+        final long start = System.currentTimeMillis();
         final H2BookRepository database = new H2BookRepository(jdbcTemplate);
         final FolderRepository folder = new FolderRepository(Paths.get(BOOKS));
 
@@ -60,9 +60,12 @@ class MybooksApplicationTests {
                 logger.error("Failed to register book '" + book + "'", exc);
             }
         }
+        final long end = System.currentTimeMillis();
 
         System.out.println("All stored books:");
         service.books().stream().sorted(Comparator.comparing(Book::title)).forEach(book -> System.out.println(book.title()));
+
+        System.out.printf("Registered %d books in %.3f seconds%n", service.books().size(), (end-start)/1000.0);
     }
 
     @Test
@@ -71,8 +74,11 @@ class MybooksApplicationTests {
         final Set<String> epubFiles = FolderRepository.listEpubFiles(folder);
 
         long start = System.currentTimeMillis();
-        epubFiles.parallelStream().forEach(EPUBBookLoader::bookForFile);
+        epubFiles.parallelStream().forEach(fileName -> {
+            logger.warn("loading [{}]", fileName);
+            EPUBBookLoader.bookForFile(fileName);
+        });
         long end = System.currentTimeMillis();
-        System.out.printf("Loading %d books took %.4f ms\n", epubFiles.size(), (end-start)/1000.0);
+        System.out.printf("Loading %d books took %.3f seconds\n", epubFiles.size(), (end-start)/1000.0);
     }
 }

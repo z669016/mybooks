@@ -12,6 +12,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.toMap;
+
 /**
  * class FolderRepository
  * Repository based on the file system. Loads recursively the data from EPUB files in the root folder provided at
@@ -38,6 +40,7 @@ public class FolderRepository implements BookInquiryRepository {
     public static Set<String> listEpubFiles(Path folder) {
         try (Stream<Path> stream = Files.walk(folder)) {
             return stream
+                    .parallel()
                     .filter(file -> !Files.isDirectory(file))
                     .map(Path::toString)
                     .filter(p -> p.toLowerCase().endsWith(".epub"))
@@ -48,23 +51,36 @@ public class FolderRepository implements BookInquiryRepository {
     }
 
     protected static Map<BookId, Book> booksForFiles(Set<String> files) {
-        final Map<BookId, Book> books = new HashMap<>();
-        for (String fileName : files) {
-            Book book = EPUBBookLoader.bookForFile(fileName);
-            if (books.containsKey(book.id())) {
-                logger.warn("Duplicate id {}, generated new book id for {}", book.id(), book.title());
-                book = new Book(new BookId(), book.title(), book.authors(), book.description(), book.keywords(), book.formats());
-            }
-            books.put(book.id(), book);
-        }
+        return files.parallelStream()
+                .map(EPUBBookLoader::bookForFile)
+                .reduce(new HashMap<>(),
+                        FolderRepository::addBookWithoutDuplicateIds,
+                        FolderRepository::addBookWithoutDuplicateIds
+                );
+    }
 
-        return books;
+    private static HashMap<BookId, Book> addBookWithoutDuplicateIds(HashMap<BookId, Book> hashMap1, HashMap<BookId, Book> hashMap2) {
+        if (hashMap1 == hashMap2)
+            return hashMap1;
+
+        hashMap2.values().forEach(book-> addBookWithoutDuplicateIds(hashMap1,book));
+
+        return hashMap1;
+    }
+
+    private static HashMap<BookId, Book> addBookWithoutDuplicateIds(HashMap<BookId, Book> hashMap, Book book) {
+        if (hashMap.containsKey(book.id())) {
+            logger.warn("Duplicate id {}, generated new book id for {}", book.id(), book.title());
+            book = new Book(new BookId(), book.title(), book.authors(), book.description(), book.keywords(), book.formats());
+        }
+        hashMap.put(book.id(), book);
+        return hashMap;
     }
 
     private Map<AuthorId, Author> authorsForBooks(Map<BookId, Book> books) {
-        return books.values().stream()
+        return books.values().parallelStream()
                 .flatMap(book -> book.authors().stream())
-                .collect(Collectors.toMap(Author::id, author -> author));
+                .collect(toMap(Author::id, author -> author));
     }
 
     @Override
@@ -78,7 +94,7 @@ public class FolderRepository implements BookInquiryRepository {
     public List<Author> findAuthorsByName(String name) {
         logger.info("findAuthorsByName({})", name);
 
-        return authors.values().stream()
+        return authors.values().parallelStream()
                 .filter(author -> author.name().toLowerCase().contains(name.toLowerCase()))
                 .toList();
     }
@@ -94,14 +110,14 @@ public class FolderRepository implements BookInquiryRepository {
     public List<Book> findBooks() {
         logger.info("findBooks()");
 
-        return books.values().stream().toList();
+        return List.copyOf(books.values());
     }
 
     @Override
     public List<Book> findBooksByTitle(String title) {
         logger.info("findBooksByTitle({})", title);
 
-        return books.values().stream()
+        return books.values().parallelStream()
                 .filter(book -> book.title().toLowerCase().contains(title.toLowerCase()))
                 .toList();
     }
@@ -117,7 +133,7 @@ public class FolderRepository implements BookInquiryRepository {
     public List<Book> findBooksByAuthorId(AuthorId authorId) {
         logger.info("findBooksByAuthorId({})", authorId);
 
-        return books.values().stream()
+        return books.values().parallelStream()
                 .filter(book -> book.authors().stream().anyMatch(author -> author.id().equals(authorId)))
                 .toList();
     }

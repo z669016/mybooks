@@ -42,17 +42,6 @@ public class EPUBBookLoader {
         }
     }
 
-    protected static nl.siegmann.epublib.domain.Book readEpubLazy(String fileName) {
-        try {
-            final EpubReader epubReader = new EpubReader();
-            logger.info("Reading {}", fileName);
-            return epubReader.readEpubLazy(fileName, "utf-8");
-        } catch (IOException | RuntimeException exc) {
-            logger.error("Error reading epub '{}': {}", fileName, exc.getMessage());
-            throw new IllegalArgumentException("Could not read epub file " + fileName, exc);
-        }
-    }
-
     private static List<FormatType> extractFormat(String format) {
         if ("application/epub+zip".equalsIgnoreCase(format))
             return List.of(FormatType.EPUB);
