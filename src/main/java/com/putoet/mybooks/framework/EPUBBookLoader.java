@@ -13,10 +13,24 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class EPUBBookLoader {
     private static final Logger logger = LoggerFactory.getLogger(EPUBBookLoader.class);
+
+    private static final Set<String> KEYWORD_SET;
+    static {
+        try {
+            final Path path = Paths.get(EPUBBookLoader.class.getClassLoader().getResource("/keywords").toURI());
+            KEYWORD_SET = Files.lines(path).collect(Collectors.toSet());
+        } catch (URISyntaxException | IOException e) {
+            throw new IllegalStateException("Not able to load keywords", e);
+        }
+    }
 
     public static Book bookForFile(String fileName) {
         final nl.siegmann.epublib.domain.Book epub = readEpub(fileName);
