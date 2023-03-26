@@ -1,6 +1,7 @@
 package com.putoet.mybooks.framework;
 
 import com.putoet.mybooks.domain.*;
+import jakarta.activation.MimeType;
 import nl.siegmann.epublib.domain.Identifier;
 import nl.siegmann.epublib.domain.Metadata;
 import nl.siegmann.epublib.epub.EpubReader;
@@ -22,10 +23,19 @@ import java.util.stream.Collectors;
 public class EPUBBookLoader {
     private static final Logger logger = LoggerFactory.getLogger(EPUBBookLoader.class);
 
-    private static final Set<String> KEYWORD_SET;
+
+    public static final Set<String> KEYWORD_SET;
+    private static final String KEYWORD = "/keywords";
     static {
+        final URL url = EPUBBookLoader.class.getResource(KEYWORD);
+        if (url == null) {
+            logger.error("Resource '{}' not found.", KEYWORD);
+            throw new IllegalStateException("Resource '" + KEYWORD + "' not found.");
+        }
+
         try {
-            final Path path = Paths.get(EPUBBookLoader.class.getClassLoader().getResource("/keywords").toURI());
+
+            final Path path = Paths.get(url.toURI());
             KEYWORD_SET = Files.lines(path).collect(Collectors.toSet());
         } catch (URISyntaxException | IOException e) {
             throw new IllegalStateException("Not able to load keywords", e);
@@ -40,9 +50,9 @@ public class EPUBBookLoader {
         final String title = metadata.getTitles().get(0);
         final List<Author> authors = extractAuthors(metadata.getAuthors());
         final String description = String.join("\n", metadata.getTitles());
-        final List<FormatType> formats = extractFormat(metadata.getFormat());
+        final List<MimeType> formats = extractFormat(metadata.getFormat());
 
-        return new Book(bookId, title, authors, description, List.of(), formats);
+        return new Book(bookId, title, authors, description, List.of(), new MimeTypes(formats));
     }
 
     protected static nl.siegmann.epublib.domain.Book readEpub(String fileName) {
@@ -56,9 +66,9 @@ public class EPUBBookLoader {
         }
     }
 
-    private static List<FormatType> extractFormat(String format) {
+    private static List<MimeType> extractFormat(String format) {
         if ("application/epub+zip".equalsIgnoreCase(format))
-            return List.of(FormatType.EPUB);
+            return List.of(MimeTypes.EPUB);
 
         throw new IllegalArgumentException("Invalid format: " + format);
     }

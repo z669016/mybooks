@@ -1,10 +1,12 @@
 package com.putoet.mybooks.domain;
 
+import jakarta.activation.MimeType;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public record Book(BookId id, String title, List<Author> authors, String description, List<String> keywords, List<FormatType> formats) {
+public record Book(BookId id, String title, List<Author> authors, String description, List<String> keywords, MimeTypes formats) {
     public Book {
         Objects.requireNonNull(id);
         Objects.requireNonNull(title);
@@ -15,20 +17,12 @@ public record Book(BookId id, String title, List<Author> authors, String descrip
 
         if (title.isBlank())
             throw new IllegalArgumentException("Book title must not be blank.");
-
-//        if (authors.isEmpty())
-//            throw new IllegalArgumentException("Book author list must not be empty.");
     }
 
-    public Book addFormat(FormatType format) {
+    public Book addFormat(MimeType format) {
         Objects.requireNonNull(format);
 
-        if (formats.contains(format))
-            throw new IllegalArgumentException("Book already contains format " + format);
-
-        var updated = new ArrayList<>(formats);
-        updated.add(format);
-        return new Book(id, title, authors, description, keywords, updated);
+        return new Book(id, title, authors, description, keywords, formats.add(format));
     }
 
     public Book addKeyword(String keyword) {

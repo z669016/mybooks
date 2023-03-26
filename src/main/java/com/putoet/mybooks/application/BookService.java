@@ -3,6 +3,7 @@ package com.putoet.mybooks.application;
 import com.putoet.mybooks.application.port.in.*;
 import com.putoet.mybooks.application.port.out.BookRepository;
 import com.putoet.mybooks.domain.*;
+import jakarta.activation.MimeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -82,7 +83,7 @@ public class BookService extends BookInquiryService implements
     }
 
     @Override
-    public Book registerBook(BookId bookId, String title, List<Author> authors, String description, List<FormatType> formats) {
+    public Book registerBook(BookId bookId, String title, List<Author> authors, String description, List<MimeType> formats) {
         logger.info("registerBook({}, {}, {}, {}, {})", bookId, title, authors, description, formats);
 
         if (bookId == null)
@@ -94,6 +95,6 @@ public class BookService extends BookInquiryService implements
         if (formats == null || formats.isEmpty())
             ServiceError.BOOK_FORMAT_REQUIRED.raise();
 
-        return bookRepository.registerBook(bookId, title, authors, description, formats);
+        return bookRepository.registerBook(bookId, title, authors, description, new MimeTypes(formats));
     }
 }

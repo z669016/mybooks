@@ -3,6 +3,7 @@ package com.putoet.mybooks.framework;
 import com.putoet.mybooks.application.port.in.ServiceError;
 import com.putoet.mybooks.application.port.out.BookRepository;
 import com.putoet.mybooks.domain.*;
+import jakarta.activation.MimeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -125,18 +126,18 @@ public class H2BookRepository implements BookRepository {
         final String book_id_type = row.getString("book_id_type");
         final String book_id = row.getString("book_id");
         final List<Author> authors = findAuthorsForBook(book_id_type, book_id);
-        final List<FormatType> formats = findFormatsForBook(book_id_type, book_id);
+        final List<MimeType> formats = findFormatsForBook(book_id_type, book_id);
 
         return new Book(new BookId(BookId.BookIdScheme.valueOf(book_id_type), book_id)
                 , row.getString("title")
                 , authors
                 , row.getString("description")
                 , List.of()
-                , formats
+                , new MimeTypes(formats)
         );
     }
 
-    private List<FormatType> findFormatsForBook(String bookIdType, String bookId) {
+    private List<MimeType> findFormatsForBook(String bookIdType, String bookId) {
         logger.info("findFormatsForBook({}, {})", bookIdType, bookId);
 
         final String sql = "select book_id_type, book_id, format from book_format where book_id_type = ? and book_id = ?";
@@ -145,9 +146,9 @@ public class H2BookRepository implements BookRepository {
         return template.query(sql, this::formatTypeMapper, bookIdType, bookId);
     }
 
-    private FormatType formatTypeMapper(ResultSet row, int rowNum) throws SQLException {
+    private MimeType formatTypeMapper(ResultSet row, int rowNum) throws SQLException {
         final String format = row.getString("format");
-        return FormatType.valueOf(format);
+        return MimeTypes.toMimeType(format);
     }
 
     private List<Author> findAuthorsForBook(String bookIdType, String bookId) {
@@ -246,7 +247,7 @@ public class H2BookRepository implements BookRepository {
     }
 
     @Override
-    public Book registerBook(BookId bookId, String title, List<Author> authors, String description, List<FormatType> formats) {
+    public Book registerBook(BookId bookId, String title, List<Author> authors, String description, MimeTypes formats) {
         logger.info("registerBook({}, {}, {}, {}, {})", bookId, title, authors, description, formats);
 
         final String sql = "insert into book (book_id_type, book_id, title, description) values (?, ?, ?, ?)";
@@ -269,13 +270,13 @@ public class H2BookRepository implements BookRepository {
             }
         }
 
-        for (FormatType format : formats) {
+        for (MimeType format : formats.mimeTypes()) {
             final String sql2 = "insert into book_format (book_id_type, book_id, format) values (?, ?, ?)";
-            sqlInfo(sql2, bookId.schema().name(), bookId.id(), format.name());
+            sqlInfo(sql2, bookId.schema().name(), bookId.id(), format.toString());
 
-            count = template.update(sql2, bookId.schema().name(), bookId.id(), format.name());
+            count = template.update(sql2, bookId.schema().name(), bookId.id(), format.toString());
             if (count != 1) {
-                logger.error("{}: {}, {}, {})", ServiceError.BOOK_NOT_REGISTERED.name(), bookId.schema(), bookId.id(), format.name());
+                logger.error("{}: {}, {}, {})", ServiceError.BOOK_NOT_REGISTERED.name(), bookId.schema(), bookId.id(), format.toString());
                 ServiceError.BOOK_NOT_REGISTERED.raise(bookId + " " + format);
             }
         }

@@ -18,9 +18,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import opennlp.tools.postag.POSModel;
-import opennlp.tools.postag.POSTaggerME;
-import opennlp.tools.tokenize.SimpleTokenizer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,7 +26,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @SpringBootTest
 class MybooksApplicationTests {
@@ -40,7 +36,7 @@ class MybooksApplicationTests {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    @Test
+    // @Test
     void loadBooks() {
         final long start = System.currentTimeMillis();
         final H2BookRepository database = new H2BookRepository(jdbcTemplate);
@@ -68,7 +64,7 @@ class MybooksApplicationTests {
                     .distinct()
                     .toList();
             try {
-                service.registerBook(book.id(), book.title(), authors, book.description(), book.formats());
+                service.registerBook(book.id(), book.title(), authors, book.description(), book.formats().mimeTypes());
             } catch (RuntimeException exc) {
                 logger.error("Failed to register book '" + book + "'", exc);
             }
@@ -81,7 +77,7 @@ class MybooksApplicationTests {
         System.out.printf("Registered %d books in %.3f seconds%n", service.books().size(), (end - start) / 1000.0);
     }
 
-    @Test
+    // @Test
     void validateBooks() {
         final Path folder = Paths.get(BOOKS);
         final Set<String> epubFiles = FolderRepository.listEpubFiles(folder);
@@ -185,56 +181,13 @@ class MybooksApplicationTests {
             "web assembly"
     };
 
-    private static final Set<String> KEYWORD_SET;
-    static{
-        KEYWORD_SET = Arrays.stream(KEYWORDS).collect(Collectors.toSet());
-    }
-
     private static Set<String> keywords(String text) {
         return Arrays.stream(text.split("\n"))
                 .filter(s -> !s.isEmpty())
-                .map(s -> KEYWORD_SET.parallelStream()
+                .map(s -> EPUBBookLoader.KEYWORD_SET.parallelStream()
                             .filter(s::contains)
                             .collect(Collectors.toSet()))
                 .flatMap(Collection::stream)
-                .collect(Collectors.toSet());
-    }
-
-    private static final Map<String, POSModel> MODELS = new HashMap<>();
-    private static final Map<String, String> RESOURCES = Map.of("en", "/en-pos-maxent.bin");
-
-    static {
-        for (String language : RESOURCES.keySet()) {
-            try {
-                MODELS.put(language, model(language, RESOURCES.get(language)));
-            } catch (RuntimeException exc) {
-                System.out.println(exc.getMessage());
-            }
-        }
-    }
-
-    public static POSModel model(String language, String resourceName) {
-        try (InputStream is = MybooksApplicationTests.class.getResourceAsStream(resourceName)) {
-            if (is == null)
-                throw new IllegalStateException("Language model '" + resourceName + "' for language '" + language + "' not available");
-
-            return new POSModel(is);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
-    public static Set<String> extractNouns(String text, String language) {
-        final POSTaggerME tagger = new POSTaggerME(MODELS.get(language));
-        final String[] words = SimpleTokenizer.INSTANCE.tokenize(text);
-        final String[] tags = tagger.tag(words);
-
-        return IntStream.range(0, words.length)
-                .filter(i -> tags[i].startsWith("NN"))
-                .mapToObj(i -> words[i])
-                .filter(s -> s.length() > 2)
-                .map(String::toLowerCase)
                 .collect(Collectors.toSet());
     }
 

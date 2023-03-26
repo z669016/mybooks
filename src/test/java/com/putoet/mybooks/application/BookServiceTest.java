@@ -3,11 +3,13 @@ package com.putoet.mybooks.application;
 import com.putoet.mybooks.application.port.in.ServiceException;
 import com.putoet.mybooks.application.port.out.BookRepository;
 import com.putoet.mybooks.domain.*;
+import jakarta.activation.MimeType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -90,8 +92,8 @@ class BookServiceTest {
         final String title = "Get Your Hands Dirty on Clean Architecture";
         final List<Author> authors = List.of(author);
         final String description = "A hands-on guide to creating clean web applications with code examples in Java";
-        final List<FormatType> formats = List.of(FormatType.EPUB);
-        final Book book = new Book(bookId, title, authors, description, List.of(), formats);
+        final List<MimeType> formats = List.of(MimeTypes.EPUB);
+        final Book book = new Book(bookId, title, authors, description, List.of(), new MimeTypes(formats));
 
         assertThrows(ServiceException.class, () -> service.registerBook(null, null, null, null, null));
         assertThrows(ServiceException.class, () -> service.registerBook(bookId, null, null, null, null));
@@ -101,10 +103,10 @@ class BookServiceTest {
         assertThrows(ServiceException.class, () -> service.registerBook(bookId, title, authors, " ", null));
         assertThrows(ServiceException.class, () -> service.registerBook(bookId, title, authors, description, null));
 
-        when(repository.registerBook(bookId, title, authors, description, formats)).thenReturn(book);
+        when(repository.registerBook(bookId, title, authors, description, new MimeTypes(formats))).thenReturn(book);
         final Book created = service.registerBook(bookId, title, authors, description, formats);
 
-        verify(repository).registerBook(bookId, title, authors, description, formats);
+        verify(repository).registerBook(bookId, title, authors, description, new MimeTypes(formats));
         assertNotNull(created);
         assertEquals(book, created);
     }

@@ -27,7 +27,7 @@ create table book_format
 (
     book_id_type varchar(16) not null,
     book_id      varchar(256) not null,
-    format       varchar(10) not null,
+    format       varchar(64) not null,
     primary key (book_id_type, book_id, format),
     foreign key (book_id_type, book_id) references book (book_id_type, book_id) on delete cascade
 );

@@ -1,6 +1,7 @@
 package com.putoet.mybooks.framework;
 
 import com.putoet.mybooks.domain.*;
+import jakarta.activation.MimeType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
@@ -123,7 +124,7 @@ class H2AuthorRepositoryTest {
         final String title = "Get Your Hands Dirty on Clean Architecture";
         final List<Author> authors = List.of(author);
         final String description = "A hands-on guide to creating clean web applications with code examples in Java";
-        final List<FormatType> formats = List.of(FormatType.EPUB);
+        final MimeTypes formats = new MimeTypes(List.of(MimeTypes.EPUB));
 
         final Book book = repository.registerBook(bookId, title, authors, description, formats);
         assertNotNull(book);
@@ -132,5 +133,6 @@ class H2AuthorRepositoryTest {
         assertEquals(authors, book.authors());
         assertEquals(description, book.description());
         assertEquals(formats, book.formats());
+
     }
 }

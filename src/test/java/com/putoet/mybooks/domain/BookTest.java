@@ -1,5 +1,6 @@
 package com.putoet.mybooks.domain;
 
+import jakarta.activation.MimeType;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -20,8 +21,8 @@ class BookTest {
                                 
             After reading this book, you'll have all the knowledge you need to create applications using the hexagonal architecture style of web development.""";
     private static final List<String> keywords = List.of("architecture", "adapters", "ports");
-    private static final List<FormatType> formats = List.of(FormatType.EPUB);
-    private static final Book book = new Book(id, title, authors, description, keywords, formats);
+    private static final List<MimeType> formats = List.of(MimeTypes.EPUB);
+    private static final Book book = new Book(id, title, authors, description, keywords, new MimeTypes(formats));
 
     @Test
     void constructor() {
@@ -35,29 +36,28 @@ class BookTest {
         assertThrows(NullPointerException.class, () -> new Book(id, title, authors, description, keywords, null));
 
         // Title and list of authors may not be empty
-        assertThrows(IllegalArgumentException.class, () -> new Book(id, "", authors, description, keywords, formats));
-        assertThrows(IllegalArgumentException.class, () -> new Book(id, " ", authors, description, keywords, formats));
-//        assertThrows(IllegalArgumentException.class, () -> new Book(id, title, List.of(), description, keywords, formats));
+        assertThrows(IllegalArgumentException.class, () -> new Book(id, "", authors, description, keywords, new MimeTypes(formats)));
+        assertThrows(IllegalArgumentException.class, () -> new Book(id, " ", authors, description, keywords, new MimeTypes(formats)));
 
 
         // Description, formats and keywords may be empty
-        new Book(id, title, authors, "", keywords, formats);
-        new Book(id, title, authors, description, List.of(), formats);
-        new Book(id, title, authors, description, keywords, List.of());
+        new Book(id, title, authors, "", keywords, new MimeTypes(formats));
+        new Book(id, title, authors, description, List.of(), new MimeTypes(formats));
+        new Book(id, title, authors, description, keywords, new MimeTypes());
 
         // correctly constructed book
-        new Book(id, title, authors, description, keywords, formats);
+        new Book(id, title, authors, description, keywords, new MimeTypes(formats));
     }
 
     @Test
     void addFormat() {
-        final var updated = book.addFormat(FormatType.PDF);
+        final var updated = book.addFormat(MimeTypes.PDF);
 
         assertNotEquals(book, updated);
-        assertEquals(2, updated.formats().size());
-        assertTrue(updated.formats().contains(FormatType.PDF));
+        assertEquals(2, updated.formats().mimeTypes().size());
+        assertTrue(updated.formats().contains(MimeTypes.PDF));
 
-        assertThrows(IllegalArgumentException.class, () -> updated.addFormat(FormatType.PDF));
+        assertThrows(IllegalArgumentException.class, () -> updated.addFormat(MimeTypes.PDF));
     }
 
     @Test
