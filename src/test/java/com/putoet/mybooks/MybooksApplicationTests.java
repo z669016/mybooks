@@ -7,8 +7,8 @@ import com.putoet.mybooks.domain.Book;
 import com.putoet.mybooks.framework.EPUBBookLoader;
 import com.putoet.mybooks.framework.FolderRepository;
 import com.putoet.mybooks.framework.H2BookRepository;
-import jakarta.activation.MimeType;
-import jakarta.activation.MimeTypeParseException;
+import org.ahocorasick.trie.Emit;
+import org.ahocorasick.trie.Trie;
 import org.apache.tika.Tika;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
@@ -19,13 +19,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
+import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.putoet.mybooks.framework.EPUBBookLoader.KEYWORD_SET;
 
 @SpringBootTest
 class MybooksApplicationTests {
@@ -91,125 +91,54 @@ class MybooksApplicationTests {
         System.out.printf("Loading %d books took %.3f seconds\n", epubFiles.size(), (end - start) / 1000.0);
     }
 
-    private static final String[] KEYWORDS = {
-            "algorithm",
-            "cloud",
-            "container",
-            "security",
-            "artificial intelligence",
-            "machine learning",
-            "blockchain",
-            "big data",
-            "internet of things",
-            "iot",
-            "virtualization",
-            "augmented reality",
-            "quantum",
-            "devops",
-            "edge computing",
-            "data analytics",
-            "robotics",
-            "natural language processing",
-            "nlp",
-            "5G",
-            "network",
-            "wireless",
-            "development",
-            "engineering",
-            "database",
-            "user experience",
-            "business intelligence",
-            "storage",
-            "chatbot",
-            "voice recognition",
-            "predictive",
-            "analytics",
-            "serverless",
-            "API",
-            "microservice",
-            "agile",
-            "ci/cd",
-            "continuous integration",
-            "continuous delivery",
-            "biometric",
-            "python",
-            "java",
-            "javascript",
-            "c++",
-            "swift",
-            "kotlin",
-            "ruby",
-            "php",
-            "go language",
-            "golang",
-            "typescript",
-            "scala",
-            "perl",
-            "rust",
-            "rest",
-            "openai",
-            "android",
-            "windows",
-            "linux",
-            "kali",
-            "ios",
-            "macos",
-            "active directory",
-            "architecture",
-            "angular",
-            "awk",
-            "arduino",
-            "bdd",
-            "bpm",
-            "bpmn",
-            "d3",
-            "functional programming",
-            "gradle",
-            "groovy",
-            "html",
-            "xhtml",
-            "nodejs",
-            "nosql",
-            "sql",
-            "osb",
-            "osgi",
-            "performance",
-            "reactive",
-            "sre",
-            "spring boot",
-            "spring framework",
-            "web assembly"
-    };
+    @Test
+    void tika() {
+        final Path folder = Paths.get(LEANPUB);
+        final Set<String> epubFiles = FolderRepository.listEpubFiles(folder);
 
-    private static Set<String> keywords(String text) {
-        return Arrays.stream(text.split("\n"))
-                .filter(s -> !s.isEmpty())
-                .map(s -> EPUBBookLoader.KEYWORD_SET.parallelStream()
-                            .filter(s::contains)
-                            .collect(Collectors.toSet()))
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet());
+        long start = System.currentTimeMillis();
+        epubFiles.parallelStream().forEach(fileName -> {
+            logger.warn("loading [{}]", fileName);
+
+            final Tika tika = new Tika();
+            final String mimeType = tika.detect(fileName);
+            try (InputStream is = new FileInputStream(fileName)) {
+                final Metadata metadata = new Metadata();
+                final Optional<String> data = loadData(tika, is,metadata);
+                System.out.printf("%s %s %s%n", fileName, mimeType, metadata.get("dc.creator"));
+
+                if (data.isPresent()) {
+                    final Set<String> keywords = findKeywords(data.get());
+                    System.out.println(keywords);
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        long end = System.currentTimeMillis();
+        System.out.printf("Loading %d books took %.3f seconds\n", epubFiles.size(), (end - start) / 1000.0);
     }
 
-    @Test
-    void tika() throws IOException, MimeTypeParseException {
-        final Path path = Paths.get(LEANPUB + "/humansvscomputers.epub");
-        final Tika tika = new Tika();
-        final MimeType mime = new MimeType(tika.detect(path));
-
-        System.out.printf("MIME type is %s%n", mime);
-        final Metadata metadata = new Metadata();
-        try (InputStream is = Files.newInputStream(path)) {
-            final String text = tika.parseToString(is, metadata);
-            final String language = metadata.get("dc:language");
-            final String author = metadata.get("dc:creator");
-
-            final Set<String> keywords = keywords(text);
-
-            System.out.println("Author: " + author);
-            System.out.println("Keywords: " + keywords);
-        } catch (TikaException e) {
-            throw new RuntimeException(e);
+    private Optional<String> loadData(Tika tika, InputStream is, Metadata metadata) {
+        try {
+            return Optional.of(tika.parseToString(is,metadata));
+        } catch (TikaException | IOException e) {
+            logger.error(e.getMessage());
         }
+        return Optional.empty();
+    }
+
+    private Trie keywordTrie() {
+        final Trie.TrieBuilder builder = Trie.builder()
+                .onlyWholeWords()
+                .ignoreCase();
+        KEYWORD_SET.forEach(builder::addKeyword);
+        return builder.build();
+    }
+
+    private Set<String> findKeywords(String data) {
+        return keywordTrie().parseText(data).stream()
+                .map(Emit::getKeyword)
+                .collect(Collectors.toSet());
     }
 }

@@ -19,6 +19,7 @@
 		<guava.version>31.1-jre</guava.version>
 		<tika.version>2.7.0</tika.version>
 		<opennlp.version>2.1.1</opennlp.version>
+		<ahocorasick.version>0.6.3</ahocorasick.version>
 	</properties>
 
 	<repositories>
@@ -98,6 +99,11 @@
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>${guava.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.ahocorasick</groupId>
+			<artifactId>ahocorasick</artifactId>
+			<version>${ahocorasick.version}</version>
 		</dependency>
 	</dependencies>
 </project>
