@@ -16,6 +16,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -132,7 +133,7 @@ public class H2BookRepository implements BookRepository {
                 , row.getString("title")
                 , authors
                 , row.getString("description")
-                , List.of()
+                , Set.of()
                 , new MimeTypes(formats)
         );
     }
@@ -276,7 +277,7 @@ public class H2BookRepository implements BookRepository {
 
             count = template.update(sql2, bookId.schema().name(), bookId.id(), format.toString());
             if (count != 1) {
-                logger.error("{}: {}, {}, {})", ServiceError.BOOK_NOT_REGISTERED.name(), bookId.schema(), bookId.id(), format.toString());
+                logger.error("{}: {}, {}, {})", ServiceError.BOOK_NOT_REGISTERED.name(), bookId.schema(), bookId.id(), format);
                 ServiceError.BOOK_NOT_REGISTERED.raise(bookId + " " + format);
             }
         }

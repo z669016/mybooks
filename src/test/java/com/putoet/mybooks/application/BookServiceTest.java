@@ -9,9 +9,9 @@ import org.junit.jupiter.api.Test;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -93,7 +93,7 @@ class BookServiceTest {
         final List<Author> authors = List.of(author);
         final String description = "A hands-on guide to creating clean web applications with code examples in Java";
         final List<MimeType> formats = List.of(MimeTypes.EPUB);
-        final Book book = new Book(bookId, title, authors, description, List.of(), new MimeTypes(formats));
+        final Book book = new Book(bookId, title, authors, description, Set.of(), new MimeTypes(formats));
 
         assertThrows(ServiceException.class, () -> service.registerBook(null, null, null, null, null));
         assertThrows(ServiceException.class, () -> service.registerBook(bookId, null, null, null, null));

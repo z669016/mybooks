@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -20,7 +21,7 @@ class BookTest {
             Get Your Hands Dirty on Clean Architecture starts with a discussion about the conventional layered architecture style and its disadvantages. It also talks about the advantages of the domain-centric architecture styles of Robert C. Martin's Clean Architecture and Alistair Cockburn's Hexagonal Architecture. Then, the book dives into hands-on chapters that show you how to manifest a hexagonal architecture in actual code. You'll learn in detail about different mapping strategies between the layers of a hexagonal architecture and see how to assemble the architecture elements into an application. The later chapters demonstrate how to enforce architecture boundaries. You'll also learn what shortcuts produce what types of technical debt and how, sometimes, it is a good idea to willingly take on those debts.
                                 
             After reading this book, you'll have all the knowledge you need to create applications using the hexagonal architecture style of web development.""";
-    private static final List<String> keywords = List.of("architecture", "adapters", "ports");
+    private static final Set<String> keywords = Set.of("architecture", "adapters", "ports");
     private static final List<MimeType> formats = List.of(MimeTypes.EPUB);
     private static final Book book = new Book(id, title, authors, description, keywords, new MimeTypes(formats));
 
@@ -42,7 +43,7 @@ class BookTest {
 
         // Description, formats and keywords may be empty
         new Book(id, title, authors, "", keywords, new MimeTypes(formats));
-        new Book(id, title, authors, description, List.of(), new MimeTypes(formats));
+        new Book(id, title, authors, description, Set.of(), new MimeTypes(formats));
         new Book(id, title, authors, description, keywords, new MimeTypes());
 
         // correctly constructed book

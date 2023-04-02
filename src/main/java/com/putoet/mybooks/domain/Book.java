@@ -2,11 +2,9 @@ package com.putoet.mybooks.domain;
 
 import jakarta.activation.MimeType;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
-public record Book(BookId id, String title, List<Author> authors, String description, List<String> keywords, MimeTypes formats) {
+public record Book(BookId id, String title, List<Author> authors, String description, Set<String> keywords, MimeTypes formats) {
     public Book {
         Objects.requireNonNull(id);
         Objects.requireNonNull(title);
@@ -34,7 +32,7 @@ public record Book(BookId id, String title, List<Author> authors, String descrip
         if (keywords.contains(keyword))
             throw new IllegalArgumentException("Book keywords already contains '" + keyword + "'");
 
-        var updated = new ArrayList<>(keywords);
+        var updated = new HashSet<>(keywords);
         updated.add(keyword);
         return new Book(id, title, authors, description, updated, formats);
     }

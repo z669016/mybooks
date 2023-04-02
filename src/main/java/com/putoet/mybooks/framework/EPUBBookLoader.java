@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 public class EPUBBookLoader {
     private static final Logger logger = LoggerFactory.getLogger(EPUBBookLoader.class);
 
-
     public static final Set<String> KEYWORD_SET;
     private static final String KEYWORD = "/keywords";
     static {
@@ -52,7 +51,7 @@ public class EPUBBookLoader {
         final String description = String.join("\n", metadata.getTitles());
         final List<MimeType> formats = extractFormat(metadata.getFormat());
 
-        return new Book(bookId, title, authors, description, List.of(), new MimeTypes(formats));
+        return new Book(bookId, title, authors, description, Set.of(), new MimeTypes(formats));
     }
 
     protected static nl.siegmann.epublib.domain.Book readEpub(String fileName) {

@@ -1,7 +1,6 @@
 package com.putoet.mybooks.framework;
 
 import com.putoet.mybooks.domain.*;
-import jakarta.activation.MimeType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
