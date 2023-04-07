@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class EPUBBookLoader {
     private static final Logger logger = LoggerFactory.getLogger(EPUBBookLoader.class);
@@ -26,17 +27,21 @@ public class EPUBBookLoader {
     public static final Set<String> KEYWORD_SET;
     private static final String KEYWORD = "/keywords";
     static {
-        final URL url = EPUBBookLoader.class.getResource(KEYWORD);
-        if (url == null) {
-            logger.error("Resource '{}' not found.", KEYWORD);
-            throw new IllegalStateException("Resource '" + KEYWORD + "' not found.");
+        final Path path;
+        try {
+            final URL url = EPUBBookLoader.class.getResource(KEYWORD);
+            if (url == null) {
+                logger.error("Resource '{}' not found.", KEYWORD);
+                throw new IllegalStateException("Resource '" + KEYWORD + "' not found.");
+            }
+            path = Paths.get(url.toURI());
+        } catch (URISyntaxException exc) {
+            throw new IllegalStateException("Not able to load keywords", exc);
         }
 
-        try {
-
-            final Path path = Paths.get(url.toURI());
-            KEYWORD_SET = Files.lines(path).collect(Collectors.toSet());
-        } catch (URISyntaxException | IOException e) {
+        try (Stream<String> lines = Files.lines(path)) {
+            KEYWORD_SET = lines.collect(Collectors.toSet());
+        } catch (IOException e) {
             throw new IllegalStateException("Not able to load keywords", e);
         }
     }
