@@ -30,7 +30,7 @@ public class EPUBBookLoader {
     private static Set<String> loadKeywords(String keyword) {
         final Path path;
         try {
-            final URL url = EPUBBookLoader.class.getResource(KEYWORD);
+            final URL url = EPUBBookLoader.class.getResource(keyword);
             if (url == null) {
                 logger.error("Resource '{}' not found.", KEYWORD);
                 throw new IllegalStateException("Resource '" + KEYWORD + "' not found.");
