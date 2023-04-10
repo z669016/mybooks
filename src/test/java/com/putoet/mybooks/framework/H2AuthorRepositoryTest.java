@@ -122,15 +122,13 @@ class H2AuthorRepositoryTest {
         final BookId bookId = new BookId(BookId.BookIdScheme.ISBN, "978-1839211966");
         final String title = "Get Your Hands Dirty on Clean Architecture";
         final List<Author> authors = List.of(author);
-        final String description = "A hands-on guide to creating clean web applications with code examples in Java";
         final MimeTypes formats = new MimeTypes(List.of(MimeTypes.EPUB));
 
-        final Book book = repository.registerBook(bookId, title, authors, description, formats);
+        final Book book = repository.registerBook(bookId, title, authors, formats);
         assertNotNull(book);
         assertEquals(bookId, book.id());
         assertEquals(title, book.title());
         assertEquals(authors, book.authors());
-        assertEquals(description, book.description());
         assertEquals(formats, book.formats());
 
     }

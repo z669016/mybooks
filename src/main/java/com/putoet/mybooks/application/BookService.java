@@ -83,18 +83,16 @@ public class BookService extends BookInquiryService implements
     }
 
     @Override
-    public Book registerBook(BookId bookId, String title, List<Author> authors, String description, List<MimeType> formats) {
-        logger.info("registerBook({}, {}, {}, {}, {})", bookId, title, authors, description, formats);
+    public Book registerBook(BookId bookId, String title, List<Author> authors, List<MimeType> formats) {
+        logger.info("registerBook({}, {}, {}, {})", bookId, title, authors, formats);
 
         if (bookId == null)
             ServiceError.BOOK_ID_REQUIRED.raise();
         if (title == null || title.isBlank())
             ServiceError.BOOK_TITLE_REQUIRED.raise();
-        if (description == null || description.isBlank())
-            ServiceError.BOOK_DESCRIPTION_REQUIRED.raise();
         if (formats == null || formats.isEmpty())
             ServiceError.BOOK_FORMAT_REQUIRED.raise();
 
-        return bookRepository.registerBook(bookId, title, authors, description, new MimeTypes(formats));
+        return bookRepository.registerBook(bookId, title, authors, new MimeTypes(formats));
     }
 }

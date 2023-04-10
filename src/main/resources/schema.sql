@@ -19,7 +19,6 @@ create table book
     book_id_type varchar(16)   not null,
     book_id      varchar(64)   not null,
     title        varchar(256)  not null,
-    description  varchar(1024) not null,
     primary key (book_id_type, book_id)
 );
 

@@ -12,6 +12,6 @@ public interface BookRepository extends BookInquiryRepository {
     Author updateAuthor(AuthorId authorId, String name);
     void forgetAuthor(AuthorId authorId);
     Author setAuthorSite(AuthorId id, SiteType type, URL url);
-    Book registerBook(BookId bookId, String title, List<Author> authors, String description, MimeTypes formats);
+    Book registerBook(BookId bookId, String title, List<Author> authors, MimeTypes formats);
 }
 

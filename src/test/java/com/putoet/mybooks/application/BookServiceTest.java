@@ -91,22 +91,19 @@ class BookServiceTest {
         final BookId bookId = new BookId(BookId.BookIdScheme.ISBN, "978-1839211966");
         final String title = "Get Your Hands Dirty on Clean Architecture";
         final List<Author> authors = List.of(author);
-        final String description = "A hands-on guide to creating clean web applications with code examples in Java";
         final List<MimeType> formats = List.of(MimeTypes.EPUB);
-        final Book book = new Book(bookId, title, authors, description, Set.of(), new MimeTypes(formats));
+        final Book book = new Book(bookId, title, authors, Set.of(), new MimeTypes(formats));
 
-        assertThrows(ServiceException.class, () -> service.registerBook(null, null, null, null, null));
-        assertThrows(ServiceException.class, () -> service.registerBook(bookId, null, null, null, null));
-        assertThrows(ServiceException.class, () -> service.registerBook(bookId, " ", null, null, null));
-        assertThrows(ServiceException.class, () -> service.registerBook(bookId, title, null, null, null));
-        assertThrows(ServiceException.class, () -> service.registerBook(bookId, title, authors, null, null));
-        assertThrows(ServiceException.class, () -> service.registerBook(bookId, title, authors, " ", null));
-        assertThrows(ServiceException.class, () -> service.registerBook(bookId, title, authors, description, null));
+        assertThrows(ServiceException.class, () -> service.registerBook(null, null, null, null));
+        assertThrows(ServiceException.class, () -> service.registerBook(bookId, null, null, null));
+        assertThrows(ServiceException.class, () -> service.registerBook(bookId, " ", null, null));
+        assertThrows(ServiceException.class, () -> service.registerBook(bookId, title, null, null));
+        assertThrows(ServiceException.class, () -> service.registerBook(bookId, title, authors, null));
 
-        when(repository.registerBook(bookId, title, authors, description, new MimeTypes(formats))).thenReturn(book);
-        final Book created = service.registerBook(bookId, title, authors, description, formats);
+        when(repository.registerBook(bookId, title, authors, new MimeTypes(formats))).thenReturn(book);
+        final Book created = service.registerBook(bookId, title, authors, formats);
 
-        verify(repository).registerBook(bookId, title, authors, description, new MimeTypes(formats));
+        verify(repository).registerBook(bookId, title, authors, new MimeTypes(formats));
         assertNotNull(created);
         assertEquals(book, created);
     }

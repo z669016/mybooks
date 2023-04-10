@@ -4,14 +4,9 @@ import com.putoet.mybooks.application.BookInquiryService;
 import com.putoet.mybooks.application.BookService;
 import com.putoet.mybooks.domain.Author;
 import com.putoet.mybooks.domain.Book;
-import com.putoet.mybooks.framework.EPUBBookLoader;
 import com.putoet.mybooks.framework.FolderRepository;
 import com.putoet.mybooks.framework.H2BookRepository;
-import org.ahocorasick.trie.Emit;
-import org.ahocorasick.trie.Trie;
-import org.apache.tika.Tika;
-import org.apache.tika.exception.TikaException;
-import org.apache.tika.metadata.Metadata;
+import com.putoet.mybooks.framework.TikaEPUBBookLoader;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,13 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
-
-import static com.putoet.mybooks.framework.EPUBBookLoader.KEYWORD_SET;
 
 @SpringBootTest
 class MybooksApplicationTests {
@@ -36,7 +27,7 @@ class MybooksApplicationTests {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    // @Test
+    @Test
     void loadBooks() {
         final long start = System.currentTimeMillis();
         final H2BookRepository database = new H2BookRepository(jdbcTemplate);
@@ -64,7 +55,7 @@ class MybooksApplicationTests {
                     .distinct()
                     .toList();
             try {
-                service.registerBook(book.id(), book.title(), authors, book.description(), book.formats().mimeTypes());
+                service.registerBook(book.id(), book.title(), authors, book.formats().mimeTypes());
             } catch (RuntimeException exc) {
                 logger.error("Failed to register book '" + book + "'", exc);
             }
@@ -72,12 +63,14 @@ class MybooksApplicationTests {
         final long end = System.currentTimeMillis();
 
         System.out.println("All stored books:");
-        service.books().stream().sorted(Comparator.comparing(Book::title)).forEach(book -> System.out.println(book.title()));
+        service.books().stream()
+                .sorted(Comparator.comparing(Book::title))
+                .forEach(book -> System.out.printf("%s (%d)%n", book.title(), book.keywords().size()));
 
         System.out.printf("Registered %d books in %.3f seconds%n", service.books().size(), (end - start) / 1000.0);
     }
 
-    // @Test
+    @Test
     void validateBooks() {
         final Path folder = Paths.get(BOOKS);
         final Set<String> epubFiles = FolderRepository.listEpubFiles(folder);
@@ -85,60 +78,9 @@ class MybooksApplicationTests {
         long start = System.currentTimeMillis();
         epubFiles.parallelStream().forEach(fileName -> {
             logger.warn("loading [{}]", fileName);
-            EPUBBookLoader.bookForFile(fileName);
+            TikaEPUBBookLoader.bookForFile(fileName, true);
         });
         long end = System.currentTimeMillis();
         System.out.printf("Loading %d books took %.3f seconds\n", epubFiles.size(), (end - start) / 1000.0);
-    }
-
-    @Test
-    void tika() {
-        final Path folder = Paths.get(LEANPUB);
-        final Set<String> epubFiles = FolderRepository.listEpubFiles(folder);
-
-        long start = System.currentTimeMillis();
-        epubFiles.parallelStream().forEach(fileName -> {
-            logger.warn("loading [{}]", fileName);
-
-            final Tika tika = new Tika();
-            final String mimeType = tika.detect(fileName);
-            try (InputStream is = new FileInputStream(fileName)) {
-                final Metadata metadata = new Metadata();
-                final Optional<String> data = loadData(tika, is,metadata);
-                System.out.printf("%s %s %s%n", fileName, mimeType, metadata.get("dc.creator"));
-
-                if (data.isPresent()) {
-                    final Set<String> keywords = findKeywords(data.get());
-                    System.out.println(keywords);
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        long end = System.currentTimeMillis();
-        System.out.printf("Loading %d books took %.3f seconds\n", epubFiles.size(), (end - start) / 1000.0);
-    }
-
-    private Optional<String> loadData(Tika tika, InputStream is, Metadata metadata) {
-        try {
-            return Optional.of(tika.parseToString(is,metadata));
-        } catch (TikaException | IOException e) {
-            logger.error(e.getMessage());
-        }
-        return Optional.empty();
-    }
-
-    private Trie keywordTrie() {
-        final Trie.TrieBuilder builder = Trie.builder()
-                .onlyWholeWords()
-                .ignoreCase();
-        KEYWORD_SET.forEach(builder::addKeyword);
-        return builder.build();
-    }
-
-    private Set<String> findKeywords(String data) {
-        return keywordTrie().parseText(data).stream()
-                .map(Emit::getKeyword)
-                .collect(Collectors.toSet());
     }
 }

@@ -77,7 +77,7 @@ public class H2BookRepository implements BookRepository {
     public List<Book> findBooks() {
         logger.info("findBooks()");
 
-        final String sql = "select book_id_type, book_id, title, description from book";
+        final String sql = "select book_id_type, book_id, title from book";
         sqlInfo(sql);
 
         return template.query(sql, this::bookMapper);
@@ -93,7 +93,7 @@ public class H2BookRepository implements BookRepository {
         }
 
         title = "%" + title + "%";
-        final String sql = "select book_id_type, book_id, title, description from book where title like ?";
+        final String sql = "select book_id_type, book_id, title from book where title like ?";
         sqlInfo(sql, title);
 
         return template.query(sql, this::bookMapper, title);
@@ -108,7 +108,7 @@ public class H2BookRepository implements BookRepository {
             ServiceError.BOOK_ID_REQUIRED.raise();
         }
 
-        final String sql = "select book_id_type, book_id, title, description from book where book_id_type = ? and book_id = ?";
+        final String sql = "select book_id_type, book_id, title from book where book_id_type = ? and book_id = ?";
         sqlInfo(sql, bookId.schema().name(), bookId.id());
         return template.queryForObject(sql, this::bookMapper, bookId.schema().name(), bookId.id());
     }
@@ -117,7 +117,7 @@ public class H2BookRepository implements BookRepository {
     public List<Book> findBooksByAuthorId(AuthorId authorId) {
         logger.info("findBooksByAuthorId({})", authorId);
 
-        final String sql = "select book_id_type, book_id, title, description from book where (book_id_type, book_id) in (select book_id_type, book_id from book_author where author_id = ?)";
+        final String sql = "select book_id_type, book_id, title from book where (book_id_type, book_id) in (select book_id_type, book_id from book_author where author_id = ?)";
         sqlInfo(sql, authorId.uuid());
 
         return template.query(sql, this::bookMapper, authorId.uuid());
@@ -132,7 +132,6 @@ public class H2BookRepository implements BookRepository {
         return new Book(new BookId(BookId.BookIdScheme.valueOf(book_id_type), book_id)
                 , row.getString("title")
                 , authors
-                , row.getString("description")
                 , Set.of()
                 , new MimeTypes(formats)
         );
@@ -248,15 +247,15 @@ public class H2BookRepository implements BookRepository {
     }
 
     @Override
-    public Book registerBook(BookId bookId, String title, List<Author> authors, String description, MimeTypes formats) {
-        logger.info("registerBook({}, {}, {}, {}, {})", bookId, title, authors, description, formats);
+    public Book registerBook(BookId bookId, String title, List<Author> authors, MimeTypes formats) {
+        logger.info("registerBook({}, {}, {}, {})", bookId, title, authors, formats);
 
-        final String sql = "insert into book (book_id_type, book_id, title, description) values (?, ?, ?, ?)";
-        sqlInfo(sql, bookId.schema().name(), bookId.id(), title, description);
+        final String sql = "insert into book (book_id_type, book_id, title) values (?, ?, ?)";
+        sqlInfo(sql, bookId.schema().name(), bookId.id(), title);
 
-        int count = template.update(sql, bookId.schema().name(), bookId.id(), title, description);
+        int count = template.update(sql, bookId.schema().name(), bookId.id(), title);
         if (count != 1) {
-            logger.error("{}: {}, {}, {}, {}", ServiceError.BOOK_NOT_REGISTERED.name(), bookId, title, authors, description);
+            logger.error("{}: {}, {}, {}", ServiceError.BOOK_NOT_REGISTERED.name(), bookId, title, authors);
             ServiceError.BOOK_NOT_REGISTERED.raise(bookId.toString());
         }
 

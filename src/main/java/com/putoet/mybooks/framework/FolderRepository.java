@@ -52,7 +52,7 @@ public class FolderRepository implements BookInquiryRepository {
 
     protected static Map<BookId, Book> booksForFiles(Set<String> files) {
         return files.parallelStream()
-                .map(EPUBBookLoader::bookForFile)
+                .map(filename -> TikaEPUBBookLoader.bookForFile(filename, true))
                 .reduce(new HashMap<>(),
                         FolderRepository::addBookWithoutDuplicateIds,
                         FolderRepository::addBookWithoutDuplicateIds
@@ -71,7 +71,7 @@ public class FolderRepository implements BookInquiryRepository {
     private static HashMap<BookId, Book> addBookWithoutDuplicateIds(HashMap<BookId, Book> hashMap, Book book) {
         if (hashMap.containsKey(book.id())) {
             logger.warn("Duplicate id {}, generated new book id for {}", book.id(), book.title());
-            book = new Book(new BookId(), book.title(), book.authors(), book.description(), book.keywords(), book.formats());
+            book = new Book(new BookId(), book.title(), book.authors(), book.keywords(), book.formats());
         }
         hashMap.put(book.id(), book);
         return hashMap;

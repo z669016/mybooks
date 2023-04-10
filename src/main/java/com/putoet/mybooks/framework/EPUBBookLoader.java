@@ -24,9 +24,10 @@ import java.util.stream.Stream;
 public class EPUBBookLoader {
     private static final Logger logger = LoggerFactory.getLogger(EPUBBookLoader.class);
 
-    public static final Set<String> KEYWORD_SET;
     private static final String KEYWORD = "/keywords";
-    static {
+    public static final Set<String> KEYWORD_SET = loadKeywords(KEYWORD);
+
+    private static Set<String> loadKeywords(String keyword) {
         final Path path;
         try {
             final URL url = EPUBBookLoader.class.getResource(KEYWORD);
@@ -40,7 +41,7 @@ public class EPUBBookLoader {
         }
 
         try (Stream<String> lines = Files.lines(path)) {
-            KEYWORD_SET = lines.collect(Collectors.toSet());
+            return lines.collect(Collectors.toSet());
         } catch (IOException e) {
             throw new IllegalStateException("Not able to load keywords", e);
         }
@@ -53,10 +54,9 @@ public class EPUBBookLoader {
         final BookId bookId = extractBookId(fileName, metadata.getIdentifiers());
         final String title = metadata.getTitles().get(0);
         final List<Author> authors = extractAuthors(metadata.getAuthors());
-        final String description = String.join("\n", metadata.getTitles());
         final List<MimeType> formats = extractFormat(metadata.getFormat());
 
-        return new Book(bookId, title, authors, description, Set.of(), new MimeTypes(formats));
+        return new Book(bookId, title, authors, Set.of(), new MimeTypes(formats));
     }
 
     protected static nl.siegmann.epublib.domain.Book readEpub(String fileName) {

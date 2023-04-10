@@ -4,12 +4,11 @@ import jakarta.activation.MimeType;
 
 import java.util.*;
 
-public record Book(BookId id, String title, List<Author> authors, String description, Set<String> keywords, MimeTypes formats) {
+public record Book(BookId id, String title, List<Author> authors, Set<String> keywords, MimeTypes formats) {
     public Book {
         Objects.requireNonNull(id);
         Objects.requireNonNull(title);
         Objects.requireNonNull(authors);
-        Objects.requireNonNull(description);
         Objects.requireNonNull(keywords);
         Objects.requireNonNull(formats);
 
@@ -20,7 +19,7 @@ public record Book(BookId id, String title, List<Author> authors, String descrip
     public Book addFormat(MimeType format) {
         Objects.requireNonNull(format);
 
-        return new Book(id, title, authors, description, keywords, formats.add(format));
+        return new Book(id, title, authors, keywords, formats.add(format));
     }
 
     public Book addKeyword(String keyword) {
@@ -34,7 +33,7 @@ public record Book(BookId id, String title, List<Author> authors, String descrip
 
         var updated = new HashSet<>(keywords);
         updated.add(keyword);
-        return new Book(id, title, authors, description, updated, formats);
+        return new Book(id, title, authors, updated, formats);
     }
 
     public Book addAuthor(Author author) {
@@ -45,12 +44,6 @@ public record Book(BookId id, String title, List<Author> authors, String descrip
 
         var updated = new ArrayList<>(authors);
         updated.add(author);
-        return new Book(id, title, updated, description, keywords, formats);
-    }
-
-    public Book description(String description) {
-        Objects.requireNonNull(description);
-
-        return new Book(id, title, authors, description, keywords, formats);
+        return new Book(id, title, updated, keywords, formats);
     }
 }
