@@ -14,9 +14,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -128,13 +126,27 @@ public class H2BookRepository implements BookRepository {
         final String book_id = row.getString("book_id");
         final List<Author> authors = findAuthorsForBook(book_id_type, book_id);
         final List<MimeType> formats = findFormatsForBook(book_id_type, book_id);
+        final Set<String> keywords = findKeywordsForBook(book_id_type, book_id);
 
         return new Book(new BookId(BookId.BookIdScheme.valueOf(book_id_type), book_id)
                 , row.getString("title")
                 , authors
-                , Set.of()
+                , keywords
                 , new MimeTypes(formats)
         );
+    }
+
+    private Set<String> findKeywordsForBook(String bookIdType, String bookId) {
+        logger.info("findKeywordsForBook({}, {})", bookIdType, bookId);
+
+        final String sql = "select book_id_type, book_id, keyword from book_key_word where book_id_type = ? and book_id = ?";
+        sqlInfo(sql, bookIdType, bookId);
+
+        return Set.copyOf(template.query(sql, this::keywordMapper, bookIdType, bookId));
+    }
+
+    private String keywordMapper(ResultSet row, int rowNum) throws SQLException {
+        return row.getString("keyword");
     }
 
     private List<MimeType> findFormatsForBook(String bookIdType, String bookId) {
@@ -247,7 +259,7 @@ public class H2BookRepository implements BookRepository {
     }
 
     @Override
-    public Book registerBook(BookId bookId, String title, List<Author> authors, MimeTypes formats) {
+    public Book registerBook(BookId bookId, String title, List<Author> authors, MimeTypes formats, Set<String> keywords) {
         logger.info("registerBook({}, {}, {}, {})", bookId, title, authors, formats);
 
         final String sql = "insert into book (book_id_type, book_id, title) values (?, ?, ?)";
@@ -278,6 +290,17 @@ public class H2BookRepository implements BookRepository {
             if (count != 1) {
                 logger.error("{}: {}, {}, {})", ServiceError.BOOK_NOT_REGISTERED.name(), bookId.schema(), bookId.id(), format);
                 ServiceError.BOOK_NOT_REGISTERED.raise(bookId + " " + format);
+            }
+        }
+
+        for (String keyword : keywords) {
+            final String sql3 = "insert into book_key_word (book_id_type, book_id, keyword) values (?, ?, ?)";
+            sqlInfo(sql3, bookId.schema().name(), bookId.id(), keyword);
+
+            count = template.update(sql3, bookId.schema().name(), bookId.id(), keyword);
+            if (count != 1) {
+                logger.error("{}: {}, {}, {})", ServiceError.BOOK_NOT_REGISTERED.name(), bookId.schema(), bookId.id(), keyword);
+                ServiceError.BOOK_NOT_REGISTERED.raise(bookId + " " + keyword);
             }
         }
 

@@ -55,7 +55,7 @@ class MybooksApplicationTests {
                     .distinct()
                     .toList();
             try {
-                service.registerBook(book.id(), book.title(), authors, book.formats().mimeTypes());
+                service.registerBook(book.id(), book.title(), authors, book.formats().mimeTypes(), book.keywords());
             } catch (RuntimeException exc) {
                 logger.error("Failed to register book '" + book + "'", exc);
             }

@@ -36,7 +36,7 @@ create table book_key_word
     book_id_type varchar(16) not null,
     book_id      varchar(256) not null,
     keyword      varchar(64) not null,
-    primary key (book_id_type, book_id),
+    primary key (book_id_type, book_id, keyword),
     foreign key (book_id_type, book_id) references book (book_id_type, book_id) on delete cascade
 );
 

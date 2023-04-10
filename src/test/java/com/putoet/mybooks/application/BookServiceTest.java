@@ -94,16 +94,16 @@ class BookServiceTest {
         final List<MimeType> formats = List.of(MimeTypes.EPUB);
         final Book book = new Book(bookId, title, authors, Set.of(), new MimeTypes(formats));
 
-        assertThrows(ServiceException.class, () -> service.registerBook(null, null, null, null));
-        assertThrows(ServiceException.class, () -> service.registerBook(bookId, null, null, null));
-        assertThrows(ServiceException.class, () -> service.registerBook(bookId, " ", null, null));
-        assertThrows(ServiceException.class, () -> service.registerBook(bookId, title, null, null));
-        assertThrows(ServiceException.class, () -> service.registerBook(bookId, title, authors, null));
+        assertThrows(ServiceException.class, () -> service.registerBook(null, null, null, null, null));
+        assertThrows(ServiceException.class, () -> service.registerBook(bookId, null, null, null, null));
+        assertThrows(ServiceException.class, () -> service.registerBook(bookId, " ", null, null, null));
+        assertThrows(ServiceException.class, () -> service.registerBook(bookId, title, null, null, null));
+        assertThrows(ServiceException.class, () -> service.registerBook(bookId, title, authors, null, null));
 
-        when(repository.registerBook(bookId, title, authors, new MimeTypes(formats))).thenReturn(book);
-        final Book created = service.registerBook(bookId, title, authors, formats);
+        when(repository.registerBook(bookId, title, authors, new MimeTypes(formats), Set.of())).thenReturn(book);
+        final Book created = service.registerBook(bookId, title, authors, formats, Set.of());
 
-        verify(repository).registerBook(bookId, title, authors, new MimeTypes(formats));
+        verify(repository).registerBook(bookId, title, authors, new MimeTypes(formats), Set.of());
         assertNotNull(created);
         assertEquals(book, created);
     }

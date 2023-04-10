@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Service("bookService")
 public class BookService extends BookInquiryService implements
@@ -83,7 +84,7 @@ public class BookService extends BookInquiryService implements
     }
 
     @Override
-    public Book registerBook(BookId bookId, String title, List<Author> authors, List<MimeType> formats) {
+    public Book registerBook(BookId bookId, String title, List<Author> authors, List<MimeType> formats, Set<String> keywords) {
         logger.info("registerBook({}, {}, {}, {})", bookId, title, authors, formats);
 
         if (bookId == null)
@@ -92,7 +93,9 @@ public class BookService extends BookInquiryService implements
             ServiceError.BOOK_TITLE_REQUIRED.raise();
         if (formats == null || formats.isEmpty())
             ServiceError.BOOK_FORMAT_REQUIRED.raise();
+        if (keywords == null)
+            ServiceError.BOOK_KEYWORDS_REQUIRED.raise();
 
-        return bookRepository.registerBook(bookId, title, authors, new MimeTypes(formats));
+        return bookRepository.registerBook(bookId, title, authors, new MimeTypes(formats), keywords);
     }
 }

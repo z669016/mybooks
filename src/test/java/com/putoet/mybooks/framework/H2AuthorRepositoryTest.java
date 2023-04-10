@@ -10,6 +10,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -123,13 +124,14 @@ class H2AuthorRepositoryTest {
         final String title = "Get Your Hands Dirty on Clean Architecture";
         final List<Author> authors = List.of(author);
         final MimeTypes formats = new MimeTypes(List.of(MimeTypes.EPUB));
+        final Set<String> keywords = Set.of("A", "B");
 
-        final Book book = repository.registerBook(bookId, title, authors, formats);
+        final Book book = repository.registerBook(bookId, title, authors, formats, keywords);
         assertNotNull(book);
         assertEquals(bookId, book.id());
         assertEquals(title, book.title());
         assertEquals(authors, book.authors());
         assertEquals(formats, book.formats());
-
+        assertEquals(keywords, book.keywords());
     }
 }
