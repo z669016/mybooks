@@ -4,7 +4,7 @@ import com.putoet.mybooks.application.BookInquiryService;
 import com.putoet.mybooks.application.BookService;
 import com.putoet.mybooks.domain.Author;
 import com.putoet.mybooks.domain.Book;
-import com.putoet.mybooks.framework.FolderRepository;
+import com.putoet.mybooks.framework.FolderBookRepository;
 import com.putoet.mybooks.framework.H2BookRepository;
 import com.putoet.mybooks.framework.TikaEpubBookLoader;
 import org.junit.jupiter.api.Test;
@@ -31,7 +31,7 @@ class MybooksApplicationTests {
     void loadBooks() {
         final long start = System.currentTimeMillis();
         final H2BookRepository database = new H2BookRepository(jdbcTemplate);
-        final FolderRepository folder = new FolderRepository(Paths.get(BOOKS));
+        final FolderBookRepository folder = new FolderBookRepository(Paths.get(BOOKS));
 
         final BookInquiryService inquiry = new BookInquiryService(folder);
         final BookService service = new BookService(database);
@@ -73,7 +73,7 @@ class MybooksApplicationTests {
     @Test
     void validateBooks() {
         final Path folder = Paths.get(BOOKS);
-        final Set<String> epubFiles = FolderRepository.listEpubFiles(folder);
+        final Set<String> epubFiles = FolderBookRepository.listEpubFiles(folder);
 
         long start = System.currentTimeMillis();
         epubFiles.parallelStream().forEach(fileName -> {

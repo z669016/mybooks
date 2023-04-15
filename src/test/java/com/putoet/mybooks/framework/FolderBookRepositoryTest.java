@@ -12,13 +12,13 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class FolderRepositoryTest {
+class FolderBookRepositoryTest {
     private static final String LEANPUB = "/Users/renevanputten/OneDrive/Documents/Books/leanpub";
-    private static FolderRepository leanpub;
+    private static FolderBookRepository leanpub;
 
     @BeforeAll
     static void bookFolder() {
-        leanpub = new FolderRepository(Paths.get(LEANPUB));
+        leanpub = new FolderBookRepository(Paths.get(LEANPUB));
     }
 
     @Test

@@ -28,14 +28,14 @@ import static java.util.stream.Collectors.toMap;
  * been collected, the list is processed (again as parallel stream) to load all data from the books.
  * </p>
  */
-public class FolderRepository implements BookInquiryRepository {
-    private static final Logger logger = LoggerFactory.getLogger(FolderRepository.class);
+public class FolderBookRepository implements BookInquiryRepository {
+    private static final Logger logger = LoggerFactory.getLogger(FolderBookRepository.class);
     private final Path folder;
     private final Set<String> files;
     private final Map<AuthorId, Author> authors;
     private final Map<BookId, Book> books;
 
-    public FolderRepository(Path folder) {
+    public FolderBookRepository(Path folder) {
         logger.info("FolderRepository({})", folder);
         Objects.requireNonNull(folder, "Book folder must be provided");
 
@@ -62,8 +62,8 @@ public class FolderRepository implements BookInquiryRepository {
         return files.parallelStream()
                 .map(filename -> TikaEpubBookLoader.bookForFile(filename, true))
                 .reduce(new HashMap<>(),
-                        FolderRepository::addBookWithoutDuplicateIds,
-                        FolderRepository::addBookWithoutDuplicateIds
+                        FolderBookRepository::addBookWithoutDuplicateIds,
+                        FolderBookRepository::addBookWithoutDuplicateIds
                 );
     }
 
