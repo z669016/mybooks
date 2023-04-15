@@ -17,42 +17,24 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-public class TikaEPUBBookLoader {
-    private static final Logger logger = LoggerFactory.getLogger(TikaEPUBBookLoader.class);
-    public static final Set<String> KEYWORD_SET = loadKeywords("/keywords");
-
-    private static Set<String> loadKeywords(String keywordsResource) {
-        final Path path;
-        try {
-            final URL url = TikaEPUBBookLoader.class.getResource(keywordsResource);
-            if (url == null) {
-                logger.error("Resource '{}' not found.", keywordsResource);
-                throw new IllegalStateException("Resource '" + keywordsResource + "' not found.");
-            }
-            path = Paths.get(url.toURI());
-        } catch (URISyntaxException exc) {
-            throw new IllegalStateException("Not able to load keywords", exc);
-        }
-
-        try (Stream<String> lines = Files.lines(path)) {
-            return lines.collect(Collectors.toSet());
-        } catch (IOException e) {
-            throw new IllegalStateException("Not able to load keywords", e);
-        }
-    }
+/**
+ * Class TikaEPUBBookLoader
+ * Loads data from an EPUB file using Apache Tika and returns a Book entity. In case book data cannot be properly
+ * extracted, the epub file could be 'repackaged' (unzipped and zipped again) which can do miracles ;-)
+ */
+public class TikaEpubBookLoader {
+    private static final Logger logger = LoggerFactory.getLogger(TikaEpubBookLoader.class);
+    public static final int MAX_EPUB_LOAD_SIZE = 10_000_000;
 
     public static Book bookForFile(String fileName, boolean repair) {
         try {
             return bookForFile(fileName);
         } catch (IOException | NullPointerException exc) {
             if (!repair) {
+                logger.error("Could not load book {}", fileName, exc);
                 throw new IllegalStateException(exc);
             }
         }
@@ -92,7 +74,6 @@ public class TikaEPUBBookLoader {
                 if ("EXCEPTION".equalsIgnoreCase(names[1])) {
                     logger.error("TIKA Exception: {}", metadata.get(key));
                     logger.info("metadata={}", metadata);
-                    EPUBBookLoader.bookForFile(fileName);
                 }
             }
         }
@@ -104,7 +85,7 @@ public class TikaEPUBBookLoader {
 
     private static Optional<String> loadData(Tika tika, InputStream is, org.apache.tika.metadata.Metadata metadata) {
         try {
-            return Optional.of(tika.parseToString(is, metadata, 10_000_000));
+            return Optional.of(tika.parseToString(is, metadata, MAX_EPUB_LOAD_SIZE));
         } catch (TikaException | IOException e) {
             logger.error(e.getMessage(), e);
         }
@@ -121,11 +102,10 @@ public class TikaEPUBBookLoader {
         final Trie.TrieBuilder builder = Trie.builder()
                 .onlyWholeWords()
                 .ignoreCase();
-        KEYWORD_SET.forEach(builder::addKeyword);
+        KeywordLoader.KEYWORD_SET.forEach(builder::addKeyword);
         return builder.build();
     }
 
-    @SuppressWarnings("unused")
     protected static BookId extractBookId(String fileName, String identifier) {
         if (identifier == null || identifier.isBlank())
             return new BookId(BookId.BookIdScheme.UUID, UUID.randomUUID().toString());
@@ -141,20 +121,20 @@ public class TikaEPUBBookLoader {
         if (ISBN.isValid(id))
             return new BookId(BookId.BookIdScheme.ISBN, id);
         try {
-            final URL url = new URL(id);
+            new URL(id);
             return new BookId(BookId.BookIdScheme.URL, id);
         } catch (MalformedURLException ignored) {
         }
 
         try {
-            final UUID uuid = UUID.fromString(id);
+            UUID.fromString(id);
             return new BookId(BookId.BookIdScheme.UUID, id);
         } catch (IllegalArgumentException ignored) {
         }
 
         try {
             // URI's cannot be trusted to be unique (I found) so, replace them with UUID
-            final URI uri = new URI(id);
+            new URI(id);
             return new BookId(BookId.BookIdScheme.UUID, UUID.randomUUID().toString());
         } catch (URISyntaxException ignored) {
         }
@@ -176,7 +156,7 @@ public class TikaEPUBBookLoader {
 
         return Arrays.stream(authors.split(", "))
                 .filter(name -> !name.isBlank())
-                .map(TikaEPUBBookLoader::splitName)
+                .map(TikaEpubBookLoader::splitName)
                 .map(name -> new Author(AuthorId.withoutId(), name, new HashMap<>()))
                 .toList();
     }
