@@ -36,9 +36,9 @@ classDiagram
 Framework:
 ```mermaid
 classDiagram
-    FolderBookRepository --|> BookReadOnlyRepository: implements
+    FolderBookRepository --|> BookReadPort: implements
     FolderBookRepository -- TikaEpubBookLoader: uses
-    H2BookRepository --|> BookRepository: implements
-    TikaEpubBookLoader -- KeywordLoader: uses
-    TikaEpubBookLoader -- Rezipper: uses
+    H2BookRepository --|> BookUpdatePort: implements
+    EpubBookLoader -- KeywordLoader: uses
+    EpubBookLoader -- Rezipper: uses
 ```
