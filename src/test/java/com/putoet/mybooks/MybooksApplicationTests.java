@@ -6,7 +6,7 @@ import com.putoet.mybooks.domain.Author;
 import com.putoet.mybooks.domain.Book;
 import com.putoet.mybooks.framework.FolderRepository;
 import com.putoet.mybooks.framework.H2BookRepository;
-import com.putoet.mybooks.framework.TikaEPUBBookLoader;
+import com.putoet.mybooks.framework.TikaEpubBookLoader;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,7 +78,7 @@ class MybooksApplicationTests {
         long start = System.currentTimeMillis();
         epubFiles.parallelStream().forEach(fileName -> {
             logger.warn("loading [{}]", fileName);
-            TikaEPUBBookLoader.bookForFile(fileName, true);
+            TikaEpubBookLoader.bookForFile(fileName, true);
         });
         long end = System.currentTimeMillis();
         System.out.printf("Loading %d books took %.3f seconds\n", epubFiles.size(), (end - start) / 1000.0);

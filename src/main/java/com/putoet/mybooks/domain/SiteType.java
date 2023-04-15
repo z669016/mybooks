@@ -2,6 +2,11 @@ package com.putoet.mybooks.domain;
 
 import java.util.Objects;
 
+/**
+ * Record SiteType
+ * There is a set of predefined site types available including twitter, and linkedin.
+ * @param name String
+ */
 public record SiteType(String name) {
     public static final String GITHUB_NAME = "GitHub";
     public static final String TWITTER_NAME = "Twitter";

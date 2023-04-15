@@ -16,12 +16,20 @@ import static java.util.stream.Collectors.toMap;
 
 /**
  * class FolderRepository
+ * <p>
  * Repository based on the file system. Loads recursively the data from EPUB files in the root folder provided at
- * construction, and extracts Book and Author data from the files. Data cannot be written to this repository
+ *  * construction, and extracts Book and Author data from the files. Data cannot be written to this repository as it
+ *  * extends BookInquiryRepository (which only provides read operations).
+ * </p>
+ * <p>
+ * On startup the constructor recursively loads all books from root folder and its sub folders, and creates a hash map
+ * with books (key = BookId) and authors (key = AuthorId) for search optimization only.
+ * The root folder is 'walked' to search for all EPUB books using a parallel stream. After all EPUB file names have
+ * been collected, the list is processed (again as parallel stream) to load all data from the books.
+ * </p>
  */
 public class FolderRepository implements BookInquiryRepository {
     private static final Logger logger = LoggerFactory.getLogger(FolderRepository.class);
-
     private final Path folder;
     private final Set<String> files;
     private final Map<AuthorId, Author> authors;
@@ -52,7 +60,7 @@ public class FolderRepository implements BookInquiryRepository {
 
     protected static Map<BookId, Book> booksForFiles(Set<String> files) {
         return files.parallelStream()
-                .map(filename -> TikaEPUBBookLoader.bookForFile(filename, true))
+                .map(filename -> TikaEpubBookLoader.bookForFile(filename, true))
                 .reduce(new HashMap<>(),
                         FolderRepository::addBookWithoutDuplicateIds,
                         FolderRepository::addBookWithoutDuplicateIds

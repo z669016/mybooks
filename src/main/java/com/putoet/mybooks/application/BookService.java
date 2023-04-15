@@ -13,6 +13,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Class BookService
+ * BookService extends BookInquiryService and provides read and write services for the books repository
+ */
 @Service("bookService")
 public class BookService extends BookInquiryService implements
         RegisterAuthor, ForgetAuthor, UpdateAuthor, SetAuthorSite, RegisterBook {

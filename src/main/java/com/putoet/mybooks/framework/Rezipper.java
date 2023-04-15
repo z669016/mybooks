@@ -13,15 +13,21 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+/**
+ * Class Rezipper
+ * This class unzips an epub book and rezips it again using a temp folder and a temp file, returning the name of the
+ * name of the (temporary) rezipped file when successful.
+ * Source code was reused from samples of Bealdung for unzipping and zipping files.
+ */
 public class Rezipper {
     private static final Logger logger = LoggerFactory.getLogger(Rezipper.class);
 
     private static final int BUFFER_SIZE = 4 * 1024;
 
     public static Optional<String> repackage(String filename) {
-        final Optional<String> tnp = Rezipper.unzipEpubFile(filename);
-        if (tnp.isPresent()) {
-            return Rezipper.zipFolder(tnp.get());
+        final Optional<String> tmp = Rezipper.unzipEpubFile(filename);
+        if (tmp.isPresent()) {
+            return Rezipper.zipFolder(tmp.get());
         }
 
         return Optional.empty();
@@ -58,8 +64,7 @@ public class Rezipper {
             throw new IllegalStateException("Could not create tmp directory to unzip epub file " + filename);
 
         final byte[] buffer = new byte[BUFFER_SIZE];
-        try (FileInputStream fis = new FileInputStream(filename)) {
-            final ZipInputStream zis = new ZipInputStream(fis);
+        try (ZipInputStream zis = new ZipInputStream(new FileInputStream(filename))) {
             ZipEntry zipEntry = zis.getNextEntry();
             while (zipEntry != null) {
                 final File newFile = newFile(tmp.get(), zipEntry);
@@ -84,8 +89,6 @@ public class Rezipper {
                 }
                 zipEntry = zis.getNextEntry();
             }
-            zis.closeEntry();
-            zis.close();
 
             return Optional.of(tmp.get().getAbsolutePath());
         } catch (IOException e) {
@@ -96,10 +99,9 @@ public class Rezipper {
     }
 
     private static File newFile(File destinationDir, ZipEntry zipEntry) throws IOException {
-        File destFile = new File(destinationDir, zipEntry.getName());
-
-        String destDirPath = destinationDir.getCanonicalPath();
-        String destFilePath = destFile.getCanonicalPath();
+        final File destFile = new File(destinationDir, zipEntry.getName());
+        final String destDirPath = destinationDir.getCanonicalPath();
+        final String destFilePath = destFile.getCanonicalPath();
 
         if (!destFilePath.startsWith(destDirPath + File.separator)) {
             throw new IOException("Entry is outside of the target dir: " + zipEntry.getName());
@@ -162,7 +164,7 @@ public class Rezipper {
             final ZipEntry zipEntry = new ZipEntry(fileName);
             zipOut.putNextEntry(zipEntry);
 
-            byte[] bytes = new byte[BUFFER_SIZE];
+            final byte[] bytes = new byte[BUFFER_SIZE];
             int length;
             while ((length = fis.read(bytes)) >= 0) {
                 zipOut.write(bytes, 0, length);

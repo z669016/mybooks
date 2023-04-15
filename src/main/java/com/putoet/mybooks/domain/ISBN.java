@@ -4,7 +4,15 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 
 /**
+ * Record ISBN
+ * Helper class with methods to validate (composite) ISBN numbers
  * Based on gist <a href="https://gist.github.com/kymmt90/a45ae122faeb78096b2c">kymmt90/Isbn.java</a>
+ * @param original String
+ * @param prefix String
+ * @param group String
+ * @param publisher String
+ * @param bookName String
+ * @param checkDigit String
  */
 public record ISBN(String original, String prefix, String group, String publisher, String bookName, String checkDigit) {
     public static final int LENGTH = 13;

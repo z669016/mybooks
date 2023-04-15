@@ -7,6 +7,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+/**
+ * Class MimeTypes
+ * Container class for available book formats, where book format is represented by a MimeType
+ */
 public class MimeTypes {
     private static final Logger logger = LoggerFactory.getLogger(MimeTypes.class);
 

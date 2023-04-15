@@ -1,5 +1,10 @@
 package com.putoet.mybooks.application.port.in;
 
+/**
+ * Enum ServiceError
+ * ServiceError is used as possible valid error states which can be returned by a service (In ports), which enables very
+ * standardized error handling.
+ */
 public enum ServiceError {
     AUTHOR_NAME_REQUIRED,
     AUTHOR_ID_REQUIRED,

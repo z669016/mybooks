@@ -4,6 +4,14 @@ import jakarta.activation.MimeType;
 
 import java.util.*;
 
+/**
+ * Record Book
+ * @param id BookId
+ * @param title String
+ * @param authors List of Author
+ * @param keywords Set of string keywords
+ * @param formats Component containing available mimetypes for book formats
+ */
 public record Book(BookId id, String title, List<Author> authors, Set<String> keywords, MimeTypes formats) {
     public Book {
         Objects.requireNonNull(id);

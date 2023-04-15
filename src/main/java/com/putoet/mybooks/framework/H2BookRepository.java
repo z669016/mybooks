@@ -18,7 +18,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 
-
+/**
+ * Class H2BookRepository
+ * A read/write repository for book and author data, connected to an H4 database using a Spring JdbcTemplate
+ */
 @Repository
 public class H2BookRepository implements BookRepository {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
