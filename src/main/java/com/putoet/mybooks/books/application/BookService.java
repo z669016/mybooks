@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.net.URL;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,15 +59,17 @@ public class BookService extends BookInquiryService implements
     }
 
     @Override
-    public Author updateAuthor(AuthorId authorId, String name) {
-        logger.info("updateAuthor({}, {})", authorId, name);
+    public Author updateAuthor(AuthorId authorId, Instant version, String name) {
+        logger.info("updateAuthor({}, {}, {})", authorId, version, name);
 
         if (authorId == null)
             ServiceError.AUTHOR_ID_REQUIRED.raise();
+        if (version == null)
+            ServiceError.AUTHOR_VERSION_REQUIRED.raise();
         if (name == null || name.isBlank())
             ServiceError.AUTHOR_NAME_REQUIRED.raise();
 
-        return bookUpdatePort.updateAuthor(authorId, name);
+        return bookUpdatePort.updateAuthor(authorId, version, name);
     }
 
     @Override

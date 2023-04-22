@@ -66,17 +66,19 @@ class BookServiceTest {
 
     @Test
     void updateAuthor() {
-        assertThrows(ServiceException.class, () -> bookService.updateAuthor(null, null));
-        assertThrows(ServiceException.class, () -> bookService.updateAuthor(AuthorId.withoutId(), null));
-        assertThrows(ServiceException.class, () -> bookService.updateAuthor(AuthorId.withoutId(), " "));
+        assertThrows(ServiceException.class, () -> bookService.updateAuthor(null, null, null));
+        assertThrows(ServiceException.class, () -> bookService.updateAuthor(AuthorId.withoutId(), null, null));
+        assertThrows(ServiceException.class, () -> bookService.updateAuthor(AuthorId.withoutId(), Instant.now(), null));
+        assertThrows(ServiceException.class, () -> bookService.updateAuthor(AuthorId.withoutId(), Instant.now(), " "));
 
         final AuthorId id = AuthorId.withoutId();
         final String name = "New, Name";
-        final Author author = new Author(id, Instant.now(), name, Map.of());
-        when(bookUpdatePort.updateAuthor(id, name)).thenReturn(author);
+        final Instant version = Instant.now();
+        final Author author = new Author(id, version, name, Map.of());
+        when(bookUpdatePort.updateAuthor(id, version, name)).thenReturn(author);
 
-        final Author updated = bookService.updateAuthor(id, name);
-        verify(bookUpdatePort).updateAuthor(id, name);
+        final Author updated = bookService.updateAuthor(id, version, name);
+        verify(bookUpdatePort).updateAuthor(id, version, name);
         assertEquals(author, updated);
     }
 

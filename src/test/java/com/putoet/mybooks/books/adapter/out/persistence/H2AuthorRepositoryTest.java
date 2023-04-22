@@ -1,6 +1,8 @@
 package com.putoet.mybooks.books.adapter.out.persistence;
 
+import com.putoet.mybooks.books.application.port.in.ServiceException;
 import com.putoet.mybooks.books.domain.*;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
@@ -8,6 +10,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,9 +34,15 @@ class H2AuthorRepositoryTest {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    private H2BookRepository repository;
+
+    @BeforeEach
+    void setup() {
+        repository = new H2BookRepository(jdbcTemplate);
+    }
+
     @Test
     void findAuthorByName() {
-        final H2BookRepository repository = new H2BookRepository(jdbcTemplate);
         final List<Author> authors = repository.findAuthorsByName("tom");
 
         assertEquals(1, authors.size());
@@ -42,7 +51,6 @@ class H2AuthorRepositoryTest {
 
     @Test
     void findAuthors() {
-        final H2BookRepository repository = new H2BookRepository(jdbcTemplate);
         final List<Author> authors = repository.findAuthors();
 
         assertEquals(6, authors.size());
@@ -51,7 +59,6 @@ class H2AuthorRepositoryTest {
 
     @Test
     void findAuthorById() {
-        final H2BookRepository repository = new H2BookRepository(jdbcTemplate);
         assertNull(repository.findAuthorById(AuthorId.withoutId()));
 
         final AuthorId authorId = repository.findAuthors().get(0).id();
@@ -60,7 +67,6 @@ class H2AuthorRepositoryTest {
 
     @Test
     void registerAuthor() {
-        final H2BookRepository repository = new H2BookRepository(jdbcTemplate);
         final int count = repository.findAuthors().size();
 
         final Author author = repository.registerAuthor(NAME, Map.of(TYPE, SITE_URL));
@@ -76,23 +82,27 @@ class H2AuthorRepositoryTest {
 
     @Test
     void updateAuthor() {
-        final H2BookRepository repository = new H2BookRepository(jdbcTemplate);
-
         final String oldName = "Old, Name";
         final String newName = "New, Name";
 
         Author author = repository.registerAuthor(oldName, Map.of(TYPE, SITE_URL));
-        repository.updateAuthor(author.id(), newName);
+        final Instant oldVersion = author.version();
+        repository.updateAuthor(author.id(), oldVersion, newName);
 
         author = repository.findAuthorById(author.id());
+        assertNotEquals(oldVersion, author.version());
         assertEquals(newName, author.name());
         assertEquals(author.sites(), Map.of(TYPE, SITE_URL));
     }
 
     @Test
-    void forgetAuthor() {
-        final H2BookRepository repository = new H2BookRepository(jdbcTemplate);
+    void updateAuthorInvalidVersion() {
+        Author author = repository.registerAuthor("oldName", Map.of(TYPE, SITE_URL));
+        assertThrows(ServiceException.class, () -> repository.updateAuthor(author.id(), Instant.now(), "newName"));
+    }
 
+    @Test
+    void forgetAuthor() {
         final String oldName = "Old, Name";
 
         Author author = repository.registerAuthor(oldName, Map.of(TYPE, SITE_URL));
@@ -105,7 +115,6 @@ class H2AuthorRepositoryTest {
 
     @Test
     void setAuthorSite() {
-        final H2BookRepository repository = new H2BookRepository(jdbcTemplate);
         Author author = repository.registerAuthor("Old,Name", Map.of());
 
         assertEquals(0, author.sites().size());
@@ -117,8 +126,6 @@ class H2AuthorRepositoryTest {
 
     @Test
     void registerBook() {
-        final H2BookRepository repository = new H2BookRepository(jdbcTemplate);
-
         final Author author = repository.findAuthorsByName("tom").get(0);
         final BookId bookId = new BookId(BookId.BookIdScheme.ISBN, "978-1839211966");
         final String title = "Get Your Hands Dirty on Clean Architecture";

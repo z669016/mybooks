@@ -1,9 +1,9 @@
-insert into author (author_id, version, name) values ('531e071d-2ff7-4737-a2d8-c4e1e1d81f97', 'Hombergs, Tom');
-insert into author (author_id, version, name) values ('f6791adc-6a03-4d9b-ad30-ef7fd0545c58', 'Brown, Simon');
-insert into author (author_id, version, name) values ('b0a61cbf-aed7-44f2-86b8-d1414cf4ec3a', 'Gunter, Stuart');
-insert into author (author_id, version, name) values ('69c40138-1246-4a33-98d2-be764301c9f0', 'Adzic, Gojko');
-insert into author (author_id, version, name) values ('53ccafde-e889-4796-a55d-17f5d0e8b267', 'Brandolini, Alberto');
-insert into author (author_id, version, name) values ('884a10b7-b5ba-4937-8476-016af188baaf', 'Brown, Simon');
+insert into author (author_id, version, name) values ('531e071d-2ff7-4737-a2d8-c4e1e1d81f97', '2023-04-10 12:13:14.000000', 'Hombergs, Tom');
+insert into author (author_id, version, name) values ('f6791adc-6a03-4d9b-ad30-ef7fd0545c58', '2023-04-10 12:13:14.000001', 'Brown, Simon');
+insert into author (author_id, version, name) values ('b0a61cbf-aed7-44f2-86b8-d1414cf4ec3a', '2023-04-10 12:13:14.000002', 'Gunter, Stuart');
+insert into author (author_id, version, name) values ('69c40138-1246-4a33-98d2-be764301c9f0', '2023-04-10 12:13:14.000003', 'Adzic, Gojko');
+insert into author (author_id, version, name) values ('53ccafde-e889-4796-a55d-17f5d0e8b267', '2023-04-10 12:13:14.000004', 'Brandolini, Alberto');
+insert into author (author_id, version, name) values ('884a10b7-b5ba-4937-8476-016af188baaf', '2023-04-10 12:13:14.000005', 'Brown, Simon');
 
 -- insert into book (book_id_type, book_id, title) values ('URL', 'https://leanpub.com/humansvscomputers', 'Humans vs Computers');
 -- insert into book_author (book_id_type, book_id, author_id) values ('URL', 'https://leanpub.com/humansvscomputers', '69c40138-1246-4a33-98d2-be764301c9f0');

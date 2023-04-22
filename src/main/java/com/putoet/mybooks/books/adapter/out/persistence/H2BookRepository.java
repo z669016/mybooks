@@ -14,6 +14,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -43,7 +44,7 @@ public class H2BookRepository implements BookUpdatePort {
     public List<Author> findAuthors() {
         logger.info("findAuthors()");
 
-        final String sql = "select author_id, name from author";
+        final String sql = "select author_id, version, name from author";
         sqlInfo(sql);
 
         return template.query(sql, this::authorMapper);
@@ -54,7 +55,7 @@ public class H2BookRepository implements BookUpdatePort {
         logger.info("findAuthorsByName({})", name);
         name = "%" + name.toLowerCase() + "%";
 
-        final String sql = "select author_id, name from author where lower(name) like ?";
+        final String sql = "select author_id, version, name from author where lower(name) like ?";
         sqlInfo(sql, name);
 
         return template.query(sql, this::authorMapper, name);
@@ -65,7 +66,7 @@ public class H2BookRepository implements BookUpdatePort {
         logger.info("findAuthorById({})", id);
 
         try {
-            final String sql = "select author_id, name from author where author_id = ?";
+            final String sql = "select author_id, version, name from author where author_id = ?";
             sqlInfo(sql, id.uuid());
 
             return template.queryForObject(sql, this::authorMapper, id.uuid());
@@ -170,7 +171,7 @@ public class H2BookRepository implements BookUpdatePort {
     private List<Author> findAuthorsForBook(String bookIdType, String bookId) {
         logger.info("findAuthorsForBook({}, {})", bookIdType, bookId);
 
-        final String sql = "select author_id, name from author where author_id in (select author_id from book_author where book_id_type = ? and book_id = ?)";
+        final String sql = "select author_id, version, name from author where author_id in (select author_id from book_author where book_id_type = ? and book_id = ?)";
         sqlInfo(sql, bookIdType, bookId);
 
         return template.query(sql, this::authorMapper, bookIdType, bookId);
@@ -183,7 +184,7 @@ public class H2BookRepository implements BookUpdatePort {
 
         final List<Site> sites = template.query(sql, this::siteMapper, authorId);
         return new Author(AuthorId.withId(authorId),
-                Instant.now(),
+                row.getTimestamp("version").toInstant(),
                 row.getString("name"),
                 sites.stream().collect(Collectors.toMap(Site::type, Site::url))
         );
@@ -204,12 +205,13 @@ public class H2BookRepository implements BookUpdatePort {
         logger.info("registerAuthor({}, {})", name, sites);
 
         final AuthorId id = AuthorId.withoutId();
-        final String sql = "insert into author (author_id, name) values (?, ?)";
-        sqlInfo(sql, id.uuid(), name);
+        final Instant version = Instant.now();
+        final String sql = "insert into author (author_id, version, name) values (?, ?, ?)";
+        sqlInfo(sql, id.uuid(), version, name);
 
-        int count = template.update(sql, id.uuid(), name);
+        int count = template.update(sql, id.uuid(), version, name);
         if (count != 1) {
-            logger.error("{}: {} {}", ServiceError.AUTHOR_NOT_REGISTERED, id.uuid(), name);
+            logger.error("{}: {} {} {}", ServiceError.AUTHOR_NOT_REGISTERED, id.uuid(), version, name);
             ServiceError.AUTHOR_NOT_REGISTERED.raise("Author with new id " + id + " and name " + name);
         }
 
@@ -221,16 +223,17 @@ public class H2BookRepository implements BookUpdatePort {
     }
 
     @Override
-    public Author updateAuthor(AuthorId authorId, String name) {
+    public Author updateAuthor(AuthorId authorId, Instant version, String name) {
         logger.info("updateAuthor({}, {})", authorId, name);
 
-        final String sql = "update author set name = ? where author_id = ?";
-        sqlInfo(sql, name, authorId.uuid());
+        final Timestamp newVersion = Timestamp.from(Instant.now());
+        final String sql = "update author set version = ?, name = ? where author_id = ? and version = ?";
+        sqlInfo(sql, newVersion, name, authorId.uuid(), version);
 
-        int count = template.update(sql, name, authorId.uuid());
+        int count = template.update(sql, newVersion, name, authorId.uuid(), version);
         if (count != 1) {
-            logger.error("Could not update one author, count is {}, author id is {}", count, authorId);
-            ServiceError.AUTHOR_NOT_UPDATED.raise(authorId + " " + name);
+            logger.error("Could not update one author, count is {}, author id is {}, version is {}", count, authorId, version);
+            ServiceError.AUTHOR_NOT_UPDATED.raise(authorId + ", " + version + ", '" + name + "'");
         }
         return findAuthorById(authorId);
     }

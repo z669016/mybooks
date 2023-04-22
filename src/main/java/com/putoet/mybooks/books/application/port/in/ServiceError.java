@@ -21,7 +21,7 @@ public enum ServiceError {
     BOOK_AUTHORS_REQUIRED,
     BOOK_FORMAT_REQUIRED,
     BOOK_KEYWORDS_REQUIRED,
-    BOOK_NOT_REGISTERED;
+    BOOK_NOT_REGISTERED, AUTHOR_VERSION_REQUIRED;
 
     public void raise() {
         throw new ServiceException(this);

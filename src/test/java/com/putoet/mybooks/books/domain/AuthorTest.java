@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -62,6 +63,8 @@ public class AuthorTest {
         assertEquals(id, author.id());
         assertEquals(name, author.name());
         assertEquals(0, author.sites().size());
+
+        System.out.println(Timestamp.from(now));
     }
 
     @Test
