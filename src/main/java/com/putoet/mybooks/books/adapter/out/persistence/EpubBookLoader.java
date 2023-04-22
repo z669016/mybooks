@@ -17,6 +17,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -157,7 +158,7 @@ public class EpubBookLoader {
         return Arrays.stream(authors.split(", "))
                 .filter(name -> !name.isBlank())
                 .map(EpubBookLoader::splitName)
-                .map(name -> new Author(AuthorId.withoutId(), name, new HashMap<>()))
+                .map(name -> new Author(AuthorId.withoutId(), Instant.now(), name, new HashMap<>()))
                 .toList();
     }
 

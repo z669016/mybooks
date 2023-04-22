@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,7 +35,7 @@ class BookServiceTest {
         final String name = "Name, My";
         final URL url = new URL("https://nu.nl");
         final AuthorId id = AuthorId.withoutId();
-        final Author author = new Author(id, name, Map.of(SiteType.LINKEDIN, url));
+        final Author author = new Author(id, Instant.now(), name, Map.of(SiteType.LINKEDIN, url));
         when(bookUpdatePort.registerAuthor(name, author.sites())).thenReturn(author);
 
         final Author created = bookService.registerAuthor(name, Map.of(SiteType.LINKEDIN, url));
@@ -71,7 +72,7 @@ class BookServiceTest {
 
         final AuthorId id = AuthorId.withoutId();
         final String name = "New, Name";
-        final Author author = new Author(id, name, Map.of());
+        final Author author = new Author(id, Instant.now(), name, Map.of());
         when(bookUpdatePort.updateAuthor(id, name)).thenReturn(author);
 
         final Author updated = bookService.updateAuthor(id, name);
@@ -86,7 +87,7 @@ class BookServiceTest {
         assertThrows(ServiceException.class, () -> bookService.setAuthorSite(AuthorId.withoutId(), SiteType.LINKEDIN, null));
 
         final AuthorId id = AuthorId.withoutId();
-        final Author author = new Author(id, "New, name", Map.of());
+        final Author author = new Author(id, Instant.now(), "New, name", Map.of());
         final URL url = new URL("https://nu.nl");
         when(bookUpdatePort.findAuthorById(id)).thenReturn(author);
         when(bookUpdatePort.setAuthorSite(id, SiteType.LINKEDIN, url)).thenReturn(author);
@@ -100,7 +101,7 @@ class BookServiceTest {
 
     @Test
     void registerBook() {
-        final Author author = new Author(AuthorId.withoutId(), "New, name", Map.of());
+        final Author author = new Author(AuthorId.withoutId(), Instant.now(), "New, name", Map.of());
         final BookId bookId = new BookId(BookId.BookIdScheme.ISBN, "978-1839211966");
         final String title = "Get Your Hands Dirty on Clean Architecture";
         final List<Author> authors = List.of(author);

@@ -1,6 +1,7 @@
 package com.putoet.mybooks.books.domain;
 
 import java.net.URL;
+import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -9,11 +10,13 @@ import java.util.Optional;
  * Record Author
  * @param id AuthorId - unique identification for the author
  * @param name String - lastname, firstname
+ * @param version Instant - timestamp of last modification
  * @param sites Map<SiteType,Site> - map of website references for the author
  */
-public record Author(AuthorId id, String name, Map<SiteType, URL> sites) {
+public record Author(AuthorId id, Instant version, String name, Map<SiteType, URL> sites) {
     public Author {
         Objects.requireNonNull(id);
+        Objects.requireNonNull(version);
         Objects.requireNonNull(name);
         Objects.requireNonNull(sites);
 
@@ -22,7 +25,7 @@ public record Author(AuthorId id, String name, Map<SiteType, URL> sites) {
     }
 
     public Author(AuthorId id, String name) {
-        this(id, name, Map.of());
+        this(id, Instant.now(), name, Map.of());
     }
 
     public Optional<Site> github() {

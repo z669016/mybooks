@@ -14,6 +14,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -181,7 +182,9 @@ public class H2BookRepository implements BookUpdatePort {
         sqlInfo(sql, authorId);
 
         final List<Site> sites = template.query(sql, this::siteMapper, authorId);
-        return new Author(AuthorId.withId(authorId), row.getString("name"),
+        return new Author(AuthorId.withId(authorId),
+                Instant.now(),
+                row.getString("name"),
                 sites.stream().collect(Collectors.toMap(Site::type, Site::url))
         );
     }

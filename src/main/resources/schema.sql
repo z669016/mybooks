@@ -1,6 +1,7 @@
 create table author
 (
     author_id varchar(48)  not null,
+    version   timestamp not null,
     name      varchar(255) not null,
     primary key (author_id)
 );

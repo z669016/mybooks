@@ -3,6 +3,7 @@ package com.putoet.mybooks.books.domain;
 import jakarta.activation.MimeType;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -71,7 +72,7 @@ class BookTest {
 
     @Test
     void addAuthor() {
-        final var me = new Author(AuthorId.withoutId(), "My Name", Map.of());
+        final var me = new Author(AuthorId.withoutId(), Instant.now(), "My Name", Map.of());
         final var updated = book.addAuthor(me);
 
         assertNotEquals(book, updated);

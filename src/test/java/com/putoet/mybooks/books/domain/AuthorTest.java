@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,9 +15,10 @@ public class AuthorTest {
     private static final AuthorId id = AuthorId.withoutId();
     private static final String name = "Tom Hombergs";
     private static final String blog_name = "blog";
+    private static final Instant now = Instant.now();
     private static final Map<SiteType, URL> sites = new HashMap<>();
 
-    public static final Author AUTHOR = new Author(id, name, sites);
+    public static final Author AUTHOR = new Author(id, now, name, sites);
 
     private static URL github;
     private static URL twitter;
@@ -47,12 +49,13 @@ public class AuthorTest {
     @Test
     void constructor() {
         // attributes must not be null
-        assertThrows(NullPointerException.class, () -> new Author(null, null, null));
-        assertThrows(NullPointerException.class, () -> new Author(id, null, null));
-        assertThrows(NullPointerException.class, () -> new Author(id, name, null));
+        assertThrows(NullPointerException.class, () -> new Author(null, null, null, null));
+        assertThrows(NullPointerException.class, () -> new Author(id, null, null, null));
+        assertThrows(NullPointerException.class, () -> new Author(id, now, null, null));
+        assertThrows(NullPointerException.class, () -> new Author(id, now, name, null));
 
         // name must not be blank
-        assertThrows(IllegalArgumentException.class, () -> new Author(id, "  ", sites));
+        assertThrows(IllegalArgumentException.class, () -> new Author(id, now, "  ", sites));
 
         // should be fine
         final Author author = new Author(id, name);
