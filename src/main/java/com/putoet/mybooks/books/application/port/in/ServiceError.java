@@ -29,11 +29,4 @@ public enum ServiceError {
     public void raise(String msg) {
         throw new ServiceException(this, msg);
     }
-    public void raise(Throwable cause) {
-        throw new ServiceException(this, cause);
-    }
-
-    public void raise(String msg, Throwable cause) {
-        throw new ServiceException(this, msg, cause);
-    }
 }

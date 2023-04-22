@@ -8,21 +8,12 @@ public class ServiceException extends RuntimeException {
     private final ServiceError serviceError;
 
     public ServiceException(ServiceError serviceError) {
+        super(serviceError.name());
         this.serviceError = serviceError;
     }
 
     public ServiceException(ServiceError serviceError, String msg) {
-        super(msg);
-        this.serviceError = serviceError;
-    }
-
-    public ServiceException(ServiceError serviceError, String msg, Throwable cause) {
-        super(msg, cause);
-        this.serviceError = serviceError;
-    }
-
-    public ServiceException(ServiceError serviceError, Throwable cause) {
-        super(cause);
+        super(serviceError.name() + " - " + msg);
         this.serviceError = serviceError;
     }
 
