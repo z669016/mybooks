@@ -1,25 +1,33 @@
 package com.putoet.mybooks.books.adapter.in.web;
 
-import com.putoet.mybooks.books.domain.AuthorId;
+import com.putoet.mybooks.books.domain.Author;
 import com.putoet.mybooks.books.domain.SiteType;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public record Author(String id, String version, String name, Map<String, String> sites) {
-    public static List<Author> fromDomain(List<com.putoet.mybooks.books.domain.Author> domain) {
-        return domain.stream().map(Author::fromDomain).toList();
+/**
+ * Record AuthorResponse
+ * The AuthorResponse is a front-end friendly version of the Author entity, where internal representations
+ * for domain attributes are replaced by simple string attributes. The static factory methods 'from' translates
+ * a domain entity into a user-friendly AuthorBody, where 'toDomain' takes care of the translation into domain
+ * entity or domain attributes.
+ * @param id String
+ * @param version String
+ * @param name String
+ * @param sites String
+ */
+public record AuthorResponse(String id, String version, String name, Map<String, String> sites) {
+    public static List<AuthorResponse> from(List<Author> domain) {
+        return domain.stream().map(AuthorResponse::from).toList();
     }
 
-    public static Author fromDomain(com.putoet.mybooks.books.domain.Author domain) {
-        return new Author(domain.id().uuid().toString(),
+    public static AuthorResponse from(Author domain) {
+        return new AuthorResponse(domain.id().uuid().toString(),
                 domain.version().toString(),
                 domain.name(),
                 domain.sites().entrySet().stream().collect(Collectors.toMap(
@@ -41,13 +49,5 @@ public record Author(String id, String version, String name, Map<String, String>
         } catch (MalformedURLException | RuntimeException exc) {
             throw new RuntimeException(exc.getMessage(), exc);
         }
-    }
-
-    public static com.putoet.mybooks.books.domain.Author toDomain(Author author) {
-        return new com.putoet.mybooks.books.domain.Author(
-                AuthorId.withId(author.id),
-                Instant.parse(author.version),
-                author.name,
-                toDomain(author.sites));
     }
 }

@@ -18,19 +18,19 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
-class BookServiceTest {
+class BookUpdateServiceTest {
     private BookUpdatePort bookUpdatePort;
-    private BookService bookService;
+    private BookUpdateService bookUpdateService;
 
     @BeforeEach
     void setup() {
         bookUpdatePort = mock(BookUpdatePort.class);
-        bookService = new BookService(bookUpdatePort);
+        bookUpdateService = new BookUpdateService(bookUpdatePort);
     }
 
     @Test
     void registerAuthor() throws MalformedURLException {
-        assertThrows(ServiceException.class, () -> bookService.registerAuthor(null, null));
+        assertThrows(ServiceException.class, () -> bookUpdateService.registerAuthor(null, null));
 
         final String name = "Name, My";
         final URL url = new URL("https://nu.nl");
@@ -38,7 +38,7 @@ class BookServiceTest {
         final Author author = new Author(id, Instant.now(), name, Map.of(SiteType.LINKEDIN, url));
         when(bookUpdatePort.registerAuthor(name, author.sites())).thenReturn(author);
 
-        final Author created = bookService.registerAuthor(name, Map.of(SiteType.LINKEDIN, url));
+        final Author created = bookUpdateService.registerAuthor(name, Map.of(SiteType.LINKEDIN, url));
 
         assertEquals(author, created);
     }
@@ -47,29 +47,29 @@ class BookServiceTest {
     void registerAuthorFailed() {
         given(bookUpdatePort.findAuthorsByName(any())).willReturn(null);
 
-        assertThrows(ServiceException.class, () -> bookService.registerAuthor("name", Map.of()));
+        assertThrows(ServiceException.class, () -> bookUpdateService.registerAuthor("name", Map.of()));
     }
 
     @Test
     void registerAuthorError() {
-        assertThrows(ServiceException.class, () -> bookService.registerAuthor(null, null));
+        assertThrows(ServiceException.class, () -> bookUpdateService.registerAuthor(null, null));
     }
 
     @Test
     void forgetAuthor() {
-        assertThrows(ServiceException.class, () -> bookService.forgetAuthor(null));
+        assertThrows(ServiceException.class, () -> bookUpdateService.forgetAuthor(null));
 
         final AuthorId id = AuthorId.withoutId();
-        bookService.forgetAuthor(id);
+        bookUpdateService.forgetAuthor(id);
         verify(bookUpdatePort).forgetAuthor(id);
     }
 
     @Test
     void updateAuthor() {
-        assertThrows(ServiceException.class, () -> bookService.updateAuthor(null, null, null));
-        assertThrows(ServiceException.class, () -> bookService.updateAuthor(AuthorId.withoutId(), null, null));
-        assertThrows(ServiceException.class, () -> bookService.updateAuthor(AuthorId.withoutId(), Instant.now(), null));
-        assertThrows(ServiceException.class, () -> bookService.updateAuthor(AuthorId.withoutId(), Instant.now(), " "));
+        assertThrows(ServiceException.class, () -> bookUpdateService.updateAuthor(null, null, null));
+        assertThrows(ServiceException.class, () -> bookUpdateService.updateAuthor(AuthorId.withoutId(), null, null));
+        assertThrows(ServiceException.class, () -> bookUpdateService.updateAuthor(AuthorId.withoutId(), Instant.now(), null));
+        assertThrows(ServiceException.class, () -> bookUpdateService.updateAuthor(AuthorId.withoutId(), Instant.now(), " "));
 
         final AuthorId id = AuthorId.withoutId();
         final String name = "New, Name";
@@ -77,16 +77,16 @@ class BookServiceTest {
         final Author author = new Author(id, version, name, Map.of());
         when(bookUpdatePort.updateAuthor(id, version, name)).thenReturn(author);
 
-        final Author updated = bookService.updateAuthor(id, version, name);
+        final Author updated = bookUpdateService.updateAuthor(id, version, name);
         verify(bookUpdatePort).updateAuthor(id, version, name);
         assertEquals(author, updated);
     }
 
     @Test
     void setAuthorSite() throws MalformedURLException {
-        assertThrows(ServiceException.class, () -> bookService.setAuthorSite(null, null, null));
-        assertThrows(ServiceException.class, () -> bookService.setAuthorSite(AuthorId.withoutId(), null, null));
-        assertThrows(ServiceException.class, () -> bookService.setAuthorSite(AuthorId.withoutId(), SiteType.LINKEDIN, null));
+        assertThrows(ServiceException.class, () -> bookUpdateService.setAuthorSite(null, null, null));
+        assertThrows(ServiceException.class, () -> bookUpdateService.setAuthorSite(AuthorId.withoutId(), null, null));
+        assertThrows(ServiceException.class, () -> bookUpdateService.setAuthorSite(AuthorId.withoutId(), SiteType.LINKEDIN, null));
 
         final AuthorId id = AuthorId.withoutId();
         final Author author = new Author(id, Instant.now(), "New, name", Map.of());
@@ -94,7 +94,7 @@ class BookServiceTest {
         when(bookUpdatePort.findAuthorById(id)).thenReturn(author);
         when(bookUpdatePort.setAuthorSite(id, SiteType.LINKEDIN, url)).thenReturn(author);
 
-        final Author updated = bookService.setAuthorSite(id, SiteType.LINKEDIN, url);
+        final Author updated = bookUpdateService.setAuthorSite(id, SiteType.LINKEDIN, url);
         verify(bookUpdatePort).findAuthorById(id);
         verify(bookUpdatePort).setAuthorSite(id, SiteType.LINKEDIN, url);
 
@@ -110,14 +110,14 @@ class BookServiceTest {
         final List<MimeType> formats = List.of(MimeTypes.EPUB);
         final Book book = new Book(bookId, title, authors, Set.of(), new MimeTypes(formats));
 
-        assertThrows(ServiceException.class, () -> bookService.registerBook(null, null, null, null, null));
-        assertThrows(ServiceException.class, () -> bookService.registerBook(bookId, null, null, null, null));
-        assertThrows(ServiceException.class, () -> bookService.registerBook(bookId, " ", null, null, null));
-        assertThrows(ServiceException.class, () -> bookService.registerBook(bookId, title, null, null, null));
-        assertThrows(ServiceException.class, () -> bookService.registerBook(bookId, title, authors, null, null));
+        assertThrows(ServiceException.class, () -> bookUpdateService.registerBook(null, null, null, null, null));
+        assertThrows(ServiceException.class, () -> bookUpdateService.registerBook(bookId, null, null, null, null));
+        assertThrows(ServiceException.class, () -> bookUpdateService.registerBook(bookId, " ", null, null, null));
+        assertThrows(ServiceException.class, () -> bookUpdateService.registerBook(bookId, title, null, null, null));
+        assertThrows(ServiceException.class, () -> bookUpdateService.registerBook(bookId, title, authors, null, null));
 
         when(bookUpdatePort.registerBook(bookId, title, authors, new MimeTypes(formats), Set.of())).thenReturn(book);
-        final Book created = bookService.registerBook(bookId, title, authors, formats, Set.of());
+        final Book created = bookUpdateService.registerBook(bookId, title, authors, formats, Set.of());
 
         verify(bookUpdatePort).registerBook(bookId, title, authors, new MimeTypes(formats), Set.of());
         assertNotNull(created);

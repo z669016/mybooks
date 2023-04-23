@@ -1,7 +1,7 @@
 package com.putoet.mybooks;
 
 import com.putoet.mybooks.books.application.BookInquiryService;
-import com.putoet.mybooks.books.application.BookService;
+import com.putoet.mybooks.books.application.BookUpdateService;
 import com.putoet.mybooks.books.domain.Author;
 import com.putoet.mybooks.books.domain.Book;
 import com.putoet.mybooks.books.adapter.out.persistence.FolderBookRepository;
@@ -33,13 +33,14 @@ class MybooksApplicationTests {
         final H2BookRepository database = new H2BookRepository(jdbcTemplate);
         final FolderBookRepository folder = new FolderBookRepository(Paths.get(BOOKS));
 
-        final BookInquiryService inquiry = new BookInquiryService(folder);
-        final BookService service = new BookService(database);
+        final BookInquiryService folderBookInquiryService = new BookInquiryService(folder);
+        final BookInquiryService bookInquiryService = new BookInquiryService(database);
+        final BookUpdateService bookUpdateService = new BookUpdateService(database);
 
         final Map<String, Author> storedAuthors = new HashMap<>();
-        for (Author author : inquiry.authors()) {
+        for (Author author : folderBookInquiryService.authors()) {
             try {
-                storedAuthors.put(author.name(), service.registerAuthor(author.name(), author.sites()));
+                storedAuthors.put(author.name(), bookUpdateService.registerAuthor(author.name(), author.sites()));
             } catch (RuntimeException exc) {
                 logger.error("Failed to register author '" + author + "'", exc);
             }
@@ -49,13 +50,13 @@ class MybooksApplicationTests {
                 .sorted(Comparator.comparing(Author::name))
                 .forEach(System.out::println);
 
-        for (Book book : inquiry.books()) {
+        for (Book book : folderBookInquiryService.books()) {
             final List<Author> authors = book.authors().stream()
                     .map(author -> storedAuthors.get(author.name()))
                     .distinct()
                     .toList();
             try {
-                service.registerBook(book.id(), book.title(), authors, book.formats().mimeTypes(), book.keywords());
+                bookUpdateService.registerBook(book.id(), book.title(), authors, book.formats().mimeTypes(), book.keywords());
             } catch (RuntimeException exc) {
                 logger.error("Failed to register book '" + book + "'", exc);
             }
@@ -63,11 +64,11 @@ class MybooksApplicationTests {
         final long end = System.currentTimeMillis();
 
         System.out.println("All stored books:");
-        service.books().stream()
+        bookInquiryService.books().stream()
                 .sorted(Comparator.comparing(Book::title))
                 .forEach(book -> System.out.printf("%s (%d)%n", book.title(), book.keywords().size()));
 
-        System.out.printf("Registered %d books in %.3f seconds%n", service.books().size(), (end - start) / 1000.0);
+        System.out.printf("Registered %d books in %.3f seconds%n", bookInquiryService.books().size(), (end - start) / 1000.0);
     }
 
     @Test

@@ -15,18 +15,17 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Class BookService
- * BookService extends BookInquiryService and provides read and write services for the books repository
+ * Class BookUpdateService
+ * BookUpdateService provides write services for the book repository
  */
-@Service("bookService")
-public class BookService extends BookInquiryService implements
+@Service("bookUpdateService")
+public class BookUpdateService implements
         RegisterAuthor, ForgetAuthor, UpdateAuthor, SetAuthorSite, RegisterBook {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final BookUpdatePort bookUpdatePort;
 
-    public BookService(BookUpdatePort bookUpdatePort) {
-        super(bookUpdatePort);
+    public BookUpdateService(BookUpdatePort bookUpdatePort) {
         this.bookUpdatePort = bookUpdatePort;
 
         logger.info("BookService({})", bookUpdatePort);
