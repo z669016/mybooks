@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class SiteTypeTest {
+public class SiteTypeTest {
     @Test
     void constructor() {
         assertThrows(NullPointerException.class, () -> new SiteType(null));

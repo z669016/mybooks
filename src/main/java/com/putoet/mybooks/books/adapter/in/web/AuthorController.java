@@ -2,6 +2,7 @@ package com.putoet.mybooks.books.adapter.in.web;
 
 import com.putoet.mybooks.books.application.BookInquiryService;
 import com.putoet.mybooks.books.application.BookUpdateService;
+import com.putoet.mybooks.books.domain.Author;
 import com.putoet.mybooks.books.domain.AuthorId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class AuthorController {
@@ -35,13 +37,15 @@ public class AuthorController {
             if (id == null)
                 throw new IllegalArgumentException("id is null");
 
-            return bookInquiryService.authorById(AuthorId.withId(id))
-                    .map(AuthorResponse::from)
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Author with id " + id + " not found."));
+            final Optional<Author> author = bookInquiryService.authorById(AuthorId.withId(id));
+            if (author.isPresent())
+                    return AuthorResponse.from(author.get());
         } catch (RuntimeException exc) {
             logger.warn(exc.getMessage(), exc);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
         }
+
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Author with id " + id + " not found.");
     }
 
     @GetMapping("/authors/{name}")

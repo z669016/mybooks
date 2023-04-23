@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class AuthorIdTest {
+public class AuthorIdTest {
     @Test
     void withoutId() {
         assertNotNull(AuthorId.withoutId().uuid());

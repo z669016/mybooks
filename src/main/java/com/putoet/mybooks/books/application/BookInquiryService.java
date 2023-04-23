@@ -22,12 +22,12 @@ public class BookInquiryService implements
         AuthorSiteTypes {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final BookQueryPort bookRepository;
+    private final BookQueryPort bookQueryPort;
 
-    public BookInquiryService(BookQueryPort bookRepository) {
-        this.bookRepository = bookRepository;
+    public BookInquiryService(BookQueryPort bookQueryPort) {
+        this.bookQueryPort = bookQueryPort;
 
-        logger.info("BookInquiryService({})", bookRepository);
+        logger.info("BookInquiryService({})", bookQueryPort);
     }
 
     @Override
@@ -37,7 +37,7 @@ public class BookInquiryService implements
         if (name== null || name.isBlank())
             ServiceError.AUTHOR_NAME_REQUIRED.raise();
 
-        return bookRepository.findAuthorsByName(name);
+        return bookQueryPort.findAuthorsByName(name);
     }
 
     @Override
@@ -46,21 +46,21 @@ public class BookInquiryService implements
         if (authorId == null)
             ServiceError.AUTHOR_ID_REQUIRED.raise();
 
-        return Optional.ofNullable(bookRepository.findAuthorById(authorId));
+        return Optional.ofNullable(bookQueryPort.findAuthorById(authorId));
     }
 
     @Override
     public List<Author> authors() {
         logger.info("authors()");
 
-        return bookRepository.findAuthors();
+        return bookQueryPort.findAuthors();
     }
 
     @Override
     public List<Book> books() {
         logger.info("books()");
 
-        return bookRepository.findBooks();
+        return bookQueryPort.findBooks();
     }
 
     @Override
@@ -70,7 +70,7 @@ public class BookInquiryService implements
         if (title== null || title.isBlank())
             ServiceError.BOOK_TITLE_REQUIRED.raise();
 
-        return bookRepository.findBooksByTitle(title);
+        return bookQueryPort.findBooksByTitle(title);
     }
 
     @Override
@@ -80,7 +80,7 @@ public class BookInquiryService implements
         if (bookId == null)
             ServiceError.BOOK_ID_REQUIRED.raise();
 
-        return Optional.ofNullable(bookRepository.findBookById(bookId));
+        return Optional.ofNullable(bookQueryPort.findBookById(bookId));
     }
 
     @Override
@@ -92,7 +92,7 @@ public class BookInquiryService implements
 
         final List<Author> authors = authorsByName(name);
         return authors.stream()
-                .flatMap(author -> bookRepository.findBooksByAuthorId(author.id()).stream())
+                .flatMap(author -> bookQueryPort.findBooksByAuthorId(author.id()).stream())
                 .toList();
     }
 

@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ISBNTest {
+public class ISBNTest {
     public static final String ISBN_13_TEXT = "978-0-7645-7682-9";
     public static final String ISBN_10_TEXT = "0-7645-7682-8";
 

@@ -6,10 +6,11 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class BookIdTest {
+public class BookIdTest {
     @Test
     void nullParameters() {
-        assertThrows(NullPointerException.class, () -> new BookId(null, ""));
+        assertThrows(IllegalArgumentException.class, () -> new BookId("", ""));
+        assertThrows(IllegalArgumentException.class, () -> new BookId("BLA", ""));
         assertThrows(NullPointerException.class, () -> new BookId(BookId.BookIdScheme.UUID, null));
     }
 
