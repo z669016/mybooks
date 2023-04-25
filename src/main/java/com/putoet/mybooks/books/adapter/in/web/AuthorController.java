@@ -28,7 +28,11 @@ public class AuthorController {
 
     @GetMapping("/authors")
     public List<AuthorResponse> getAuthors() {
-        return AuthorResponse.from(bookInquiryService.authors());
+        try {
+            return AuthorResponse.from(bookInquiryService.authors());
+        } catch (RuntimeException exc) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
+        }
     }
 
     @GetMapping("/author/{id}")
