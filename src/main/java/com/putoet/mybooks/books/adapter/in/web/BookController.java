@@ -9,6 +9,7 @@ import com.putoet.mybooks.books.domain.BookId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -29,7 +30,7 @@ public class BookController {
         this.bookUpdateService = bookUpdateService;
     }
 
-    @GetMapping("/books")
+    @GetMapping(path = "/books", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<BookResponse> getBooks() {
         try {
             return BookResponse.from(bookInquiryService.books());
@@ -38,7 +39,7 @@ public class BookController {
         }
     }
 
-    @GetMapping("/books/author/{name}")
+    @GetMapping(path = "/books/author/{name}", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<BookResponse> getBooksByAuthorName(@PathVariable String name) {
         try {
             return BookResponse.from(bookInquiryService.booksByAuthorName(name));
@@ -47,7 +48,7 @@ public class BookController {
         }
     }
 
-    @GetMapping("/books/{title}")
+    @GetMapping(path = "/books/{title}", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<BookResponse> getBooksByTitle(@PathVariable String title) {
         try {
             return BookResponse.from(bookInquiryService.booksByTitle(title));
@@ -57,7 +58,7 @@ public class BookController {
     }
 
 
-    @GetMapping("/book/{schema}/{id}")
+    @GetMapping(path = "/book/{schema}/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public BookResponse getBookById(@PathVariable String schema, @PathVariable String id) {
         try {
             final BookId bookId = new BookId(schema, id);
@@ -71,12 +72,15 @@ public class BookController {
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "book with schema " + schema + " and id " + id + " not found");
     }
 
-    @PostMapping("/book")
+    @PostMapping(path = "/book",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public BookResponse postBook(@RequestBody BookResponse book) {
         try {
             final BookId bookId = new BookId(book.schema(), book.id());
             final List<Author> authors = new ArrayList<>();
-            for (AuthorResponse author:  book.authors()) {
+            for (AuthorResponse author : book.authors()) {
                 if (author.id() == null) {
                     authors.add(bookUpdateService.registerAuthor(author.name(), AuthorResponse.toDomain(author.sites())));
                 } else {

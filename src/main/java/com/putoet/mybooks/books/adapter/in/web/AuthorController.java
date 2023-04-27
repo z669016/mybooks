@@ -7,6 +7,7 @@ import com.putoet.mybooks.books.domain.AuthorId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -26,7 +27,7 @@ public class AuthorController {
         this.bookUpdateService = bookUpdateService;
     }
 
-    @GetMapping("/authors")
+    @GetMapping(path = "/authors", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<AuthorResponse> getAuthors() {
         try {
             return AuthorResponse.from(bookInquiryService.authors());
@@ -35,7 +36,7 @@ public class AuthorController {
         }
     }
 
-    @GetMapping("/author/{id}")
+    @GetMapping(path = "/author/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public AuthorResponse getAuthorById(@PathVariable String id) {
         try {
             if (id == null)
@@ -52,7 +53,7 @@ public class AuthorController {
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Author with id " + id + " not found.");
     }
 
-    @GetMapping("/authors/{name}")
+    @GetMapping(path = "/authors/{name}", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<AuthorResponse> getAuthorsByName(@PathVariable String name) {
         try {
             if (name == null)
@@ -65,7 +66,7 @@ public class AuthorController {
         }
     }
 
-    @DeleteMapping("/author/{id}")
+    @DeleteMapping(path = "/author/{id}")
     public void deleteAuthorById(@PathVariable String id) {
         try {
             if (id == null)
@@ -78,7 +79,10 @@ public class AuthorController {
         }
     }
 
-    @PostMapping("/author")
+    @PostMapping(path = "/author",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public AuthorResponse postAuthor(@RequestBody AuthorResponse author) {
         try {
             if (author.id() != null)
@@ -93,7 +97,10 @@ public class AuthorController {
         }
     }
 
-    @PutMapping("/author/{id}")
+    @PutMapping(path = "/author/{id}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public AuthorResponse putAuthor(@PathVariable String id, @RequestBody AuthorResponse author) {
         try {
             if (id == null || !id.equals(author.id()))
