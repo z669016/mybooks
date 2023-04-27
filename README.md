@@ -42,3 +42,5 @@ classDiagram
     EpubBookLoader -- KeywordLoader: uses
     EpubBookLoader -- Rezipper: uses
 ```
+## Security
+Implemented according to this [sample](https://github.com/Ozair0/Spring-Boot-3-Auth-JWT-Cookie-JPA). 

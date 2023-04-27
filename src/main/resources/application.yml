@@ -10,18 +10,21 @@ spring:
         bootstrap-mode: default
   mvc:
     log-request-details: 'true'
+
   jpa:
     properties:
       hibernate:
         generate_statistics: 'true'
         format_sql: 'true'
     show-sql: 'true'
+
 logging:
   level:
-    org:
-      hibernate:
-        stat: debug
-        type: trace
+    root: info
+
 server:
+  port: 8081
+  servlet:
+    context-path: /
   error:
     include-message: always

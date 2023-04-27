@@ -19,6 +19,8 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.putoet.mybooks.books.adapter.out.persistence.SqlUtil.sqlInfo;
+
 
 /**
  * Class H2BookRepository
@@ -35,17 +37,13 @@ public class H2BookRepository implements BookUpdatePort {
         this.template = template;
     }
 
-    private void sqlInfo(String sql, Object ... parameters) {
-        sql = sql.replace("?", "'{}'");
-        logger.info(sql + ";", parameters);
-    }
 
     @Override
     public List<Author> findAuthors() {
         logger.info("findAuthors()");
 
         final String sql = "select author_id, version, name from author";
-        sqlInfo(sql);
+        sqlInfo(logger, sql);
 
         return template.query(sql, this::authorMapper);
     }
@@ -56,7 +54,7 @@ public class H2BookRepository implements BookUpdatePort {
         name = "%" + name.toLowerCase() + "%";
 
         final String sql = "select author_id, version, name from author where lower(name) like ?";
-        sqlInfo(sql, name);
+        sqlInfo(logger, sql, name);
 
         return template.query(sql, this::authorMapper, name);
     }
@@ -67,7 +65,7 @@ public class H2BookRepository implements BookUpdatePort {
 
         try {
             final String sql = "select author_id, version, name from author where author_id = ?";
-            sqlInfo(sql, id.uuid());
+            sqlInfo(logger, sql, id.uuid());
 
             return template.queryForObject(sql, this::authorMapper, id.uuid());
         } catch (EmptyResultDataAccessException exc) {
@@ -81,7 +79,7 @@ public class H2BookRepository implements BookUpdatePort {
         logger.info("findBooks()");
 
         final String sql = "select book_id_type, book_id, title from book";
-        sqlInfo(sql);
+        sqlInfo(logger, sql);
 
         return template.query(sql, this::bookMapper);
     }
@@ -97,7 +95,7 @@ public class H2BookRepository implements BookUpdatePort {
 
         title = "%" + title + "%";
         final String sql = "select book_id_type, book_id, title from book where title like ?";
-        sqlInfo(sql, title);
+        sqlInfo(logger, sql, title);
 
         return template.query(sql, this::bookMapper, title);
     }
@@ -112,7 +110,7 @@ public class H2BookRepository implements BookUpdatePort {
         }
 
         final String sql = "select book_id_type, book_id, title from book where book_id_type = ? and book_id = ?";
-        sqlInfo(sql, bookId.schema().name(), bookId.id());
+        sqlInfo(logger, sql, bookId.schema().name(), bookId.id());
         return template.queryForObject(sql, this::bookMapper, bookId.schema().name(), bookId.id());
     }
 
@@ -121,7 +119,7 @@ public class H2BookRepository implements BookUpdatePort {
         logger.info("findBooksByAuthorId({})", authorId);
 
         final String sql = "select book_id_type, book_id, title from book where (book_id_type, book_id) in (select book_id_type, book_id from book_author where author_id = ?)";
-        sqlInfo(sql, authorId.uuid());
+        sqlInfo(logger, sql, authorId.uuid());
 
         return template.query(sql, this::bookMapper, authorId.uuid());
     }
@@ -145,7 +143,7 @@ public class H2BookRepository implements BookUpdatePort {
         logger.info("findKeywordsForBook({}, {})", bookIdType, bookId);
 
         final String sql = "select book_id_type, book_id, keyword from book_key_word where book_id_type = ? and book_id = ?";
-        sqlInfo(sql, bookIdType, bookId);
+        sqlInfo(logger, sql, bookIdType, bookId);
 
         return Set.copyOf(template.query(sql, this::keywordMapper, bookIdType, bookId));
     }
@@ -158,7 +156,7 @@ public class H2BookRepository implements BookUpdatePort {
         logger.info("findFormatsForBook({}, {})", bookIdType, bookId);
 
         final String sql = "select book_id_type, book_id, format from book_format where book_id_type = ? and book_id = ?";
-        sqlInfo(sql, bookIdType, bookId);
+        sqlInfo(logger, sql, bookIdType, bookId);
 
         return template.query(sql, this::formatTypeMapper, bookIdType, bookId);
     }
@@ -172,7 +170,7 @@ public class H2BookRepository implements BookUpdatePort {
         logger.info("findAuthorsForBook({}, {})", bookIdType, bookId);
 
         final String sql = "select author_id, version, name from author where author_id in (select author_id from book_author where book_id_type = ? and book_id = ?)";
-        sqlInfo(sql, bookIdType, bookId);
+        sqlInfo(logger, sql, bookIdType, bookId);
 
         return template.query(sql, this::authorMapper, bookIdType, bookId);
     }
@@ -180,7 +178,7 @@ public class H2BookRepository implements BookUpdatePort {
     private Author authorMapper(ResultSet row, int rowNum) throws SQLException {
         final String authorId = row.getString("author_id");
         final String sql = "select name, url from site where author_id = ?";
-        sqlInfo(sql, authorId);
+        sqlInfo(logger, sql, authorId);
 
         final List<Site> sites = template.query(sql, this::siteMapper, authorId);
         return new Author(AuthorId.withId(authorId),
@@ -207,7 +205,7 @@ public class H2BookRepository implements BookUpdatePort {
         final AuthorId id = AuthorId.withoutId();
         final Instant version = Instant.now();
         final String sql = "insert into author (author_id, version, name) values (?, ?, ?)";
-        sqlInfo(sql, id.uuid(), version, name);
+        sqlInfo(logger, sql, id.uuid(), version, name);
 
         int count = template.update(sql, id.uuid(), version, name);
         if (count != 1) {
@@ -228,7 +226,7 @@ public class H2BookRepository implements BookUpdatePort {
 
         final Timestamp newVersion = Timestamp.from(Instant.now());
         final String sql = "update author set version = ?, name = ? where author_id = ? and version = ?";
-        sqlInfo(sql, newVersion, name, authorId.uuid(), version);
+        sqlInfo(logger, sql, newVersion, name, authorId.uuid(), version);
 
         int count = template.update(sql, newVersion, name, authorId.uuid(), version);
         if (count != 1) {
@@ -243,7 +241,7 @@ public class H2BookRepository implements BookUpdatePort {
         logger.info("forgetAuthor({})", authorId);
 
         final String sql = "delete from author where author_id = ?";
-        sqlInfo(sql, authorId);
+        sqlInfo(logger, sql, authorId);
 
         int count = template.update(sql, authorId.uuid());
         if (count != 1) {
@@ -257,7 +255,7 @@ public class H2BookRepository implements BookUpdatePort {
         logger.info("setAuthorSite({}, {}, {})", authorId, type, url);
 
         final String sql = "merge into site (author_id, name, url) values (?, ?, ?)";
-        sqlInfo(sql, authorId.uuid(),type.name(),url.toString());
+        sqlInfo(logger, sql, authorId.uuid(),type.name(),url.toString());
 
         int count = template.update(sql, authorId.uuid(),type.name(),url.toString());
         if (count != 1) {
@@ -272,7 +270,7 @@ public class H2BookRepository implements BookUpdatePort {
         logger.info("registerBook({}, {}, {}, {})", bookId, title, authors, formats);
 
         final String sql = "insert into book (book_id_type, book_id, title) values (?, ?, ?)";
-        sqlInfo(sql, bookId.schema().name(), bookId.id(), title);
+        sqlInfo(logger, sql, bookId.schema().name(), bookId.id(), title);
 
         int count = template.update(sql, bookId.schema().name(), bookId.id(), title);
         if (count != 1) {
@@ -282,7 +280,7 @@ public class H2BookRepository implements BookUpdatePort {
 
         for (Author author : authors) {
             final String sql2 = "insert into book_author (book_id_type, book_id, author_id) values (?, ?, ?)";
-            sqlInfo(sql2, bookId.schema().name(), bookId.id(), author.id().uuid().toString());
+            sqlInfo(logger, sql2, bookId.schema().name(), bookId.id(), author.id().uuid().toString());
 
             count = template.update(sql2, bookId.schema().name(), bookId.id(), author.id().uuid().toString());
             if (count != 1) {
@@ -293,7 +291,7 @@ public class H2BookRepository implements BookUpdatePort {
 
         for (MimeType format : formats.mimeTypes()) {
             final String sql2 = "insert into book_format (book_id_type, book_id, format) values (?, ?, ?)";
-            sqlInfo(sql2, bookId.schema().name(), bookId.id(), format.toString());
+            sqlInfo(logger, sql2, bookId.schema().name(), bookId.id(), format.toString());
 
             count = template.update(sql2, bookId.schema().name(), bookId.id(), format.toString());
             if (count != 1) {
@@ -304,7 +302,7 @@ public class H2BookRepository implements BookUpdatePort {
 
         for (String keyword : keywords) {
             final String sql3 = "insert into book_key_word (book_id_type, book_id, keyword) values (?, ?, ?)";
-            sqlInfo(sql3, bookId.schema().name(), bookId.id(), keyword);
+            sqlInfo(logger, sql3, bookId.schema().name(), bookId.id(), keyword);
 
             count = template.update(sql3, bookId.schema().name(), bookId.id(), keyword);
             if (count != 1) {
