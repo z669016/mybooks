@@ -1,0 +1,28 @@
+spring:
+  h2:
+    console:
+      enabled: 'true'
+  sql:
+    init:
+      mode: always
+  datasource:
+    url: jdbc:h2:mem:test_books;time zone=UTC
+  data:
+    jpa:
+      repositories:
+        bootstrap-mode: default
+  jpa:
+    properties:
+      hibernate:
+        generate_statistics: 'true'
+        format_sql: 'true'
+    show-sql: 'true'
+logging:
+  level:
+    org:
+      hibernate:
+        stat: debug
+        type: trace
+server:
+  error:
+    include-message: always
