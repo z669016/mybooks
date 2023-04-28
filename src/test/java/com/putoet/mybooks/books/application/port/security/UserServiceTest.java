@@ -1,6 +1,6 @@
 package com.putoet.mybooks.books.application.port.security;
 
-import com.putoet.mybooks.books.application.port.in.security.SecurityException;
+import com.putoet.mybooks.books.application.port.in.security.UserException;
 import com.putoet.mybooks.books.application.port.out.security.UserPort;
 import com.putoet.mybooks.books.domain.security.AccessRole;
 import com.putoet.mybooks.books.domain.security.User;
@@ -12,7 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-class SecurityServiceTest {
+class UserServiceTest {
     private UserPort userPort;
     private PasswordEncoder passwordEncoder;
     private UserService userService;
@@ -29,8 +29,8 @@ class SecurityServiceTest {
 
     @Test
     void forgetUser() {
-        assertThrows(SecurityException.class, () -> userService.forgetUser(null));
-        assertThrows(SecurityException.class, () -> userService.forgetUser("   "));
+        assertThrows(UserException.class, () -> userService.forgetUser(null));
+        assertThrows(UserException.class, () -> userService.forgetUser("   "));
 
         userService.forgetUser(USER.id());
         verify(userPort).forgetUser(USER.id());
@@ -38,13 +38,13 @@ class SecurityServiceTest {
 
     @Test
     void registerUser() {
-        assertThrows(SecurityException.class, () -> userService.registerUser(null, null, null, null));
-        assertThrows(SecurityException.class, () -> userService.registerUser("   ", null, null, null));
-        assertThrows(SecurityException.class, () -> userService.registerUser(USER.id(), null, null, null));
-        assertThrows(SecurityException.class, () -> userService.registerUser(USER.id(), "  ", null, null));
-        assertThrows(SecurityException.class, () -> userService.registerUser(USER.id(), USER.name(), null, null));
-        assertThrows(SecurityException.class, () -> userService.registerUser(USER.id(), USER.name(), "  ", null));
-        assertThrows(SecurityException.class, () -> userService.registerUser(USER.id(), USER.name(), "2password!", null));
+        assertThrows(UserException.class, () -> userService.registerUser(null, null, null, null));
+        assertThrows(UserException.class, () -> userService.registerUser("   ", null, null, null));
+        assertThrows(UserException.class, () -> userService.registerUser(USER.id(), null, null, null));
+        assertThrows(UserException.class, () -> userService.registerUser(USER.id(), "  ", null, null));
+        assertThrows(UserException.class, () -> userService.registerUser(USER.id(), USER.name(), null, null));
+        assertThrows(UserException.class, () -> userService.registerUser(USER.id(), USER.name(), "  ", null));
+        assertThrows(UserException.class, () -> userService.registerUser(USER.id(), USER.name(), "2password!", null));
 
         final String password = "encoded_password";
         when(passwordEncoder.encode(USER.password())).thenReturn(password);
@@ -56,8 +56,8 @@ class SecurityServiceTest {
 
     @Test
     void userById() {
-        assertThrows(SecurityException.class, () -> userService.userById(null));
-        assertThrows(SecurityException.class, () -> userService.userById("   "));
+        assertThrows(UserException.class, () -> userService.userById(null));
+        assertThrows(UserException.class, () -> userService.userById("   "));
 
         userService.userById(USER.id());
         verify(userPort).findUserById(USER.id());

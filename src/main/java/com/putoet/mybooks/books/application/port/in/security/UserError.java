@@ -1,6 +1,6 @@
 package com.putoet.mybooks.books.application.port.in.security;
 
-public enum SecurityError {
+public enum UserError {
     USER_ID_OR_PASSWORD_ERROR,
     USER_REGISTRATION_ERROR,
     USER_ID_INVALID,
@@ -12,9 +12,9 @@ public enum SecurityError {
     USER_PASSWORD_TOO_SIMPLE;
 
     public void raise() {
-        throw new SecurityException(this);
+        throw new UserException(this);
     }
     public void raise(String msg) {
-        throw new SecurityException(this, msg);
+        throw new UserException(this, msg);
     }
 }

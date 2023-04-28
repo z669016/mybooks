@@ -10,8 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.*;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
@@ -57,12 +56,20 @@ public class UserController {
                 cookie.setHttpOnly(true);
                 cookie.setPath("/"); // Global
                 response.addCookie(cookie);
-                return ResponseEntity.ok(jwt);
+                return ResponseEntity.ok("");
             }
 
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Authentication error");
-        } catch (Exception exc) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
+            logger.error("No user details for id {}", request.id());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No user details for id " + request.id());
+        } catch (DisabledException exc) {
+            logger.error("User account was disabled for for user {}", request.id());
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, exc.getMessage());
+        } catch (LockedException exc) {
+            logger.error("User account was locked for user {}", request.id());
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, exc.getMessage());
+        } catch (BadCredentialsException exc) {
+            logger.error("Invalid userid/password for user {}", request.id());
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, exc.getMessage());
         }
     }
 
@@ -76,7 +83,7 @@ public class UserController {
                     request.password(),
                     AccessRole.from(request.accessRole()))
             );
-        } catch (SecurityException exc) {
+        } catch (RuntimeException exc) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
         }
     }
@@ -85,7 +92,7 @@ public class UserController {
     public List<UserResponse> getUsers() {
         try {
             return UserResponse.from(userService.users());
-        } catch (SecurityException exc) {
+        } catch (RuntimeException exc) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
         }
     }
@@ -96,7 +103,7 @@ public class UserController {
             final Optional<User> user = userService.userById(id);
             if (user.isPresent())
                 return UserResponse.from(user.get());
-        } catch (SecurityException exc) {
+        } catch (RuntimeException exc) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
         }
 

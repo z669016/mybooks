@@ -1,6 +1,6 @@
 package com.putoet.mybooks.books.adapter.out.security;
 
-import com.putoet.mybooks.books.application.port.in.security.SecurityError;
+import com.putoet.mybooks.books.application.port.in.security.UserError;
 import com.putoet.mybooks.books.application.port.out.security.UserPort;
 import com.putoet.mybooks.books.domain.security.AccessRole;
 import com.putoet.mybooks.books.domain.security.User;
@@ -45,7 +45,7 @@ public class H2UserRepository implements UserPort {
 
         final User user = template.queryForObject(sql, this::userMapper, id);
         if (user == null)
-            SecurityError.USER_ID_INVALID.raise(id);
+            UserError.USER_ID_INVALID.raise(id);
 
         return user;
     }
@@ -67,8 +67,8 @@ public class H2UserRepository implements UserPort {
 
         int count = template.update(sql, id);
         if (count != 1) {
-            logger.error("{}: {}", SecurityError.USER_ID_INVALID.name(), id);
-            SecurityError.USER_ID_INVALID.raise(id);
+            logger.error("{}: {}", UserError.USER_ID_INVALID.name(), id);
+            UserError.USER_ID_INVALID.raise(id);
         }
     }
 
@@ -81,8 +81,8 @@ public class H2UserRepository implements UserPort {
 
         int count = template.update(sql, id, name, password, accessRole.name());
         if (count != 1) {
-            logger.error("{}: {} {} '{}' {}", SecurityError.USER_REGISTRATION_ERROR, id, name, password, accessRole);
-            SecurityError.USER_REGISTRATION_ERROR.raise("User with new id " + id + ", name " + name + ", and accessRole " + accessRole);
+            logger.error("{}: {} {} '{}' {}", UserError.USER_REGISTRATION_ERROR, id, name, password, accessRole);
+            UserError.USER_REGISTRATION_ERROR.raise("User with new id " + id + ", name " + name + ", and accessRole " + accessRole);
         }
 
         return findUserById(id);

@@ -41,7 +41,7 @@ public class UserService implements Users, UserById, ForgetUser, RegisterUser {
         logger.info("forgetUser({})", id);
 
         if (id == null || id.isBlank())
-            SecurityError.USER_ID_REQUIRED.raise();
+            UserError.USER_ID_REQUIRED.raise();
 
         userPort.forgetUser(id);
     }
@@ -49,19 +49,19 @@ public class UserService implements Users, UserById, ForgetUser, RegisterUser {
     @Override
     public User registerUser(String id, String name, String password, AccessRole accessRole) {
         if (id == null || id.isBlank() || !EMAIL_PATTERN.matcher(id).matches())
-            SecurityError.USER_ID_INVALID.raise(id);
+            UserError.USER_ID_INVALID.raise(id);
 
         if (name == null || name.isBlank())
-            SecurityError.USER_NAME_REQUIRED.raise();
+            UserError.USER_NAME_REQUIRED.raise();
 
         if (password == null || password.isBlank())
-            SecurityError.USER_PASSWORD_REQUIRED.raise();
+            UserError.USER_PASSWORD_REQUIRED.raise();
 
         if (password.length() < 8)
-            SecurityError.USER_PASSWORD_TOO_SIMPLE.raise();
+            UserError.USER_PASSWORD_TOO_SIMPLE.raise();
 
         if (accessRole == null)
-            SecurityError.USER_ACCESS_ROLE_REQUIRED.raise();
+            UserError.USER_ACCESS_ROLE_REQUIRED.raise();
 
         return userPort.registerUser(id, name, passwordEncoder.encode(password), accessRole);
     }
@@ -71,7 +71,7 @@ public class UserService implements Users, UserById, ForgetUser, RegisterUser {
         logger.info("userById({})", id);
 
         if (id == null || id.isBlank())
-            SecurityError.USER_ID_REQUIRED.raise();
+            UserError.USER_ID_REQUIRED.raise();
 
         return Optional.ofNullable(userPort.findUserById(id));
     }
