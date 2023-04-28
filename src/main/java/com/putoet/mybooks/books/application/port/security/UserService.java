@@ -32,8 +32,6 @@ public class UserService implements Users, UserById, ForgetUser, RegisterUser {
         logger.info("SecurityService({}, {})", userPort, passwordEncoder);
         this.userPort = userPort;
         this.passwordEncoder = passwordEncoder;
-
-        userPort.findUsers().forEach(System.out::println);
     }
 
     @Override
