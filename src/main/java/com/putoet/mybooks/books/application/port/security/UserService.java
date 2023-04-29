@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -90,7 +91,7 @@ public class UserService implements Users, UserById, ForgetUser, RegisterUser {
 
             return new UserDetails() {
                 public Collection<? extends GrantedAuthority> getAuthorities() {
-                    return List.of((GrantedAuthority) () -> user.accessRole().name());
+                    return List.of(new SimpleGrantedAuthority("ROLE_" + user.accessRole().name()));
                 }
 
                 @Override

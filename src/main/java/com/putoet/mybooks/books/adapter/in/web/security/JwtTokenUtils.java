@@ -17,6 +17,7 @@ import java.util.function.Function;
 public class JwtTokenUtils implements Serializable {
     private static final String SECRET_KEY = "FlorisEmmaHannesPoppieLevelAlHeelLangSamenBijOnsInHuis";
     private static final SecretKey SIGNING_KEY = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+    public static final String AUTHORITIES_KEY = "authorities";
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -45,7 +46,7 @@ public class JwtTokenUtils implements Serializable {
 
     public String generateToken(UserDetails userDetails) {
         final Map<String, Object> claims = new HashMap<>();
-        claims.put("authorities",userDetails.getAuthorities());
+        claims.put(AUTHORITIES_KEY,userDetails.getAuthorities());
         return createToken(claims, userDetails.getUsername());
     }
 
