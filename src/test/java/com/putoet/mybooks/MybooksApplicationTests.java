@@ -1,87 +1,102 @@
 package com.putoet.mybooks;
 
-import com.putoet.mybooks.books.application.BookInquiryService;
-import com.putoet.mybooks.books.application.BookUpdateService;
-import com.putoet.mybooks.books.domain.Author;
-import com.putoet.mybooks.books.domain.Book;
-import com.putoet.mybooks.books.adapter.out.persistence.FolderBookRepository;
-import com.putoet.mybooks.books.adapter.out.persistence.H2BookRepository;
-import com.putoet.mybooks.books.adapter.out.persistence.EpubBookLoader;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.putoet.mybooks.books.adapter.in.web.security.JwtRequestFilter;
+import com.putoet.mybooks.books.adapter.in.web.security.JwtResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
-@SpringBootTest
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = MybooksApplication.class)
+@AutoConfigureMockMvc
 class MybooksApplicationTests {
-    private static final String BOOKS = "/Users/renevanputten/OneDrive/Documents/Books";
-    private static final String LEANPUB = "/Users/renevanputten/OneDrive/Documents/Books/leanpub";
-    private static final Logger logger = LoggerFactory.getLogger(MybooksApplicationTests.class);
 
     @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private MockMvc mvc;
 
-    @Test
-    void loadBooks() {
-        final long start = System.currentTimeMillis();
-        final H2BookRepository database = new H2BookRepository(jdbcTemplate);
-        final FolderBookRepository folder = new FolderBookRepository(Paths.get(BOOKS));
+    private String adminToken;
+    private String userToken;
 
-        final BookInquiryService folderBookInquiryService = new BookInquiryService(folder);
-        final BookInquiryService bookInquiryService = new BookInquiryService(database);
-        final BookUpdateService bookUpdateService = new BookUpdateService(database);
+    @BeforeEach
+     void init() throws Exception {
+        if (adminToken != null || userToken != null)
+            return;
 
-        final Map<String, Author> storedAuthors = new HashMap<>();
-        for (Author author : folderBookInquiryService.authors()) {
-            try {
-                storedAuthors.put(author.name(), bookUpdateService.registerAuthor(author.name(), author.sites()));
-            } catch (RuntimeException exc) {
-                logger.error("Failed to register author '" + author + "'", exc);
-            }
+        JwtResponse jwtResponse = loginFor("z669016@gmail.com", "1password!");
+        adminToken = jwtResponse.access_token();
+
+        jwtResponse = loginFor("putoet@outlook.com", "2password!");
+        userToken = jwtResponse.access_token();
+    }
+
+    private JwtResponse loginFor(String id, String password) throws Exception {
+        final ObjectMapper objectMapper = new ObjectMapper();
+
+        var result = mvc.perform(MockMvcRequestBuilders
+                        .post("/login")
+                        .content(asJsonString(Map.of("id", id, "password", password)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andReturn();
+
+        return objectMapper.readValue(result.getResponse().getContentAsString(), JwtResponse.class);
+    }
+
+    private static String asJsonString(final Object obj) {
+        try {
+            return new ObjectMapper().writeValueAsString(obj);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-
-        storedAuthors.values().stream()
-                .sorted(Comparator.comparing(Author::name))
-                .forEach(System.out::println);
-
-        for (Book book : folderBookInquiryService.books()) {
-            final List<Author> authors = book.authors().stream()
-                    .map(author -> storedAuthors.get(author.name()))
-                    .distinct()
-                    .toList();
-            try {
-                bookUpdateService.registerBook(book.id(), book.title(), authors, book.formats().mimeTypes(), book.keywords());
-            } catch (RuntimeException exc) {
-                logger.error("Failed to register book '" + book + "'", exc);
-            }
-        }
-        final long end = System.currentTimeMillis();
-
-        System.out.println("All stored books:");
-        bookInquiryService.books().stream()
-                .sorted(Comparator.comparing(Book::title))
-                .forEach(book -> System.out.printf("%s (%d)%n", book.title(), book.keywords().size()));
-
-        System.out.printf("Registered %d books in %.3f seconds%n", bookInquiryService.books().size(), (end - start) / 1000.0);
     }
 
     @Test
-    void validateBooks() {
-        final Path folder = Paths.get(BOOKS);
-        final Set<String> epubFiles = FolderBookRepository.listEpubFiles(folder);
+    void users() throws Exception {
+        mvc.perform(MockMvcRequestBuilders
+                        .get("/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(JwtRequestFilter.AUTHORIZATION_KEY, "BEARER" + " " + adminToken)
+                )
+                .andExpect(status().isOk());
+    }
 
-        long start = System.currentTimeMillis();
-        epubFiles.parallelStream().forEach(fileName -> {
-            logger.warn("loading [{}]", fileName);
-            EpubBookLoader.bookForFile(fileName, true);
-        });
-        long end = System.currentTimeMillis();
-        System.out.printf("Loading %d books took %.3f seconds\n", epubFiles.size(), (end - start) / 1000.0);
+    @Test
+    void usersFailed() throws Exception {
+        mvc.perform(MockMvcRequestBuilders
+                        .get("/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(JwtRequestFilter.AUTHORIZATION_KEY, JwtRequestFilter.AUTHORIZATION_SCHEME + " " + userToken)
+                )
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void authorsByAdmin() throws Exception {
+        mvc.perform(MockMvcRequestBuilders
+                        .get("/authors")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(JwtRequestFilter.AUTHORIZATION_KEY, JwtRequestFilter.AUTHORIZATION_SCHEME + " " + adminToken)
+                )
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void authorsByUser() throws Exception {
+        mvc.perform(MockMvcRequestBuilders
+                        .get("/authors")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(JwtRequestFilter.AUTHORIZATION_KEY, JwtRequestFilter.AUTHORIZATION_SCHEME + " " + adminToken)
+                )
+                .andExpect(status().isOk());
     }
 }
