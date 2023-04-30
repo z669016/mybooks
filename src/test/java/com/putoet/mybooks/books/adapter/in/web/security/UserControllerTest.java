@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
@@ -80,22 +79,22 @@ class UserControllerTest {
     void login() {
         final HttpServletResponse response = mock(HttpServletResponse.class);
         when(userDetailService.loadUserByUsername(request.id())).thenReturn(userDetails);
-        final ResponseEntity<String> result =  userController.login(request, response);
+        final JwtResponse result = userController.login(request, response);
 
         verify(authenticationManager, times(1)).authenticate(any());
         verify(response, times(1)).addCookie(any());
-        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertNotNull(result.access_token());
     }
 
     @Test
-    void loginFailedn() {
+    void loginFailed() {
         final HttpServletResponse response = mock(HttpServletResponse.class);
         when(userDetailService.loadUserByUsername(request.id())).thenReturn(null);
         try {
             userController.login(request, response);
             fail("ResponseStatusException expected");
         } catch (ResponseStatusException exc) {
-            assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
+            assertEquals(HttpStatus.FORBIDDEN, exc.getStatusCode());
             verify(authenticationManager, times(1)).authenticate(any());
             verify(response, times(0)).addCookie(any());
         }

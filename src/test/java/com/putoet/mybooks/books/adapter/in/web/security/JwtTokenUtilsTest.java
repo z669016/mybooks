@@ -70,6 +70,6 @@ class JwtTokenUtilsTest {
 
     @Test
     void validateToken() {
-        assertTrue(utils.validateToken(token, userDetails));
+        assertTrue(utils.validateToken(token, userDetails.getUsername()));
     }
 }

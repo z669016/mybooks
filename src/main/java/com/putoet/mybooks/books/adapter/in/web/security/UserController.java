@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -43,7 +42,7 @@ public class UserController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
         )
-    public ResponseEntity<String> login(@RequestBody UserRequest request, HttpServletResponse response) {
+    public JwtResponse login(@RequestBody UserRequest request, HttpServletResponse response) {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.id(), request.password(), new ArrayList<>())
@@ -52,16 +51,13 @@ public class UserController {
             final UserDetails userDetails = userDetailsService.loadUserByUsername(request.id());
             if (userDetails != null) {
                 final String jwt = jwtTokenUtils.generateToken(userDetails);
-                final Cookie cookie = new Cookie("jwt", jwt);
-                cookie.setMaxAge(7 * 24 * 60 * 60); // expires in 7 days
-                cookie.setHttpOnly(true);
-                cookie.setPath("/"); // Global
-                response.addCookie(cookie);
-                return ResponseEntity.ok("");
+                response.addCookie(jwtCookie(jwt));
+                response.setHeader(JwtRequestFilter.AUTHORIZATION_KEY, JwtRequestFilter.AUTHORIZATION_SCHEME + " " + jwt);
+                return new JwtResponse(jwt, JwtTokenUtils.EXPIRES_IN);
             }
 
             logger.error("No user details for id {}", request.id());
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No user details for id " + request.id());
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No user details for id " + request.id());
         } catch (DisabledException exc) {
             logger.error("User account was disabled for for user {}", request.id());
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, exc.getMessage());
@@ -72,6 +68,14 @@ public class UserController {
             logger.error("Invalid userid/password for user {}", request.id());
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, exc.getMessage());
         }
+    }
+
+    private static Cookie jwtCookie(String jwt) {
+        final Cookie cookie = new Cookie("jwt", jwt);
+        cookie.setMaxAge(JwtTokenUtils.EXPIRES_IN); // expires in 7 days
+        cookie.setHttpOnly(true);
+        cookie.setPath("/"); // Global
+        return cookie;
     }
 
     @PreAuthorize("hasRole('ADMIN')")

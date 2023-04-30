@@ -21,7 +21,8 @@ import java.util.Optional;
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
 
-    public static final String JWT_KEY = "jwt";
+    public static final String AUTHORIZATION_KEY = "Authorization";
+    public static final String AUTHORIZATION_SCHEME = "Bearer";
     private final UserDetailsService userDetailsService;
     private final JwtTokenUtils jwtTokenUtils;
 
@@ -29,7 +30,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         this.userDetailsService = userDetailsService;
         this.jwtTokenUtils = jwtTokenUtils;
     }
-
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -39,29 +39,45 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         if (request.getCookies() != null) {
             jwtToken = Arrays.stream(request.getCookies())
-                    .filter(c -> c.getName().equals(JWT_KEY))
+                    .filter(c -> c.getName().equals(AUTHORIZATION_KEY))
                     .map(Cookie::getValue)
                     .findFirst();
         }
 
         if (jwtToken.isEmpty()) {
-            if (request.getHeader(JWT_KEY) != null)
-                jwtToken = Optional.of(request.getHeader(JWT_KEY).substring(7));
+            final String header = request.getHeader(AUTHORIZATION_KEY);
+            if (header != null && header.toLowerCase().startsWith(AUTHORIZATION_SCHEME.toLowerCase() + " ")) {
+                jwtToken = Optional.of(request.getHeader(AUTHORIZATION_KEY).substring(AUTHORIZATION_SCHEME.length() + 1));
+            }
         }
 
         if (jwtToken.isPresent()) {
             final String id = jwtTokenUtils.extractUsername(jwtToken.get());
-            if (id != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                final UserDetails userDetails = userDetailsService.loadUserByUsername(id);
-                if (jwtTokenUtils.validateToken(jwtToken.get(), userDetails)) {
-                    final UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
+            if (id != null) {
+                if (SecurityContextHolder.getContext().getAuthentication() != null &&
+                    !id.equals(SecurityContextHolder.getContext().getAuthentication().getPrincipal())) {
+                    SecurityContextHolder.getContext().setAuthentication(null);
+                }
+
+                if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                    final UserDetails userDetails = userDetailsService.loadUserByUsername(id);
+                    if (isActiveUser(userDetails) && jwtTokenUtils.validateToken(jwtToken.get(), userDetails.getUsername())) {
+                        final UsernamePasswordAuthenticationToken authenticationToken =
+                                new UsernamePasswordAuthenticationToken(id, null, jwtTokenUtils.extractAuthorities(jwtToken.get()));
+                        authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                    }
                 }
             }
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private boolean isActiveUser(UserDetails userDetails) {
+        return userDetails.isAccountNonExpired() &&
+               userDetails.isAccountNonLocked() &&
+               userDetails.isEnabled() &&
+               userDetails.isCredentialsNonExpired();
     }
 }
