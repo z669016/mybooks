@@ -1,6 +1,7 @@
 .idea
 target
 h2db
+cert
 *.iml
 *.log
 *.db
