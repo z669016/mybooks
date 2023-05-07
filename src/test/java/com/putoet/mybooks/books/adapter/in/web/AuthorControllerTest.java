@@ -8,10 +8,7 @@ import com.putoet.mybooks.books.domain.Author;
 import com.putoet.mybooks.books.domain.AuthorId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -22,8 +19,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest
 class AuthorControllerTest {
     private BookInquiryService bookInquiryService;
     private BookUpdateService bookUpdateService;

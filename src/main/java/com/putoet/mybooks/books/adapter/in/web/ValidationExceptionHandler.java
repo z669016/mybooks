@@ -34,7 +34,10 @@ public class ValidationExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public Map<String,Object> handleConstraintViolation(ServletRequest request, MethodArgumentNotValidException exc) {
         final Map<String,Object> messages = exc.getBindingResult().getAllErrors().stream()
-            .map(error -> Pair.of(((FieldError) error).getField(), error.getDefaultMessage()))
+            .map(error -> error instanceof FieldError ?
+                    Pair.of(((FieldError) error).getField(), error.getDefaultMessage())
+                    : Pair.of("parameters", error.getDefaultMessage())
+                    )
                 .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
         return Map.of(
                 "timestamp", Instant.now().toString(),

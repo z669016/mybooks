@@ -6,6 +6,8 @@ import com.putoet.mybooks.books.domain.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.SmartValidator;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -20,7 +22,6 @@ class BookControllerTest {
     private BookInquiryService bookInquiryService;
     private BookUpdateService bookUpdateService;
     private BookController bookController;
-
     private final Author author = new Author(AuthorId.withoutId(), "Schrijver, Jaap de");
 
     private final List<String> formats = List.of(MimeTypes.PDF.toString(), MimeTypes.EPUB.toString());
@@ -35,7 +36,7 @@ class BookControllerTest {
     void setup() {
         bookInquiryService = mock(BookInquiryService.class);
         bookUpdateService = mock(BookUpdateService.class);
-        bookController = new BookController(bookInquiryService, bookUpdateService);
+        bookController = new BookController(bookInquiryService, bookUpdateService, mock(SmartValidator.class));
     }
 
     @Test
@@ -94,14 +95,14 @@ class BookControllerTest {
     }
 
     @Test
-    void getBookById() {
+    void getBookById() throws MethodArgumentNotValidException {
         when(bookInquiryService.bookById(book.id())).thenReturn(Optional.of(book));
         bookController.getBookById(book.id().schema().name(), book.id().id());
         verify(bookInquiryService, times(1)).bookById(book.id());
     }
 
     @Test
-    void getBookByIdFailed() {
+    void getBookByIdFailed() throws MethodArgumentNotValidException {
         try {
             bookController.getBookById("BLA", "123");
         } catch (ResponseStatusException exc) {
@@ -110,7 +111,7 @@ class BookControllerTest {
     }
 
     @Test
-    void getBookByIdNotFound() {
+    void getBookByIdNotFound() throws MethodArgumentNotValidException {
         when(bookInquiryService.bookById(book.id())).thenReturn(Optional.empty());
         try {
             bookController.getBookById(book.id().schema().name(), book.id().id());
@@ -121,21 +122,10 @@ class BookControllerTest {
 
     @Test
     void postBook() {
-        final AuthorResponse firstAuthor = new AuthorResponse(
-                author.id().uuid().toString(),
-                author.version().toString(),
-                author.name(),
-                Map.of()
-        );
+        final BookRequestAuthor firstAuthor = new BookRequestAuthor(author.id().uuid().toString(), null, null);
+        final BookRequestAuthor secondAuthor = new BookRequestAuthor(null, "Author, Second", Map.of());
 
-        final AuthorResponse secondAuthor = new AuthorResponse(
-                null,
-                null,
-                "Author, Second",
-                Map.of()
-        );
-
-        final BookResponse bookResponse = new BookResponse(
+        final NewBookRequest bookRequest = new NewBookRequest(
                 book.id().schema().name(),
                 book.id().id(),
                 book.title(),
@@ -153,11 +143,11 @@ class BookControllerTest {
                 eq(book.id()),
                 eq(book.title()),
                 eq(List.of(author, createdAuthor)),
-                eq(BookResponse.toDomain(bookResponse.formats())),
+                eq(BookResponse.toDomain(bookRequest.formats())),
                 eq(book.keywords())
         )).thenReturn(book);
 
-        final BookResponse createdBook = bookController.postBook(bookResponse);
+        final BookResponse createdBook = bookController.postBook(bookRequest);
         assertNotNull(createdBook);
 
         verify(bookInquiryService, times(1)).authorById(author.id());
