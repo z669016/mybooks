@@ -11,7 +11,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
-import java.util.UUID;
 
 @Documented
 @Constraint(validatedBy = SiteMapConstraint.SiteMapValidator.class)

@@ -29,7 +29,6 @@ class AuthorControllerE2ETest {
     private MockMvc mvc;
 
     private MockRequest mockRequest;
-    private String adminToken;
     private String userToken;
     private ObjectMapper mapper;
 
@@ -37,7 +36,6 @@ class AuthorControllerE2ETest {
      void init() throws Exception {
         mockRequest = new MockRequest(mvc);
         mapper = new ObjectMapper();
-        adminToken = mockRequest.adminToken();
         userToken = mockRequest.userToken();
     }
 

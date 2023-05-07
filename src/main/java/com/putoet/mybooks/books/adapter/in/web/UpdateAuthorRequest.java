@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 
 import java.time.Instant;
 
-public record UpdateAuthorRequest(@VersionConstraint String version,  @NotBlank String name) {
+public record UpdateAuthorRequest(@VersionConstraint String version, @NotBlank String name) {
     public Instant versionAsInstant() {
         return Instant.parse(version());
     }

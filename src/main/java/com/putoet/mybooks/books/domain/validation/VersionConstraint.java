@@ -10,7 +10,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
-import java.util.UUID;
 
 @Documented
 @Constraint(validatedBy = VersionConstraint.ObjectIDValidator.class)
