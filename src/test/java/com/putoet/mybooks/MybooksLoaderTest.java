@@ -21,10 +21,10 @@ import java.util.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = MybooksApplication.class)
 @AutoConfigureMockMvc
-class MybooksLoaderTests {
+class MybooksLoaderTest {
     private static final String BOOKS = "/Users/renevanputten/OneDrive/Documents/Books";
     private static final String LEANPUB = "/Users/renevanputten/OneDrive/Documents/Books/leanpub";
-    private static final Logger logger = LoggerFactory.getLogger(MybooksLoaderTests.class);
+    private static final Logger logger = LoggerFactory.getLogger(MybooksLoaderTest.class);
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
