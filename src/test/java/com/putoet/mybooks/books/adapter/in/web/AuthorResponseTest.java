@@ -41,6 +41,6 @@ class AuthorResponseTest {
                 new SiteType("GitHub"), new URL("https://github.com/thombergs")
         );
 
-        assertEquals(domain, AuthorResponse.toDomain(sites));
+        assertEquals(domain, NewAuthorRequest.sitesWithURLs(sites));
     }
 }

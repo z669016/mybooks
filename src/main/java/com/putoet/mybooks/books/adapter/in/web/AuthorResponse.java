@@ -1,11 +1,13 @@
 package com.putoet.mybooks.books.adapter.in.web;
 
+import com.drew.lang.annotations.NotNull;
 import com.putoet.mybooks.books.domain.Author;
 import com.putoet.mybooks.books.domain.SiteType;
+import com.putoet.mybooks.books.domain.validation.ObjectIDConstraint;
+import com.putoet.mybooks.books.domain.validation.SiteMapConstraint;
+import com.putoet.mybooks.books.domain.validation.VersionConstraint;
 
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -16,12 +18,18 @@ import java.util.stream.Collectors;
  * for domain attributes are replaced by simple string attributes. The static factory methods 'from' translates
  * a domain entity into a user-friendly AuthorBody, where 'toDomain' takes care of the translation into domain
  * entity or domain attributes.
- * @param id String
+ *
+ * @param id      String
  * @param version String
- * @param name String
- * @param sites String
+ * @param name    String
+ * @param sites   String
  */
-public record AuthorResponse(String id, String version, String name, Map<String, String> sites) {
+public record AuthorResponse(
+        @ObjectIDConstraint String id,
+        @VersionConstraint String version,
+        @NotNull String name,
+        @SiteMapConstraint Map<String, String> sites
+) {
     public static List<AuthorResponse> from(List<Author> domain) {
         return domain.stream().map(AuthorResponse::from).toList();
     }
@@ -34,20 +42,5 @@ public record AuthorResponse(String id, String version, String name, Map<String,
                         (Map.Entry<SiteType, URL> entry) -> entry.getKey().name(),
                         (Map.Entry<SiteType, URL> entry) -> entry.getValue().toString()
                 )));
-    }
-
-    public static Map<SiteType, URL> toDomain(Map<String, String> sites) {
-        if (sites == null)
-            return Map.of();
-
-        try {
-            final Map<SiteType, URL> domain = new HashMap<>();
-            for (String key : sites.keySet()) {
-                domain.put(new SiteType(key), new URL(sites.get(key)));
-            }
-            return domain;
-        } catch (MalformedURLException | RuntimeException exc) {
-            throw new RuntimeException(exc.getMessage(), exc);
-        }
     }
 }

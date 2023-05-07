@@ -18,7 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = MybooksApplication.class)
 @AutoConfigureMockMvc
-class MybooksApplicationTests {
+class MybooksApplicationTest {
 
     @Autowired
     private MockMvc mvc;
@@ -98,5 +98,15 @@ class MybooksApplicationTests {
                         .header(JwtRequestFilter.AUTHORIZATION_KEY, JwtRequestFilter.AUTHORIZATION_SCHEME + " " + adminToken)
                 )
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void authorFailed() throws Exception {
+        mvc.perform(MockMvcRequestBuilders
+                        .get("/author/  ")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(JwtRequestFilter.AUTHORIZATION_KEY, JwtRequestFilter.AUTHORIZATION_SCHEME + " " + adminToken)
+                )
+                .andExpect(status().isBadRequest());
     }
 }

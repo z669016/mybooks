@@ -82,7 +82,7 @@ public class BookController {
             final List<Author> authors = new ArrayList<>();
             for (AuthorResponse author : book.authors()) {
                 if (author.id() == null) {
-                    authors.add(bookUpdateService.registerAuthor(author.name(), AuthorResponse.toDomain(author.sites())));
+                    authors.add(bookUpdateService.registerAuthor(author.name(), NewAuthorRequest.sitesWithURLs(author.sites())));
                 } else {
                     authors.add(bookInquiryService.authorById(AuthorId.withId(author.id()))
                             .orElseThrow(() -> new IllegalArgumentException("author with id " + author.id() + " not found for book with id " + bookId))
