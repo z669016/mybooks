@@ -40,14 +40,14 @@ class AuthorControllerE2ETest {
     }
 
     @Test
-    void authorWithBlankIdFailed() throws Exception {
+    void getAuthorWithBlankIdFails() throws Exception {
         mvc.perform(mockRequest.jwtGetRequestWithToken("/author/  ", userToken))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error", Matchers.startsWith("getAuthorById.id: " + ObjectIDConstraint.ID_ERROR)));
     }
 
     @Test
-    void newAuthor() throws Exception {
+    void postAuthor() throws Exception {
         final NewAuthorRequest newAuthorRequest = new NewAuthorRequest("name", Map.of(SiteType.HOMEPAGE_NAME, "https://www.google.com"));
         final String json = mapper.writeValueAsString(newAuthorRequest);
         mvc.perform(mockRequest.jwtPostRequestWithToken("/author", userToken, json))
@@ -56,24 +56,16 @@ class AuthorControllerE2ETest {
     }
 
     @Test
-    void newAuthorInvalidNameFailed() throws Exception {
-        NewAuthorRequest newAuthorRequest = new NewAuthorRequest(null, Map.of(SiteType.HOMEPAGE_NAME, "https://www.google.com"));
+    void postAuthorWithInvalidNameFails() throws Exception {
+        NewAuthorRequest newAuthorRequest = new NewAuthorRequest(null, null);
         String json = mapper.writeValueAsString(newAuthorRequest);
         mvc.perform(mockRequest.jwtPostRequestWithToken("/author", userToken, json))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error.name").value("must not be blank"));
+                .andExpect(jsonPath("$.error.name").value(StandardValidations.message(NotBlank.class)))
+                .andExpect(jsonPath("$.error.sites").value(SiteMapConstraint.SITEMAP_ERROR));
 
-        newAuthorRequest = new NewAuthorRequest("  ", Map.of(SiteType.HOMEPAGE_NAME, "https://www.google.com"));
+        newAuthorRequest = new NewAuthorRequest("name", Map.of("  ", "https://www.google.com"));
         json = mapper.writeValueAsString(newAuthorRequest);
-        mvc.perform(mockRequest.jwtPostRequestWithToken("/author", userToken, json))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error.name").value(StandardValidations.message(NotBlank.class.getName())));
-    }
-
-    @Test
-    void newAuthorInvalidSiteFailed() throws Exception {
-        NewAuthorRequest newAuthorRequest = new NewAuthorRequest("name", Map.of("  ", "https://www.google.com"));
-        String json = mapper.writeValueAsString(newAuthorRequest);
         mvc.perform(mockRequest.jwtPostRequestWithToken("/author", userToken, json))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error.sites").value(SiteMapConstraint.SITEMAP_ERROR));
@@ -86,7 +78,7 @@ class AuthorControllerE2ETest {
     }
 
     @Test
-    void updateAuthor() throws Exception {
+    void putAuthor() throws Exception {
         final AuthorResponse author = newTempAuthor();
 
         final UpdateAuthorRequest updateAuthorRequest = new UpdateAuthorRequest(author.version(), "new name");
@@ -98,7 +90,7 @@ class AuthorControllerE2ETest {
     }
 
     @Test
-    void updateAuthorFailed() throws Exception {
+    void putAuthorFails() throws Exception {
         final AuthorResponse author = newTempAuthor();
 
         UpdateAuthorRequest updateAuthorRequest = new UpdateAuthorRequest(null, null);
