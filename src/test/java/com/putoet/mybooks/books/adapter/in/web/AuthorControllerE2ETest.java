@@ -1,5 +1,6 @@
 package com.putoet.mybooks.books.adapter.in.web;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.putoet.mybooks.MybooksApplication;
 import com.putoet.mybooks.books.domain.SiteType;
@@ -16,8 +17,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -33,10 +37,33 @@ class AuthorControllerE2ETest {
     private ObjectMapper mapper;
 
     @BeforeEach
-     void init() throws Exception {
+    void init() throws Exception {
         mockRequest = new MockRequest(mvc);
         mapper = new ObjectMapper();
         userToken = mockRequest.userToken();
+    }
+
+
+    @Test
+    void getAuthor() throws Exception {
+        final String body = mvc.perform(mockRequest.jwtGetRequestWithToken("/author/f6791adc-6a03-4d9b-ad30-ef7fd0545c58", userToken))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        final AuthorResponse author = mapper.readValue(body, AuthorResponse.class);
+        assertEquals("Brown, Simon", author.name());
+    }
+
+    @Test
+    void getAuthors() throws Exception {
+        final String body = mvc.perform(mockRequest.jwtGetRequestWithToken("/authors", userToken))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        final List<AuthorResponse> authors = mapper.readValue(body, new TypeReference<>() {});
+        assertNotEquals(0, authors.size());
     }
 
     @Test
