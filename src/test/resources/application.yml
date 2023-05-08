@@ -17,7 +17,6 @@ spring:
       hibernate:
         generate_statistics: 'true'
         format_sql: 'true'
-    show-sql: 'true'
 
 logging:
   level:
@@ -26,7 +25,11 @@ logging:
       hibernate:
         stat: debug
         type: trace
-
+      springframework:
+        jdbc:
+          core:
+            JdbcTemplate: debug
+            StatementCreatorUtils: trace
 server:
   error:
     include-message: always
