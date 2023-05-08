@@ -5,7 +5,6 @@ import jakarta.validation.Constraint;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import jakarta.validation.Payload;
-import org.passay.*;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
