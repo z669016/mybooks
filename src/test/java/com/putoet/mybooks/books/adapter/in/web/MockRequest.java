@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.putoet.mybooks.books.adapter.in.web.security.JwtRequestFilter;
 import com.putoet.mybooks.books.adapter.in.web.security.JwtResponse;
 
+import com.putoet.mybooks.books.adapter.in.web.security.UserLoginRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -14,6 +15,9 @@ import java.util.Map;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class MockRequest {
+    public static final UserLoginRequest adminLogin = new UserLoginRequest("z669016@gmail.com", "1password!");
+    public static final UserLoginRequest userLogin = new UserLoginRequest("putoet@outlook.com", "2password!");
+
     private final MockMvc mvc;
 
     private String adminToken;
@@ -48,7 +52,7 @@ public class MockRequest {
 
     public String adminToken() throws Exception {
         if (adminToken == null) {
-            final JwtResponse jwtResponse = loginFor("z669016@gmail.com", "1password!");
+            final JwtResponse jwtResponse = loginFor(adminLogin);
             adminToken = jwtResponse.access_token();
         }
 
@@ -57,19 +61,19 @@ public class MockRequest {
 
     public String userToken() throws Exception {
         if (userToken == null) {
-            final JwtResponse jwtResponse = loginFor("putoet@outlook.com", "2password!");
+            final JwtResponse jwtResponse = loginFor(userLogin);
             userToken = jwtResponse.access_token();
         }
 
         return userToken;
     }
 
-    private JwtResponse loginFor(String id, String password) throws Exception {
+    private JwtResponse loginFor(UserLoginRequest loginRequest) throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
 
         final String json = mvc.perform(MockMvcRequestBuilders
                         .post("/login")
-                        .content(mapper.writeValueAsString(Map.of("id", id, "password", password)))
+                        .content(mapper.writeValueAsString(loginRequest))
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())

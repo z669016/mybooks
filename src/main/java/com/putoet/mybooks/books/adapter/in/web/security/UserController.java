@@ -5,6 +5,8 @@ import com.putoet.mybooks.books.domain.security.AccessRole;
 import com.putoet.mybooks.books.domain.security.User;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -42,7 +44,7 @@ public class UserController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
         )
-    public JwtResponse login(@RequestBody UserRequest request, HttpServletResponse response) {
+    public JwtResponse login(@RequestBody @Valid UserLoginRequest request, HttpServletResponse response) {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.id(), request.password(), new ArrayList<>())
@@ -82,7 +84,7 @@ public class UserController {
     @PostMapping(path = "/user",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public UserResponse postUser(@RequestBody UserRequest request) {
+    public UserResponse postUser(@RequestBody @Valid NewUserRequest request) {
         try {
             return UserResponse.from(userService.registerUser(request.id(),
                     request.name(),
@@ -106,7 +108,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(path = "/user/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public UserResponse getUserById(@PathVariable(name = "id") String id) {
+    public UserResponse getUserById(@PathVariable(name = "id") @Email String id) {
         try {
             final Optional<User> user = userService.userById(id);
             if (user.isPresent())

@@ -21,6 +21,7 @@
 		<opennlp.version>2.1.1</opennlp.version>
 		<ahocorasick.version>0.6.3</ahocorasick.version>
 		<jjwt.version>0.11.5</jjwt.version>
+		<passay.version>1.6.3</passay.version>
 	</properties>
 
 	<dependencies>
@@ -101,6 +102,11 @@
 			<groupId>org.ahocorasick</groupId>
 			<artifactId>ahocorasick</artifactId>
 			<version>${ahocorasick.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.passay</groupId>
+			<artifactId>passay</artifactId>
+			<version>${passay.version}</version>
 		</dependency>
 	</dependencies>
 </project>

@@ -23,7 +23,8 @@ import static org.mockito.Mockito.*;
 
 class UserControllerTest {
     private final JwtTokenUtils utils = new JwtTokenUtils();
-    private final UserRequest request = new UserRequest("abc@xyz.com", "name", "pwd", "ADMIN");
+    private final UserLoginRequest loginRequest = new UserLoginRequest("abc@xyz.com", "pwd");
+    private final NewUserRequest request = new NewUserRequest("abc@xyz.com", "name", "pwd", "ADMIN");
     private final UserDetails userDetails = new UserDetails() {
         @Override
         public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -77,8 +78,8 @@ class UserControllerTest {
     @Test
     void login() {
         final HttpServletResponse response = mock(HttpServletResponse.class);
-        when(userDetailService.loadUserByUsername(request.id())).thenReturn(userDetails);
-        final JwtResponse result = userController.login(request, response);
+        when(userDetailService.loadUserByUsername(loginRequest.id())).thenReturn(userDetails);
+        final JwtResponse result = userController.login(loginRequest, response);
 
         verify(authenticationManager, times(1)).authenticate(any());
         verify(response, times(1)).addCookie(any());
@@ -88,9 +89,9 @@ class UserControllerTest {
     @Test
     void loginFailed() {
         final HttpServletResponse response = mock(HttpServletResponse.class);
-        when(userDetailService.loadUserByUsername(request.id())).thenReturn(null);
+        when(userDetailService.loadUserByUsername(loginRequest.id())).thenReturn(null);
         try {
-            userController.login(request, response);
+            userController.login(loginRequest, response);
             fail("ResponseStatusException expected");
         } catch (ResponseStatusException exc) {
             assertEquals(HttpStatus.FORBIDDEN, exc.getStatusCode());
@@ -117,7 +118,7 @@ class UserControllerTest {
         final HttpServletResponse response = mock(HttpServletResponse.class);
         when(authenticationManager.authenticate(any())).thenThrow(exception);
         try {
-            userController.login(request, response);
+            userController.login(loginRequest, response);
             fail("ResponseStatusException expected");
         } catch (RuntimeException exc) {
             if (exc instanceof ResponseStatusException rsa) {
