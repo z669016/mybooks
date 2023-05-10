@@ -1,6 +1,6 @@
 package com.putoet.mybooks.books.adapter.in.web.security;
 
-import com.putoet.mybooks.books.application.port.security.UserService;
+import com.putoet.mybooks.books.application.port.in.security.UserManagementPort;
 import com.putoet.mybooks.books.domain.security.AccessRole;
 import com.putoet.mybooks.books.domain.security.User;
 import jakarta.servlet.http.Cookie;
@@ -25,12 +25,12 @@ import java.util.Optional;
 @RestController
 public class UserController {
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final UserService userService;
+    private final UserManagementPort userService;
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
     private final JwtTokenUtils jwtTokenUtils;
 
-    public UserController(UserService userService,
+    public UserController(UserManagementPort userService,
                           AuthenticationManager authenticationManager,
                           UserDetailsService userDetailsService,
                           JwtTokenUtils jwtTokenUtils) {

@@ -8,5 +8,5 @@
         <appender-ref ref="CONSOLE"/>
     </root>
     <logger name="org.springframework.web" level="WARN"/>
-    <logger name="com.putoet.mybooks.books.adapter.out.persistence.H2BookRepository" level="WARN"/>
+    <logger name="com.putoet.mybooks.books.adapter.out.persistence.H2BookRepositoryPersistence" level="WARN"/>
 </configuration>

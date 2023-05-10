@@ -1,7 +1,7 @@
 package com.putoet.mybooks.books.adapter.out.persistence;
 
 import com.google.common.base.Joiner;
-import com.putoet.mybooks.books.application.port.out.persistence.BookQueryPort;
+import com.putoet.mybooks.books.application.port.out.persistence.BookPersistenceQueryPort;
 import com.putoet.mybooks.books.domain.Author;
 import com.putoet.mybooks.books.domain.AuthorId;
 import com.putoet.mybooks.books.domain.Book;
@@ -31,14 +31,14 @@ import static java.util.stream.Collectors.toMap;
  * been collected, the list is processed (again as parallel stream) to load all data from the books.
  * </p>
  */
-public class FolderBookRepository implements BookQueryPort {
-    private static final Logger logger = LoggerFactory.getLogger(FolderBookRepository.class);
+public class FolderBookRepositoryPersistence implements BookPersistenceQueryPort {
+    private static final Logger logger = LoggerFactory.getLogger(FolderBookRepositoryPersistence.class);
     private final Path folder;
     private final Set<String> files;
     private final Map<AuthorId, Author> authors;
     private final Map<BookId, Book> books;
 
-    public FolderBookRepository(Path folder) {
+    public FolderBookRepositoryPersistence(Path folder) {
         logger.info("FolderRepository({})", folder);
         Objects.requireNonNull(folder, "Book folder must be provided");
 
@@ -65,8 +65,8 @@ public class FolderBookRepository implements BookQueryPort {
         return files.parallelStream()
                 .map(filename -> EpubBookLoader.bookForFile(filename, true))
                 .reduce(new HashMap<>(),
-                        FolderBookRepository::addBookWithoutDuplicateIds,
-                        FolderBookRepository::addBookWithoutDuplicateIds
+                        FolderBookRepositoryPersistence::addBookWithoutDuplicateIds,
+                        FolderBookRepositoryPersistence::addBookWithoutDuplicateIds
                 );
     }
 
@@ -95,19 +95,20 @@ public class FolderBookRepository implements BookQueryPort {
     }
 
     @Override
-    public List<Author> findAuthors() {
+    public Set<Author> findAuthors() {
         logger.info("findAuthors()");
 
-        return authors.values().stream().toList();
+
+        return Set.copyOf(authors.values());
     }
 
     @Override
-    public List<Author> findAuthorsByName(String name) {
+    public Set<Author> findAuthorsByName(String name) {
         logger.info("findAuthorsByName({})", name);
 
         return authors.values().parallelStream()
                 .filter(author -> author.name().toLowerCase().contains(name.toLowerCase()))
-                .toList();
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -118,19 +119,19 @@ public class FolderBookRepository implements BookQueryPort {
     }
 
     @Override
-    public List<Book> findBooks() {
+    public Set<Book> findBooks() {
         logger.info("findBooks()");
 
-        return List.copyOf(books.values());
+        return Set.copyOf(books.values());
     }
 
     @Override
-    public List<Book> findBooksByTitle(String title) {
+    public Set<Book> findBooksByTitle(String title) {
         logger.info("findBooksByTitle({})", title);
 
         return books.values().parallelStream()
                 .filter(book -> book.title().toLowerCase().contains(title.toLowerCase()))
-                .toList();
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -141,12 +142,12 @@ public class FolderBookRepository implements BookQueryPort {
     }
 
     @Override
-    public List<Book> findBooksByAuthorId(AuthorId authorId) {
+    public Set<Book> findBooksByAuthorId(AuthorId authorId) {
         logger.info("findBooksByAuthorId({})", authorId);
 
         return books.values().parallelStream()
                 .filter(book -> book.authors().stream().anyMatch(author -> author.id().equals(authorId)))
-                .toList();
+                .collect(Collectors.toSet());
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.putoet.mybooks.books.adapter.out.security;
 
 import com.putoet.mybooks.books.application.port.in.security.UserError;
-import com.putoet.mybooks.books.application.port.out.security.UserPort;
+import com.putoet.mybooks.books.application.port.out.security.UserPersistencePort;
 import com.putoet.mybooks.books.domain.security.AccessRole;
 import com.putoet.mybooks.books.domain.security.User;
 import org.slf4j.Logger;
@@ -16,7 +16,7 @@ import java.util.List;
 import static com.putoet.mybooks.books.adapter.out.persistence.SqlUtil.sqlInfo;
 
 @Repository
-public class H2UserRepository implements UserPort {
+public class H2UserRepository implements UserPersistencePort {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final JdbcTemplate template;

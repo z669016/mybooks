@@ -60,8 +60,8 @@ public class EpubBookLoader {
 
             final BookId bookId = extractBookId(fileName, metadata.get("dc:identifier"));
             final String title = metadata.get("dc:title");
-            final List<Author> authors = extractAuthors(metadata.get("dc:creator"));
-            final List<MimeType> formats = List.of(MimeTypes.toMimeType(mimeType));
+            final Set<Author> authors = extractAuthors(metadata.get("dc:creator"));
+            final Set<MimeType> formats = Set.of(MimeTypes.toMimeType(mimeType));
             final Set<String> keywords = data.isPresent() ? findKeywords(data.get()) : Set.of();
 
             return new Book(bookId, title, authors, keywords, new MimeTypes(formats));
@@ -107,6 +107,7 @@ public class EpubBookLoader {
         return builder.build();
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     protected static BookId extractBookId(String fileName, String identifier) {
         if (identifier == null || identifier.isBlank())
             return new BookId(BookId.BookIdScheme.UUID, UUID.randomUUID().toString());
@@ -144,9 +145,9 @@ public class EpubBookLoader {
         return new BookId(BookId.BookIdScheme.UUID, UUID.randomUUID().toString());
     }
 
-    private static List<Author> extractAuthors(String authors) {
+    private static Set<Author> extractAuthors(String authors) {
         if (authors == null || authors.isBlank())
-            return List.of();
+            return Set.of();
 
         authors = authors.replace(" and ", ", ");
         authors = authors.replace(" & ", ", ");
@@ -159,7 +160,7 @@ public class EpubBookLoader {
                 .filter(name -> !name.isBlank())
                 .map(EpubBookLoader::splitName)
                 .map(name -> new Author(AuthorId.withoutId(), Instant.now(), name, new HashMap<>()))
-                .toList();
+                .collect(Collectors.toSet());
     }
 
     private static String splitName(String name) {

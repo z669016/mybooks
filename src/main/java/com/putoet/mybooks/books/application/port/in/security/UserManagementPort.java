@@ -3,6 +3,12 @@ package com.putoet.mybooks.books.application.port.in.security;
 import com.putoet.mybooks.books.domain.security.AccessRole;
 import com.putoet.mybooks.books.domain.security.User;
 
-public interface RegisterUser {
+import java.util.List;
+import java.util.Optional;
+
+public interface UserManagementPort {
+    void forgetUser(String id);
     User registerUser(String id, String name, String password, AccessRole accessRole);
+    Optional<User> userById(String id);
+    List<User> users();
 }

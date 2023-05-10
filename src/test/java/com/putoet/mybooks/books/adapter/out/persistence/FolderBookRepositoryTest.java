@@ -8,31 +8,31 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Paths;
-import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class FolderBookRepositoryTest {
     private static final String LEANPUB = "/Users/renevanputten/OneDrive/Documents/Books/leanpub";
-    private static FolderBookRepository leanpub;
+    private static FolderBookRepositoryPersistence leanpub;
 
     @BeforeAll
     static void bookFolder() {
-        leanpub = new FolderBookRepository(Paths.get(LEANPUB));
+        leanpub = new FolderBookRepositoryPersistence(Paths.get(LEANPUB));
     }
 
     @Test
     void findAuthorByName() {
-        final List<Author> authors = leanpub.findAuthorsByName("stuart");
+        final Set<Author> authors = leanpub.findAuthorsByName("stuart");
         assertAll(
                 () -> assertEquals(1, authors.size()),
-                () -> assertEquals("Gunter, Stuart", authors.get(0).name())
+                () -> assertEquals("Gunter, Stuart", authors.stream().findFirst().orElseThrow().name())
         );
     }
 
     @Test
     void findAuthors() {
-        final List<Author> authors = leanpub.findAuthors();
+        final Set<Author> authors = leanpub.findAuthors();
         assertEquals(6, authors.size());
     }
 
@@ -44,13 +44,13 @@ class FolderBookRepositoryTest {
 
     @Test
     void findBooks() {
-        final List<Book> books = leanpub.findBooks();
+        final Set<Book> books = leanpub.findBooks();
         assertEquals(6, books.size());
     }
 
     @Test
     void findBooksByTitle() {
-        final List<Book> books = leanpub.findBooksByTitle("ARCHITECTURE");
+        final Set<Book> books = leanpub.findBooksByTitle("ARCHITECTURE");
         assertEquals(2, books.size());
     }
 
@@ -68,8 +68,8 @@ class FolderBookRepositoryTest {
 
     @Test
     void findBooksByAuthorId() {
-        final Author author = leanpub.findAuthorsByName("stuart").get(0);
-        final List<Book> books = leanpub.findBooksByAuthorId(author.id());
+        final Author author = leanpub.findAuthorsByName("stuart").stream().findFirst().orElseThrow();
+        final Set<Book> books = leanpub.findBooksByAuthorId(author.id());
         assertEquals(1, books.size());
     }
 }

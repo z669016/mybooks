@@ -4,8 +4,8 @@ import com.putoet.mybooks.books.domain.Book;
 import com.putoet.mybooks.books.domain.MimeTypes;
 import jakarta.activation.MimeType;
 
-import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  *  The BookResponse is a front-end friendly version of the Book entity, where internal representations
@@ -18,11 +18,11 @@ import java.util.Set;
  * @param keywords String
  * @param formats List of String (mime type)
  */
-public record BookResponse(String schema, String id, String title, List<AuthorResponse> authors, Set<String> keywords, List<String> formats) {
-    public static List<BookResponse> from(List<Book> books) {
+public record BookResponse(String schema, String id, String title, Set<AuthorResponse> authors, Set<String> keywords, Set<String> formats) {
+    public static Set<BookResponse> from(Set<Book> books) {
         return books.stream()
                 .map(BookResponse::from)
-                .toList();
+                .collect(Collectors.toSet());
     }
 
     public static BookResponse from(Book book) {
@@ -32,13 +32,13 @@ public record BookResponse(String schema, String id, String title, List<AuthorRe
                 book.title(),
                 AuthorResponse.from(book.authors()),
                 book.keywords(),
-                book.formats().mimeTypes().stream().map(Object::toString).toList()
+                book.formats().mimeTypes().stream().map(Object::toString).collect(Collectors.toSet())
         );
     }
 
-    public static List<MimeType> toDomain(List<String> formats) {
+    public static Set<MimeType> toDomain(Set<String> formats) {
         return formats.stream()
                 .map(MimeTypes::toMimeType)
-                .toList();
+                .collect(Collectors.toSet());
     }
 }

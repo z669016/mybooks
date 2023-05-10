@@ -5,7 +5,7 @@ import com.putoet.mybooks.books.domain.security.User;
 
 import java.util.List;
 
-public interface UserPort {
+public interface UserPersistencePort {
     List<User> findUsers();
     User findUserById(String id);
     void forgetUser(String id);

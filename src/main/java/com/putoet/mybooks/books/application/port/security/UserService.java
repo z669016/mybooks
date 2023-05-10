@@ -1,7 +1,7 @@
 package com.putoet.mybooks.books.application.port.security;
 
 import com.putoet.mybooks.books.application.port.in.security.*;
-import com.putoet.mybooks.books.application.port.out.security.UserPort;
+import com.putoet.mybooks.books.application.port.out.security.UserPersistencePort;
 import com.putoet.mybooks.books.domain.security.AccessRole;
 import com.putoet.mybooks.books.domain.security.User;
 import org.slf4j.Logger;
@@ -21,17 +21,17 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 @Service("userService")
-public class UserService implements Users, UserById, ForgetUser, RegisterUser {
+public class UserService implements UserManagementPort {
     // Regular Expression by RFC 5322 for Email Validation
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$");
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final UserPort userPort;
+    private final UserPersistencePort userPersistencePort;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserPort userPort, PasswordEncoder passwordEncoder) {
-        logger.info("SecurityService({}, {})", userPort, passwordEncoder);
-        this.userPort = userPort;
+    public UserService(UserPersistencePort userPersistencePort, PasswordEncoder passwordEncoder) {
+        logger.info("SecurityService({}, {})", userPersistencePort, passwordEncoder);
+        this.userPersistencePort = userPersistencePort;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -42,7 +42,7 @@ public class UserService implements Users, UserById, ForgetUser, RegisterUser {
         if (id == null || id.isBlank())
             UserError.USER_ID_REQUIRED.raise();
 
-        userPort.forgetUser(id);
+        userPersistencePort.forgetUser(id);
     }
 
     @Override
@@ -62,7 +62,7 @@ public class UserService implements Users, UserById, ForgetUser, RegisterUser {
         if (accessRole == null)
             UserError.USER_ACCESS_ROLE_REQUIRED.raise();
 
-        return userPort.registerUser(id, name, passwordEncoder.encode(password), accessRole);
+        return userPersistencePort.registerUser(id, name, passwordEncoder.encode(password), accessRole);
     }
 
     @Override
@@ -72,18 +72,18 @@ public class UserService implements Users, UserById, ForgetUser, RegisterUser {
         if (id == null || id.isBlank())
             UserError.USER_ID_REQUIRED.raise();
 
-        return Optional.ofNullable(userPort.findUserById(id));
+        return Optional.ofNullable(userPersistencePort.findUserById(id));
     }
 
     @Override
     public List<User> users() {
         logger.info("users()");
 
-        return userPort.findUsers();
+        return userPersistencePort.findUsers();
     }
 
     @Bean
-    public UserDetailsService userDetailsService(UserPort userPort) {
+    public UserDetailsService userDetailsService(UserPersistencePort userPort) {
         return id -> {
             final User user = userPort.findUserById(id);
             if (user == null)

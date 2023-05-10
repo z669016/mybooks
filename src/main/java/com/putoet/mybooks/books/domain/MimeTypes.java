@@ -41,16 +41,16 @@ public class MimeTypes {
         }
     }
 
-    private final List<MimeType> mimeTypes;
+    private final Set<MimeType> mimeTypes;
 
     public MimeTypes() {
-        this.mimeTypes = List.of();
+        this.mimeTypes = Set.of();
     }
 
-    public MimeTypes(List<MimeType> mimeTypes) {
+    public MimeTypes(Set<MimeType> mimeTypes) {
         Objects.requireNonNull(mimeTypes);
 
-        this.mimeTypes = new ArrayList<>(mimeTypes);
+        this.mimeTypes = new HashSet<>(mimeTypes);
     }
 
     public boolean contains(MimeType mimeType) {
@@ -66,14 +66,14 @@ public class MimeTypes {
         if (mimeTypes.contains(mimeType))
             throw new IllegalArgumentException("Book already contains format " + mimeType);
 
-        var updated = new ArrayList<>(mimeTypes);
+        var updated = new HashSet<>(mimeTypes);
         updated.add(mimeType);
 
         return new MimeTypes(updated);
     }
 
-    public List<MimeType> mimeTypes() {
-        return Collections.unmodifiableList(mimeTypes);
+    public Set<MimeType> mimeTypes() {
+        return Collections.unmodifiableSet(mimeTypes);
     }
 
     @Override

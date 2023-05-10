@@ -5,14 +5,14 @@ import com.putoet.mybooks.books.domain.AuthorId;
 import com.putoet.mybooks.books.domain.Book;
 import com.putoet.mybooks.books.domain.BookId;
 
-import java.util.List;
+import java.util.Set;
 
-public interface BookQueryPort {
-    List<Author> findAuthors();
-    List<Author> findAuthorsByName(String name);
+public interface BookPersistenceQueryPort {
+    Set<Author> findAuthors();
+    Set<Author> findAuthorsByName(String name);
     Author findAuthorById(AuthorId authorId);
-    List<Book> findBooks();
-    List<Book> findBooksByTitle(String title);
+    Set<Book> findBooks();
+    Set<Book> findBooksByTitle(String title);
     Book findBookById(BookId bookId);
-    List<Book> findBooksByAuthorId(AuthorId authorId);
+    Set<Book> findBooksByAuthorId(AuthorId authorId);
 }

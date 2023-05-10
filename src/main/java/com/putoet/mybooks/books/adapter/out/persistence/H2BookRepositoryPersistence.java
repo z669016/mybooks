@@ -1,7 +1,7 @@
 package com.putoet.mybooks.books.adapter.out.persistence;
 
 import com.putoet.mybooks.books.application.port.in.ServiceError;
-import com.putoet.mybooks.books.application.port.out.persistence.BookUpdatePort;
+import com.putoet.mybooks.books.application.port.out.persistence.BookPersistenceUpdatePort;
 import com.putoet.mybooks.books.domain.*;
 import jakarta.activation.MimeType;
 import org.slf4j.Logger;
@@ -27,36 +27,36 @@ import static com.putoet.mybooks.books.adapter.out.persistence.SqlUtil.sqlInfo;
  * A read/write repository for book and author data, connected to an H4 database using a Spring JdbcTemplate
  */
 @Repository
-public class H2BookRepository implements BookUpdatePort {
+public class H2BookRepositoryPersistence implements BookPersistenceUpdatePort {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final JdbcTemplate template;
 
-    public H2BookRepository(JdbcTemplate template) {
+    public H2BookRepositoryPersistence(JdbcTemplate template) {
         logger.info("AuthorRepository initialized with JDBC template {}", template.getDataSource());
         this.template = template;
     }
 
 
     @Override
-    public List<Author> findAuthors() {
+    public Set<Author> findAuthors() {
         logger.info("findAuthors()");
 
         final String sql = "select author_id, version, name from author";
         sqlInfo(logger, sql);
 
-        return template.query(sql, this::authorMapper);
+        return Set.copyOf(template.query(sql, this::authorMapper));
     }
 
     @Override
-    public List<Author> findAuthorsByName(String name) {
+    public Set<Author> findAuthorsByName(String name) {
         logger.info("findAuthorsByName({})", name);
         name = "%" + name.toLowerCase() + "%";
 
         final String sql = "select author_id, version, name from author where lower(name) like ?";
         sqlInfo(logger, sql, name);
 
-        return template.query(sql, this::authorMapper, name);
+        return Set.copyOf(template.query(sql, this::authorMapper, name));
     }
 
     @Override
@@ -75,17 +75,17 @@ public class H2BookRepository implements BookUpdatePort {
     }
 
     @Override
-    public List<Book> findBooks() {
+    public Set<Book> findBooks() {
         logger.info("findBooks()");
 
         final String sql = "select book_id_type, book_id, title from book";
         sqlInfo(logger, sql);
 
-        return template.query(sql, this::bookMapper);
+        return Set.copyOf(template.query(sql, this::bookMapper));
     }
 
     @Override
-    public List<Book> findBooksByTitle(String title) {
+    public Set<Book> findBooksByTitle(String title) {
         logger.info("findBooksByTitle({})", title);
 
         if (title == null || title.isBlank()) {
@@ -97,7 +97,7 @@ public class H2BookRepository implements BookUpdatePort {
         final String sql = "select book_id_type, book_id, title from book where title like ?";
         sqlInfo(logger, sql, title);
 
-        return template.query(sql, this::bookMapper, title);
+        return Set.copyOf(template.query(sql, this::bookMapper, title));
     }
 
     @Override
@@ -115,20 +115,20 @@ public class H2BookRepository implements BookUpdatePort {
     }
 
     @Override
-    public List<Book> findBooksByAuthorId(AuthorId authorId) {
+    public Set<Book> findBooksByAuthorId(AuthorId authorId) {
         logger.info("findBooksByAuthorId({})", authorId);
 
         final String sql = "select book_id_type, book_id, title from book where (book_id_type, book_id) in (select book_id_type, book_id from book_author where author_id = ?)";
         sqlInfo(logger, sql, authorId.uuid());
 
-        return template.query(sql, this::bookMapper, authorId.uuid());
+        return Set.copyOf(template.query(sql, this::bookMapper, authorId.uuid()));
     }
 
     private Book bookMapper(ResultSet row, int rowNum) throws SQLException {
         final String book_id_type = row.getString("book_id_type");
         final String book_id = row.getString("book_id");
-        final List<Author> authors = findAuthorsForBook(book_id_type, book_id);
-        final List<MimeType> formats = findFormatsForBook(book_id_type, book_id);
+        final Set<Author> authors = findAuthorsForBook(book_id_type, book_id);
+        final Set<MimeType> formats = findFormatsForBook(book_id_type, book_id);
         final Set<String> keywords = findKeywordsForBook(book_id_type, book_id);
 
         return new Book(new BookId(BookId.BookIdScheme.valueOf(book_id_type), book_id)
@@ -152,13 +152,13 @@ public class H2BookRepository implements BookUpdatePort {
         return row.getString("keyword");
     }
 
-    private List<MimeType> findFormatsForBook(String bookIdType, String bookId) {
+    private Set<MimeType> findFormatsForBook(String bookIdType, String bookId) {
         logger.info("findFormatsForBook({}, {})", bookIdType, bookId);
 
         final String sql = "select book_id_type, book_id, format from book_format where book_id_type = ? and book_id = ?";
         sqlInfo(logger, sql, bookIdType, bookId);
 
-        return template.query(sql, this::formatTypeMapper, bookIdType, bookId);
+        return Set.copyOf(template.query(sql, this::formatTypeMapper, bookIdType, bookId));
     }
 
     private MimeType formatTypeMapper(ResultSet row, int rowNum) throws SQLException {
@@ -166,13 +166,13 @@ public class H2BookRepository implements BookUpdatePort {
         return MimeTypes.toMimeType(format);
     }
 
-    private List<Author> findAuthorsForBook(String bookIdType, String bookId) {
+    private Set<Author> findAuthorsForBook(String bookIdType, String bookId) {
         logger.info("findAuthorsForBook({}, {})", bookIdType, bookId);
 
         final String sql = "select author_id, version, name from author where author_id in (select author_id from book_author where book_id_type = ? and book_id = ?)";
         sqlInfo(logger, sql, bookIdType, bookId);
 
-        return template.query(sql, this::authorMapper, bookIdType, bookId);
+        return Set.copyOf(template.query(sql, this::authorMapper, bookIdType, bookId));
     }
 
     private Author authorMapper(ResultSet row, int rowNum) throws SQLException {
@@ -266,7 +266,7 @@ public class H2BookRepository implements BookUpdatePort {
     }
 
     @Override
-    public Book registerBook(BookId bookId, String title, List<Author> authors, MimeTypes formats, Set<String> keywords) {
+    public Book registerBook(BookId bookId, String title, Set<Author> authors, MimeTypes formats, Set<String> keywords) {
         logger.info("registerBook({}, {}, {}, {})", bookId, title, authors, formats);
 
         final String sql = "insert into book (book_id_type, book_id, title) values (?, ?, ?)";

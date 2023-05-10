@@ -1,7 +1,7 @@
 package com.putoet.mybooks.books.adapter.in.web;
 
-import com.putoet.mybooks.books.application.BookInquiryService;
-import com.putoet.mybooks.books.application.BookUpdateService;
+import com.putoet.mybooks.books.application.port.in.BookManagementInquiryPort;
+import com.putoet.mybooks.books.application.port.in.BookManagementUpdatePort;
 import com.putoet.mybooks.books.domain.Author;
 import com.putoet.mybooks.books.domain.AuthorId;
 import com.putoet.mybooks.books.domain.validation.ObjectIDConstraint;
@@ -15,26 +15,26 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Validated
 @RestController
 public class AuthorController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final BookInquiryService bookInquiryService;
-    private final BookUpdateService bookUpdateService;
+    private final BookManagementInquiryPort bookManagementInquiryPort;
+    private final BookManagementUpdatePort bookManagementUpdatePort;
 
-    public AuthorController(BookInquiryService bookInquiryService, BookUpdateService bookUpdateService) {
-        this.bookInquiryService = bookInquiryService;
-        this.bookUpdateService = bookUpdateService;
+    public AuthorController(BookManagementInquiryPort bookManagementInquiryPort, BookManagementUpdatePort bookManagementUpdatePort) {
+        this.bookManagementInquiryPort = bookManagementInquiryPort;
+        this.bookManagementUpdatePort = bookManagementUpdatePort;
     }
 
     @GetMapping(path = "/authors", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<AuthorResponse> getAuthors() {
+    public Set<AuthorResponse> getAuthors() {
         try {
-            return AuthorResponse.from(bookInquiryService.authors());
+            return AuthorResponse.from(bookManagementInquiryPort.authors());
         } catch (RuntimeException exc) {
             logger.warn(exc.getMessage());
             logger.debug(exc.getMessage(), exc);
@@ -45,7 +45,7 @@ public class AuthorController {
     @GetMapping(path = "/author/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public AuthorResponse getAuthorById(@PathVariable @ObjectIDConstraint String id) {
         try {
-            final Optional<Author> author = bookInquiryService.authorById(AuthorId.withId(id));
+            final Optional<Author> author = bookManagementInquiryPort.authorById(AuthorId.withId(id));
             if (author.isPresent())
                     return AuthorResponse.from(author.get());
         } catch (RuntimeException exc) {
@@ -58,9 +58,9 @@ public class AuthorController {
     }
 
     @GetMapping(path = "/authors/{name}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<AuthorResponse> getAuthorsByName(@PathVariable @NotBlank String name) {
+    public Set<AuthorResponse> getAuthorsByName(@PathVariable @NotBlank String name) {
         try {
-            return AuthorResponse.from(bookInquiryService.authorsByName(name));
+            return AuthorResponse.from(bookManagementInquiryPort.authorsByName(name));
         } catch (RuntimeException exc) {
             logger.warn(exc.getMessage());
             logger.debug(exc.getMessage(), exc);
@@ -71,7 +71,7 @@ public class AuthorController {
     @DeleteMapping(path = "/author/{id}")
     public void deleteAuthorById(@PathVariable  @ObjectIDConstraint String id) {
         try {
-            bookUpdateService.forgetAuthor(AuthorId.withId(id));
+            bookManagementUpdatePort.forgetAuthor(AuthorId.withId(id));
         } catch (RuntimeException exc) {
             logger.warn(exc.getMessage());
             logger.debug(exc.getMessage(), exc);
@@ -85,7 +85,7 @@ public class AuthorController {
     )
     public AuthorResponse postAuthor(@RequestBody @Valid NewAuthorRequest author) {
         try {
-            return AuthorResponse.from(bookUpdateService.registerAuthor(author.name(), author.sitesWithURLs()));
+            return AuthorResponse.from(bookManagementUpdatePort.registerAuthor(author.name(), author.sitesWithURLs()));
         } catch (RuntimeException exc) {
             logger.warn(exc.getMessage());
             logger.debug(exc.getMessage(), exc);
@@ -99,7 +99,7 @@ public class AuthorController {
     )
     public AuthorResponse putAuthor(@PathVariable @ObjectIDConstraint String id, @Valid @RequestBody UpdateAuthorRequest author) {
         try {
-            return AuthorResponse.from(bookUpdateService.updateAuthor(AuthorId.withId(id), author.versionAsInstant(), author.name()));
+            return AuthorResponse.from(bookManagementUpdatePort.updateAuthor(AuthorId.withId(id), author.versionAsInstant(), author.name()));
         } catch (RuntimeException exc) {
             logger.warn(exc.getMessage());
             logger.debug(exc.getMessage(), exc);

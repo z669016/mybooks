@@ -3,18 +3,18 @@ package com.putoet.mybooks.books.adapter.in.web;
 import com.putoet.mybooks.books.domain.MimeTypes;
 import jakarta.activation.MimeType;
 
-import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-public record NewBookRequest(String schema, String id, String title, List<BookRequestAuthor> authors, Set<String> keywords, List<String> formats) {
+public record NewBookRequest(String schema, String id, String title, Set<BookRequestAuthor> authors, Set<String> keywords, Set<String> formats) {
 
-    public List<MimeType> formatsAsMimeTypeList() {
+    public Set<MimeType> formatsAsMimeTypeList() {
         return formatsAsMimeTypeList(formats);
     }
 
-    public static List<MimeType> formatsAsMimeTypeList(List<String> formats) {
+    public static Set<MimeType> formatsAsMimeTypeList(Set<String> formats) {
         return formats.stream()
                 .map(MimeTypes::toMimeType)
-                .toList();
+                .collect(Collectors.toSet());
     }
 }

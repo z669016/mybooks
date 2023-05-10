@@ -1,13 +1,14 @@
 package com.putoet.mybooks.books.application;
 
+import com.putoet.mybooks.books.application.port.in.BookManagementInquiryPort;
 import com.putoet.mybooks.books.application.port.in.ServiceException;
-import com.putoet.mybooks.books.application.port.out.persistence.BookQueryPort;
+import com.putoet.mybooks.books.application.port.out.persistence.BookPersistenceQueryPort;
 import com.putoet.mybooks.books.domain.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -19,173 +20,173 @@ class BookInquiryServiceTest {
     private static final AuthorId AUTHOR_ID = AUTHOR.id();
     private static final String NAME = AUTHOR.name();
 
-    private BookQueryPort bookQueryPort;
-    private BookInquiryService bookInquiryService;
+    private BookPersistenceQueryPort bookPersistenceQueryPort;
+    private BookManagementInquiryPort bookManagementInquiryPort;
 
     @BeforeEach
     void setup() {
-        bookQueryPort = mock(BookQueryPort.class);
-        bookInquiryService = new BookInquiryService(bookQueryPort);
+        bookPersistenceQueryPort = mock(BookPersistenceQueryPort.class);
+        bookManagementInquiryPort = new BookInquiryService(bookPersistenceQueryPort);
     }
 
     @Test
     void authorByIdFound() {
-        given(bookQueryPort.findAuthorById(AUTHOR_ID)).willReturn(AUTHOR);
+        given(bookPersistenceQueryPort.findAuthorById(AUTHOR_ID)).willReturn(AUTHOR);
 
-        final var found = bookInquiryService.authorById(AUTHOR_ID);
+        final var found = bookManagementInquiryPort.authorById(AUTHOR_ID);
         assertAll(
-                () -> verify(bookQueryPort,times(1)).findAuthorById(AUTHOR_ID),
+                () -> verify(bookPersistenceQueryPort,times(1)).findAuthorById(AUTHOR_ID),
                 () -> assertEquals(Optional.of(AUTHOR),found)
         );
     }
 
     @Test
     void authorByIdNotFound() {
-        given(bookQueryPort.findAuthorById(any())).willReturn(null);
+        given(bookPersistenceQueryPort.findAuthorById(any())).willReturn(null);
 
-        final var found = bookInquiryService.authorById(AUTHOR_ID);
+        final var found = bookManagementInquiryPort.authorById(AUTHOR_ID);
         assertAll(
-                () -> verify(bookQueryPort, times(1)).findAuthorById(AUTHOR_ID),
+                () -> verify(bookPersistenceQueryPort, times(1)).findAuthorById(AUTHOR_ID),
                 () -> assertTrue(found.isEmpty())
         );
     }
 
     @Test
     void authorByIdError() {
-        assertThrows(ServiceException.class, () -> bookInquiryService.authorById(null));
+        assertThrows(ServiceException.class, () -> bookManagementInquiryPort.authorById(null));
     }
 
     @Test
     void authorByNameFound() {
-        given(bookQueryPort.findAuthorsByName(NAME)).willReturn(List.of(AUTHOR));
+        given(bookPersistenceQueryPort.findAuthorsByName(NAME)).willReturn(Set.of(AUTHOR));
 
-        final var found = bookInquiryService.authorsByName(NAME);
+        final var found = bookManagementInquiryPort.authorsByName(NAME);
         assertAll(
-                () -> verify(bookQueryPort, times(1)).findAuthorsByName(NAME),
+                () -> verify(bookPersistenceQueryPort, times(1)).findAuthorsByName(NAME),
                 () -> assertEquals(1, found.size()),
-                () -> assertEquals(AUTHOR, found.get(0))
+                () -> assertEquals(AUTHOR, found.stream().findFirst().orElseThrow())
         );
     }
 
     @Test
     void authorByNameNotFound() {
-        given(bookQueryPort.findAuthorsByName(any())).willReturn(List.of());
+        given(bookPersistenceQueryPort.findAuthorsByName(any())).willReturn(Set.of());
 
-        final var found = bookInquiryService.authorsByName(NAME);
+        final var found = bookManagementInquiryPort.authorsByName(NAME);
         assertAll(
-                () -> verify(bookQueryPort, times(1)).findAuthorsByName(NAME),
+                () -> verify(bookPersistenceQueryPort, times(1)).findAuthorsByName(NAME),
                 () -> assertTrue(found.isEmpty())
         );
     }
 
     @Test
     void authorsByName() {
-        when(bookQueryPort.findAuthorsByName("tim")).thenReturn(List.of());
-        when(bookQueryPort.findAuthorsByName("tom")).thenReturn(List.of(AuthorTest.AUTHOR));
+        when(bookPersistenceQueryPort.findAuthorsByName("tim")).thenReturn(Set.of());
+        when(bookPersistenceQueryPort.findAuthorsByName("tom")).thenReturn(Set.of(AuthorTest.AUTHOR));
 
         assertAll(
-                () -> assertEquals(0, bookInquiryService.authorsByName("tim").size()),
-                () -> verify(bookQueryPort).findAuthorsByName("tim"),
+                () -> assertEquals(0, bookManagementInquiryPort.authorsByName("tim").size()),
+                () -> verify(bookPersistenceQueryPort).findAuthorsByName("tim"),
 
-                () -> assertEquals(1, bookInquiryService.authorsByName("tom").size()),
-                () -> verify(bookQueryPort).findAuthorsByName("tom"),
+                () -> assertEquals(1, bookManagementInquiryPort.authorsByName("tom").size()),
+                () -> verify(bookPersistenceQueryPort).findAuthorsByName("tom"),
 
                 // error conditions
-                () -> assertThrows(ServiceException.class, () -> bookInquiryService.authorsByName(null)),
-                () -> assertThrows(ServiceException.class, () -> bookInquiryService.authorsByName(" "))
+                () -> assertThrows(ServiceException.class, () -> bookManagementInquiryPort.authorsByName(null)),
+                () -> assertThrows(ServiceException.class, () -> bookManagementInquiryPort.authorsByName(" "))
         );
     }
 
     @Test
     void authorById() {
-        when(bookQueryPort.findAuthorById(any())).thenReturn(null);
-        when(bookQueryPort.findAuthorById(AuthorTest.AUTHOR.id())).thenReturn(AuthorTest.AUTHOR);
-        final Optional<Author> author = bookInquiryService.authorById(AuthorTest.AUTHOR.id());
+        when(bookPersistenceQueryPort.findAuthorById(any())).thenReturn(null);
+        when(bookPersistenceQueryPort.findAuthorById(AuthorTest.AUTHOR.id())).thenReturn(AuthorTest.AUTHOR);
+        final Optional<Author> author = bookManagementInquiryPort.authorById(AuthorTest.AUTHOR.id());
 
         assertAll(
-                () -> verify(bookQueryPort, times(1)).findAuthorById(AuthorTest.AUTHOR.id()),
+                () -> verify(bookPersistenceQueryPort, times(1)).findAuthorById(AuthorTest.AUTHOR.id()),
                 () -> assertEquals(Optional.of(AuthorTest.AUTHOR), author),
-                () -> assertFalse(bookInquiryService.authorById(AuthorId.withoutId()).isPresent()),
+                () -> assertFalse(bookManagementInquiryPort.authorById(AuthorId.withoutId()).isPresent()),
 
                 // error conditions
-                () -> assertThrows(ServiceException.class, () -> bookInquiryService.authorById(null))
+                () -> assertThrows(ServiceException.class, () -> bookManagementInquiryPort.authorById(null))
         );
     }
 
     @Test
     void authors() {
-        when(bookQueryPort.findAuthors()).thenReturn(List.of(AuthorTest.AUTHOR, AuthorTest.AUTHOR));
-        final List<Author> authors = bookInquiryService.authors();
+        when(bookPersistenceQueryPort.findAuthors()).thenReturn(Set.of(AuthorTest.AUTHOR));
+        final Set<Author> authors = bookManagementInquiryPort.authors();
 
         assertAll(
-                () -> verify(bookQueryPort, times(1)).findAuthors(),
-                () -> assertEquals(2, authors.size()),
+                () -> verify(bookPersistenceQueryPort, times(1)).findAuthors(),
+                () -> assertEquals(1, authors.size()),
 
                 // error conditions
-                () -> assertThrows(ServiceException.class, () -> bookInquiryService.authorsByName(null))
+                () -> assertThrows(ServiceException.class, () -> bookManagementInquiryPort.authorsByName(null))
         );
     }
 
     @Test
     void books() {
-        when(bookQueryPort.findBooks()).thenReturn(List.of());
-        final List<Book> books = bookInquiryService.books();
+        when(bookPersistenceQueryPort.findBooks()).thenReturn(Set.of());
+        final Set<Book> books = bookManagementInquiryPort.books();
 
         assertAll(
-                () -> verify(bookQueryPort, times(1)).findBooks(),
+                () -> verify(bookPersistenceQueryPort, times(1)).findBooks(),
                 () -> assertEquals(0, books.size())
         );
     }
 
     @Test
     void bookByTitle() {
-        when(bookQueryPort.findBooksByTitle(any())).thenReturn(List.of());
-        final List<Book> books = bookInquiryService.booksByTitle("architecture");
+        when(bookPersistenceQueryPort.findBooksByTitle(any())).thenReturn(Set.of());
+        final Set<Book> books = bookManagementInquiryPort.booksByTitle("architecture");
 
         assertAll(
-                () -> verify(bookQueryPort, times(1)).findBooksByTitle("architecture"),
+                () -> verify(bookPersistenceQueryPort, times(1)).findBooksByTitle("architecture"),
                 () -> assertEquals(0, books.size()),
 
                 // error conditions
-                () -> assertThrows(ServiceException.class, () -> bookInquiryService.booksByTitle(null)),
-                () -> assertThrows(ServiceException.class, () -> bookInquiryService.booksByTitle(" "))
+                () -> assertThrows(ServiceException.class, () -> bookManagementInquiryPort.booksByTitle(null)),
+                () -> assertThrows(ServiceException.class, () -> bookManagementInquiryPort.booksByTitle(" "))
         );
     }
 
     @Test
     void bookById() {
-        when(bookQueryPort.findBookById(any())).thenReturn(null);
+        when(bookPersistenceQueryPort.findBookById(any())).thenReturn(null);
         final BookId id = new BookId(BookId.BookIdScheme.UUID, UUID.randomUUID().toString());
-        final Optional<Book> book = bookInquiryService.bookById(id);
+        final Optional<Book> book = bookManagementInquiryPort.bookById(id);
 
         assertAll(
-                () -> verify(bookQueryPort, times(1)).findBookById(id),
+                () -> verify(bookPersistenceQueryPort, times(1)).findBookById(id),
                 () -> assertTrue(book.isEmpty()),
 
                 // error conditions
-                () -> assertThrows(ServiceException.class, () -> bookInquiryService.bookById(null))
+                () -> assertThrows(ServiceException.class, () -> bookManagementInquiryPort.bookById(null))
         );
     }
 
     @Test
     void bookByAuthorName() {
-        when(bookQueryPort.findAuthorsByName("tom")).thenReturn(List.of(AuthorTest.AUTHOR));
-        when(bookQueryPort.findBooksByAuthorId(AuthorTest.AUTHOR.id())).thenReturn(List.of());
-        final List<Book> books = bookInquiryService.booksByAuthorName("tom");
+        when(bookPersistenceQueryPort.findAuthorsByName("tom")).thenReturn(Set.of(AuthorTest.AUTHOR));
+        when(bookPersistenceQueryPort.findBooksByAuthorId(AuthorTest.AUTHOR.id())).thenReturn(Set.of());
+        final Set<Book> books = bookManagementInquiryPort.booksByAuthorName("tom");
 
         assertAll(
-                () -> verify(bookQueryPort, times(1)).findAuthorsByName("tom"),
-                () -> verify(bookQueryPort, times(1)).findBooksByAuthorId(AuthorTest.AUTHOR.id()),
+                () -> verify(bookPersistenceQueryPort, times(1)).findAuthorsByName("tom"),
+                () -> verify(bookPersistenceQueryPort, times(1)).findBooksByAuthorId(AuthorTest.AUTHOR.id()),
                 () -> assertEquals(0, books.size()),
 
-                () -> assertThrows(ServiceException.class, () -> bookInquiryService.booksByAuthorName(null)),
-                () -> assertThrows(ServiceException.class, () -> bookInquiryService.booksByAuthorName(" "))
+                () -> assertThrows(ServiceException.class, () -> bookManagementInquiryPort.booksByAuthorName(null)),
+                () -> assertThrows(ServiceException.class, () -> bookManagementInquiryPort.booksByAuthorName(" "))
         );
     }
 
     @Test
     void authorSiteTypes() {
-        final List<String> types = bookInquiryService.authorSiteTypes();
+        final Set<String> types = bookManagementInquiryPort.authorSiteTypes();
         assertEquals(7, types.size());
     }
 }

@@ -1,7 +1,7 @@
 package com.putoet.mybooks.books.adapter.in.web;
 
-import com.putoet.mybooks.books.application.BookInquiryService;
-import com.putoet.mybooks.books.application.BookUpdateService;
+import com.putoet.mybooks.books.application.port.in.BookManagementInquiryPort;
+import com.putoet.mybooks.books.application.port.in.BookManagementUpdatePort;
 import com.putoet.mybooks.books.application.port.in.ServiceError;
 import com.putoet.mybooks.books.application.port.in.ServiceException;
 import com.putoet.mybooks.books.domain.Author;
@@ -11,45 +11,45 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class AuthorControllerTest {
-    private BookInquiryService bookInquiryService;
-    private BookUpdateService bookUpdateService;
+    private BookManagementInquiryPort bookManagementInquiryPort;
+    private BookManagementUpdatePort bookManagementUpdatePort;
     private AuthorController authorController;
 
     private final Author author = new Author(AuthorId.withoutId(), "Schrijver, Jaap de");
 
     @BeforeEach
     void setup() {
-        bookInquiryService = mock(BookInquiryService.class);
-        bookUpdateService = mock(BookUpdateService.class);
-        authorController = new AuthorController(bookInquiryService, bookUpdateService);
+        bookManagementInquiryPort = mock(BookManagementInquiryPort.class);
+        bookManagementUpdatePort = mock(BookManagementUpdatePort.class);
+        authorController = new AuthorController(bookManagementInquiryPort, bookManagementUpdatePort);
     }
 
     @Test
     void getAuthors() {
-        final List<AuthorResponse> authors = authorController.getAuthors();
+        final Set<AuthorResponse> authors = authorController.getAuthors();
         assertAll(
                 () -> assertEquals(0, authors.size()),
-                () -> verify(bookInquiryService, times(1)).authors()
+                () -> verify(bookManagementInquiryPort, times(1)).authors()
         );
     }
 
     @Test
     void getAuthorsFailed() {
-        when(bookInquiryService.authors()).thenThrow(new RuntimeException("FAIL"));
+        when(bookManagementInquiryPort.authors()).thenThrow(new RuntimeException("FAIL"));
         try {
             authorController.getAuthors();
             fail("ResponseStatusException expected");
         } catch (ResponseStatusException exc) {
             assertAll(
-                    () -> verify(bookInquiryService, times(1)).authors(),
+                    () -> verify(bookManagementInquiryPort, times(1)).authors(),
                     () -> assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode())
             );
         }
@@ -57,14 +57,14 @@ class AuthorControllerTest {
 
     @Test
     void getAuthorById() {
-        when(bookInquiryService.authorById(author.id())).thenReturn(Optional.of(author));
+        when(bookManagementInquiryPort.authorById(author.id())).thenReturn(Optional.of(author));
         authorController.getAuthorById(author.id().uuid().toString());
-        verify(bookInquiryService, times(1)).authorById(author.id());
+        verify(bookManagementInquiryPort, times(1)).authorById(author.id());
     }
 
     @Test
     void getAuthorByIdFailed() {
-        when(bookInquiryService.authorById(author.id())).thenThrow(new RuntimeException("FAIL"));
+        when(bookManagementInquiryPort.authorById(author.id())).thenThrow(new RuntimeException("FAIL"));
         try {
             authorController.getAuthorById(author.id().uuid().toString());
             fail("ResponseStatusException expected");
@@ -75,7 +75,7 @@ class AuthorControllerTest {
 
     @Test
     void getAuthorByIdNotFound() {
-        when(bookInquiryService.authorById(author.id())).thenReturn(Optional.empty());
+        when(bookManagementInquiryPort.authorById(author.id())).thenReturn(Optional.empty());
         try {
             authorController.getAuthorById(author.id().uuid().toString());
             fail("ResponseStatusException expected");
@@ -86,14 +86,14 @@ class AuthorControllerTest {
 
     @Test
     void getAuthorsByName() {
-        when(bookInquiryService.authorsByName(author.name())).thenReturn(List.of(author));
+        when(bookManagementInquiryPort.authorsByName(author.name())).thenReturn(Set.of(author));
         authorController.getAuthorsByName(author.name());
-        verify(bookInquiryService, times(1)).authorsByName(author.name());
+        verify(bookManagementInquiryPort, times(1)).authorsByName(author.name());
     }
 
     @Test
     void getAuthorByNameFailed() {
-        when(bookInquiryService.authorsByName(author.name())).thenThrow(new RuntimeException("FAIL"));
+        when(bookManagementInquiryPort.authorsByName(author.name())).thenThrow(new RuntimeException("FAIL"));
         try {
             authorController.getAuthorsByName(author.name());
             fail("ResponseStatusException expected");
@@ -105,12 +105,12 @@ class AuthorControllerTest {
     @Test
     void deleteAuthorById() {
         authorController.deleteAuthorById(author.id().uuid().toString());
-        verify(bookUpdateService, times(1)).forgetAuthor(author.id());
+        verify(bookManagementUpdatePort, times(1)).forgetAuthor(author.id());
     }
 
     @Test
     void deleteAuthorByIdFailed() {
-        doThrow(new ServiceException(ServiceError.AUTHOR_NOT_UPDATED)).when(bookUpdateService).forgetAuthor(author.id());
+        doThrow(new ServiceException(ServiceError.AUTHOR_NOT_UPDATED)).when(bookManagementUpdatePort).forgetAuthor(author.id());
         try {
             authorController.deleteAuthorById(null);
             fail("ResponseStatusException expected");
@@ -128,14 +128,14 @@ class AuthorControllerTest {
 
     @Test
     void postAuthor() {
-        when(bookUpdateService.registerAuthor(author.name(), Map.of())).thenReturn(author);
+        when(bookManagementUpdatePort.registerAuthor(author.name(), Map.of())).thenReturn(author);
         authorController.postAuthor(new NewAuthorRequest(author.name(), Map.of()));
-        verify(bookUpdateService, times(1)).registerAuthor(author.name(), Map.of());
+        verify(bookManagementUpdatePort, times(1)).registerAuthor(author.name(), Map.of());
     }
 
     @Test
     void postAuthorFailed() {
-        when(bookUpdateService.registerAuthor(author.name(), Map.of())).thenThrow(new ServiceException(ServiceError.AUTHOR_NOT_UPDATED));
+        when(bookManagementUpdatePort.registerAuthor(author.name(), Map.of())).thenThrow(new ServiceException(ServiceError.AUTHOR_NOT_UPDATED));
 
         try {
             authorController.postAuthor(new NewAuthorRequest(null, null));
@@ -161,14 +161,14 @@ class AuthorControllerTest {
 
     @Test
     void putAuthor() {
-        when(bookUpdateService.updateAuthor(author.id(), author.version(),author.name())).thenReturn(author);
+        when(bookManagementUpdatePort.updateAuthor(author.id(), author.version(),author.name())).thenReturn(author);
         authorController.putAuthor(author.id().uuid().toString(), new UpdateAuthorRequest(author.version().toString(), author.name()));
-        verify(bookUpdateService, times(1)).updateAuthor(author.id(), author.version(), author.name());
+        verify(bookManagementUpdatePort, times(1)).updateAuthor(author.id(), author.version(), author.name());
     }
 
     @Test
     void putAuthorFailed() {
-        when(bookUpdateService.updateAuthor(author.id(), author.version(),author.name())).thenThrow(new ServiceException(ServiceError.AUTHOR_NOT_UPDATED));
+        when(bookManagementUpdatePort.updateAuthor(author.id(), author.version(),author.name())).thenThrow(new ServiceException(ServiceError.AUTHOR_NOT_UPDATED));
 
         try {
             authorController.putAuthor(null, new UpdateAuthorRequest(null, null));

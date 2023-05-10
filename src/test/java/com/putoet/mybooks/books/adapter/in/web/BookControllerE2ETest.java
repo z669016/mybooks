@@ -141,9 +141,9 @@ class BookControllerE2ETest {
         final NewBookRequest newBookRequest = new NewBookRequest("UUID",
                 UUID.randomUUID().toString(),
                 "New book",
-                List.of(bookRequestAuthor),
+                Set.of(bookRequestAuthor),
                 Set.of("keyword"),
-                List.of(MimeTypes.EPUB.toString()));
+                Set.of(MimeTypes.EPUB.toString()));
 
         final String body = mvc.perform(mockRequest.jwtPostRequestWithToken("/book", userToken, mapper.writeValueAsString(newBookRequest)))
                 .andExpect(status().isOk())
@@ -160,9 +160,9 @@ class BookControllerE2ETest {
         final NewBookRequest newBookRequest = new NewBookRequest("UUID",
                 UUID.randomUUID().toString(),
                 title,
-                List.of(bookRequestAuthor),
+                Set.of(bookRequestAuthor),
                 Set.of("keyword"),
-                List.of(MimeTypes.EPUB.toString()));
+                Set.of(MimeTypes.EPUB.toString()));
 
         final String result = mvc.perform(mockRequest.jwtPostRequestWithToken("/book", userToken, mapper.writeValueAsString(newBookRequest)))
                 .andExpect(status().isOk())

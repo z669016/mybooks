@@ -11,7 +11,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Instant;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,34 +33,34 @@ class H2AuthorRepositoryTest {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    private H2BookRepository repository;
+    private H2BookRepositoryPersistence repository;
 
     @BeforeEach
     void setup() {
-        repository = new H2BookRepository(jdbcTemplate);
+        repository = new H2BookRepositoryPersistence(jdbcTemplate);
     }
 
     @Test
     void findAuthorByName() {
-        final List<Author> authors = repository.findAuthorsByName("tom");
+        final Set<Author> authors = repository.findAuthorsByName("tom");
 
         assertEquals(1, authors.size());
-        System.out.println(authors.get(0));
+        System.out.println(authors.stream().findFirst().orElseThrow());
     }
 
     @Test
     void findAuthors() {
-        final List<Author> authors = repository.findAuthors();
+        final Set<Author> authors = repository.findAuthors();
 
         assertEquals(6, authors.size());
-        System.out.println(authors.get(0));
+        authors.forEach(System.out::println);
     }
 
     @Test
     void findAuthorById() {
         assertNull(repository.findAuthorById(AuthorId.withoutId()));
 
-        final AuthorId authorId = repository.findAuthors().get(0).id();
+        final AuthorId authorId = repository.findAuthors().stream().findFirst().orElseThrow().id();
         assertEquals(authorId, repository.findAuthorById(authorId).id());
     }
 
@@ -124,11 +123,11 @@ class H2AuthorRepositoryTest {
 
     @Test
     void registerBook() {
-        final Author author = repository.findAuthorsByName("tom").get(0);
+        final Author author = repository.findAuthorsByName("tom").stream().findFirst().orElseThrow();
         final BookId bookId = new BookId(BookId.BookIdScheme.ISBN, "978-1839211966");
         final String title = "Get Your Hands Dirty on Clean Architecture";
-        final List<Author> authors = List.of(author);
-        final MimeTypes formats = new MimeTypes(List.of(MimeTypes.EPUB));
+        final Set<Author> authors = Set.of(author);
+        final MimeTypes formats = new MimeTypes(Set.of(MimeTypes.EPUB));
         final Set<String> keywords = Set.of("A", "B");
 
         final Book book = repository.registerBook(bookId, title, authors, formats, keywords);

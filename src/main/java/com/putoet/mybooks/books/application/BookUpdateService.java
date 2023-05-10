@@ -1,7 +1,7 @@
 package com.putoet.mybooks.books.application;
 
 import com.putoet.mybooks.books.application.port.in.*;
-import com.putoet.mybooks.books.application.port.out.persistence.BookUpdatePort;
+import com.putoet.mybooks.books.application.port.out.persistence.BookPersistenceUpdatePort;
 import com.putoet.mybooks.books.domain.*;
 import jakarta.activation.MimeType;
 import org.slf4j.Logger;
@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.net.URL;
 import java.time.Instant;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,13 +18,12 @@ import java.util.Set;
  * BookUpdateService provides write services for the book repository
  */
 @Service("bookUpdateService")
-public class BookUpdateService implements
-        RegisterAuthor, ForgetAuthor, UpdateAuthor, SetAuthorSite, RegisterBook {
+public class BookUpdateService implements BookManagementUpdatePort {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final BookUpdatePort bookUpdatePort;
+    private final BookPersistenceUpdatePort bookUpdatePort;
 
-    public BookUpdateService(BookUpdatePort bookUpdatePort) {
+    public BookUpdateService(BookPersistenceUpdatePort bookUpdatePort) {
         this.bookUpdatePort = bookUpdatePort;
 
         logger.info("BookService({})", bookUpdatePort);
@@ -90,7 +88,7 @@ public class BookUpdateService implements
     }
 
     @Override
-    public Book registerBook(BookId bookId, String title, List<Author> authors, List<MimeType> formats, Set<String> keywords) {
+    public Book registerBook(BookId bookId, String title, Set<Author> authors, Set<MimeType> formats, Set<String> keywords) {
         logger.info("registerBook({}, {}, {}, {})", bookId, title, authors, formats);
 
         if (bookId == null)

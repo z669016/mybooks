@@ -1,14 +1,15 @@
 package com.putoet.mybooks.books.application;
 
 import com.putoet.mybooks.books.application.port.in.*;
-import com.putoet.mybooks.books.application.port.out.persistence.BookQueryPort;
+import com.putoet.mybooks.books.application.port.out.persistence.BookPersistenceQueryPort;
 import com.putoet.mybooks.books.domain.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Class BookInquiryService
@@ -17,27 +18,25 @@ import java.util.Optional;
  * in enables several nice features, like a simple approach to load a databse from EPUB books on a file system.
  */
 @Service("bookInquiryService")
-public class BookInquiryService implements
-        Books, BooksByTitle, BookById, Authors, AuthorsByName, AuthorById, BooksByAuthorName,
-        AuthorSiteTypes {
+public class BookInquiryService implements BookManagementInquiryPort {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final BookQueryPort bookQueryPort;
+    private final BookPersistenceQueryPort bookPersistenceQueryPort;
 
-    public BookInquiryService(BookQueryPort bookQueryPort) {
-        this.bookQueryPort = bookQueryPort;
+    public BookInquiryService(BookPersistenceQueryPort bookPersistenceQueryPort) {
+        this.bookPersistenceQueryPort = bookPersistenceQueryPort;
 
-        logger.info("BookInquiryService({})", bookQueryPort);
+        logger.info("BookInquiryService({})", bookPersistenceQueryPort);
     }
 
     @Override
-    public List<Author> authorsByName(String name) {
+    public Set<Author> authorsByName(String name) {
         logger.info("authorsByName({})", name);
 
         if (name== null || name.isBlank())
             ServiceError.AUTHOR_NAME_REQUIRED.raise();
 
-        return bookQueryPort.findAuthorsByName(name);
+        return bookPersistenceQueryPort.findAuthorsByName(name);
     }
 
     @Override
@@ -46,31 +45,31 @@ public class BookInquiryService implements
         if (authorId == null)
             ServiceError.AUTHOR_ID_REQUIRED.raise();
 
-        return Optional.ofNullable(bookQueryPort.findAuthorById(authorId));
+        return Optional.ofNullable(bookPersistenceQueryPort.findAuthorById(authorId));
     }
 
     @Override
-    public List<Author> authors() {
+    public Set<Author> authors() {
         logger.info("authors()");
 
-        return bookQueryPort.findAuthors();
+        return bookPersistenceQueryPort.findAuthors();
     }
 
     @Override
-    public List<Book> books() {
+    public Set<Book> books() {
         logger.info("books()");
 
-        return bookQueryPort.findBooks();
+        return bookPersistenceQueryPort.findBooks();
     }
 
     @Override
-    public List<Book> booksByTitle(String title) {
+    public Set<Book> booksByTitle(String title) {
         logger.info("booksByTitle({})", title);
 
         if (title== null || title.isBlank())
             ServiceError.BOOK_TITLE_REQUIRED.raise();
 
-        return bookQueryPort.findBooksByTitle(title);
+        return bookPersistenceQueryPort.findBooksByTitle(title);
     }
 
     @Override
@@ -80,27 +79,27 @@ public class BookInquiryService implements
         if (bookId == null)
             ServiceError.BOOK_ID_REQUIRED.raise();
 
-        return Optional.ofNullable(bookQueryPort.findBookById(bookId));
+        return Optional.ofNullable(bookPersistenceQueryPort.findBookById(bookId));
     }
 
     @Override
-    public List<Book> booksByAuthorName(String name) {
+    public Set<Book> booksByAuthorName(String name) {
         logger.info("booksByAuthorName({})", name);
 
         if (name == null || name.isBlank())
             ServiceError.AUTHOR_NAME_REQUIRED.raise();
 
-        final List<Author> authors = authorsByName(name);
+        final Set<Author> authors = authorsByName(name);
         return authors.stream()
-                .flatMap(author -> bookQueryPort.findBooksByAuthorId(author.id()).stream())
-                .toList();
+                .flatMap(author -> bookPersistenceQueryPort.findBooksByAuthorId(author.id()).stream())
+                .collect(Collectors.toSet());
     }
 
     @Override
-    public List<String> authorSiteTypes() {
+    public Set<String> authorSiteTypes() {
         logger.info("authorSiteTypes()");
 
-        return List.of(
+        return Set.of(
                 SiteType.HOMEPAGE_NAME,
                 SiteType.FACEBOOK_NAME,
                 SiteType.GITHUB_NAME,

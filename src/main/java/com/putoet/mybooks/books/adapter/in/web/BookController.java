@@ -1,7 +1,7 @@
 package com.putoet.mybooks.books.adapter.in.web;
 
-import com.putoet.mybooks.books.application.BookInquiryService;
-import com.putoet.mybooks.books.application.BookUpdateService;
+import com.putoet.mybooks.books.application.port.in.BookManagementInquiryPort;
+import com.putoet.mybooks.books.application.port.in.BookManagementUpdatePort;
 import com.putoet.mybooks.books.domain.Author;
 import com.putoet.mybooks.books.domain.AuthorId;
 import com.putoet.mybooks.books.domain.Book;
@@ -20,48 +20,46 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Validated
 @RestController
 public class BookController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final BookInquiryService bookInquiryService;
-    private final BookUpdateService bookUpdateService;
+    private final BookManagementInquiryPort bookManagementInquiryPort;
+    private final BookManagementUpdatePort bookManagementUpdatePort;
 
     private final SmartValidator validator;
 
-    public BookController(BookInquiryService bookInquiryService, BookUpdateService bookUpdateService, SmartValidator validator) {
-        this.bookInquiryService = bookInquiryService;
-        this.bookUpdateService = bookUpdateService;
+    public BookController(BookManagementInquiryPort bookManagementInquiryPort, BookManagementUpdatePort bookManagementUpdatePort, SmartValidator validator) {
+        this.bookManagementInquiryPort = bookManagementInquiryPort;
+        this.bookManagementUpdatePort = bookManagementUpdatePort;
         this.validator = validator;
     }
 
     @GetMapping(path = "/books", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<BookResponse> getBooks() {
+    public Set<BookResponse> getBooks() {
         try {
-            return BookResponse.from(bookInquiryService.books());
+            return BookResponse.from(bookManagementInquiryPort.books());
         } catch (RuntimeException exc) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
         }
     }
 
     @GetMapping(path = "/books/author/{name}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<BookResponse> getBooksByAuthorName(@PathVariable @NotBlank String name) {
+    public Set<BookResponse> getBooksByAuthorName(@PathVariable @NotBlank String name) {
         try {
-            return BookResponse.from(bookInquiryService.booksByAuthorName(name));
+            return BookResponse.from(bookManagementInquiryPort.booksByAuthorName(name));
         } catch (RuntimeException exc) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
         }
     }
 
     @GetMapping(path = "/books/{title}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<BookResponse> getBooksByTitle(@PathVariable @NotBlank String title) {
+    public Set<BookResponse> getBooksByTitle(@PathVariable @NotBlank String title) {
         try {
-            return BookResponse.from(bookInquiryService.booksByTitle(title));
+            return BookResponse.from(bookManagementInquiryPort.booksByTitle(title));
         } catch (RuntimeException exc) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
         }
@@ -81,7 +79,7 @@ public class BookController {
 
         try {
             final BookId bookId = new BookId(schema, id);
-            final Optional<Book> book = bookInquiryService.bookById(bookId);
+            final Optional<Book> book = bookManagementInquiryPort.bookById(bookId);
             if (book.isPresent())
                 return BookResponse.from(book.get());
         } catch (RuntimeException exc) {
@@ -98,20 +96,20 @@ public class BookController {
     public BookResponse postBook(@RequestBody @Valid NewBookRequest book) {
         try {
             final BookId bookId = new BookId(book.schema(), book.id());
-            final List<Author> authors = new ArrayList<>();
+            final Set<Author> authors = new HashSet<>();
             for (BookRequestAuthor author : book.authors()) {
                 if (author.isNewRequest()) {
                     final NewAuthorRequest newAuthorRequest = author.newAuthorRequest();
-                    authors.add(bookUpdateService.registerAuthor(newAuthorRequest.name(), NewAuthorRequest.sitesWithURLs(newAuthorRequest.sites())));
+                    authors.add(bookManagementUpdatePort.registerAuthor(newAuthorRequest.name(), NewAuthorRequest.sitesWithURLs(newAuthorRequest.sites())));
                 } else if (author.isExistingRequest()){
                     final ExistingAuthorRequest existingAuthorRequest = author.existingAuthorRequest();
-                    authors.add(bookInquiryService.authorById(AuthorId.withId(existingAuthorRequest.id()))
+                    authors.add(bookManagementInquiryPort.authorById(AuthorId.withId(existingAuthorRequest.id()))
                             .orElseThrow(() -> new IllegalArgumentException("author with id " + existingAuthorRequest.id() + " not found for book with id " + bookId))
                     );
                 }
             }
 
-            return BookResponse.from(bookUpdateService.registerBook(
+            return BookResponse.from(bookManagementUpdatePort.registerBook(
                     bookId,
                     book.title(),
                     authors,

@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Instant;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,7 +19,7 @@ class AuthorResponseTest {
     @Test
     void from() {
         final AuthorResponse response = AuthorResponse.from(author);
-        final List<AuthorResponse> responses = AuthorResponse.from(List.of(author));
+        final Set<AuthorResponse> responses = AuthorResponse.from(Set.of(author));
 
         assertAll(
                 () -> assertEquals(author.id().uuid().toString(), response.id()),
@@ -28,7 +28,7 @@ class AuthorResponseTest {
                 () -> assertEquals(author.sites().size(), response.sites().size()),
 
                 () -> assertEquals(1, responses.size()),
-                () -> assertEquals(response, responses.get(0))
+                () -> assertEquals(response, responses.stream().findFirst().orElseThrow())
         );
     }
 

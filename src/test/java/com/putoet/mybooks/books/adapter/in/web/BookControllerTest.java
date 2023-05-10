@@ -1,7 +1,7 @@
 package com.putoet.mybooks.books.adapter.in.web;
 
-import com.putoet.mybooks.books.application.BookInquiryService;
-import com.putoet.mybooks.books.application.BookUpdateService;
+import com.putoet.mybooks.books.application.port.in.BookManagementInquiryPort;
+import com.putoet.mybooks.books.application.port.in.BookManagementUpdatePort;
 import com.putoet.mybooks.books.domain.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,7 +10,6 @@ import org.springframework.validation.SmartValidator;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -19,44 +18,44 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class BookControllerTest {
-    private BookInquiryService bookInquiryService;
-    private BookUpdateService bookUpdateService;
+    private BookManagementInquiryPort bookManagementInquiryPort;
+    private BookManagementUpdatePort bookManagementUpdatePort;
     private BookController bookController;
     private final Author author = new Author(AuthorId.withoutId(), "Schrijver, Jaap de");
 
-    private final List<String> formats = List.of(MimeTypes.PDF.toString(), MimeTypes.EPUB.toString());
+    private final Set<String> formats = Set.of(MimeTypes.PDF.toString(), MimeTypes.EPUB.toString());
     private final Book book = new Book(new BookId(BookId.BookIdScheme.ISBN, "978-1-83921-196-6"),
             "Get Your Hands Dirty on Clean Architecture",
-            List.of(author),
+            Set.of(author),
             Set.of("architecture", "rest"),
             new MimeTypes(BookResponse.toDomain(formats))
     );
 
     @BeforeEach
     void setup() {
-        bookInquiryService = mock(BookInquiryService.class);
-        bookUpdateService = mock(BookUpdateService.class);
-        bookController = new BookController(bookInquiryService, bookUpdateService, mock(SmartValidator.class));
+        bookManagementInquiryPort = mock(BookManagementInquiryPort.class);
+        bookManagementUpdatePort = mock(BookManagementUpdatePort.class);
+        bookController = new BookController(bookManagementInquiryPort, bookManagementUpdatePort, mock(SmartValidator.class));
     }
 
     @Test
     void getBooks() {
-        final List<BookResponse> books = bookController.getBooks();
+        final Set<BookResponse> books = bookController.getBooks();
         assertAll(
                 () -> assertEquals(0, books.size()),
-                () -> verify(bookInquiryService, times(1)).books()
+                () -> verify(bookManagementInquiryPort, times(1)).books()
         );
     }
 
     @Test
     void getBooksFailed() {
-        when(bookInquiryService.books()).thenThrow(new RuntimeException("FAIL"));
+        when(bookManagementInquiryPort.books()).thenThrow(new RuntimeException("FAIL"));
         try {
             bookController.getBooks();
             fail("ResponseStatusException expected");
         } catch (ResponseStatusException exc) {
             assertAll(
-                    () -> verify(bookInquiryService, times(1)).books(),
+                    () -> verify(bookManagementInquiryPort, times(1)).books(),
                     () -> assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode())
             );
         }
@@ -65,18 +64,18 @@ class BookControllerTest {
     @Test
     void getBooksByAuthorName() {
         bookController.getBooksByAuthorName(author.name());
-        verify(bookInquiryService, times(1)).booksByAuthorName(author.name());
+        verify(bookManagementInquiryPort, times(1)).booksByAuthorName(author.name());
     }
 
     @Test
     void getBooksByAuthorNameFailed() {
-        when(bookInquiryService.booksByAuthorName(author.name())).thenThrow(new RuntimeException("FAIL"));
+        when(bookManagementInquiryPort.booksByAuthorName(author.name())).thenThrow(new RuntimeException("FAIL"));
         try {
             bookController.getBooksByAuthorName(author.name());
             fail("ResponseStatusException expected");
         } catch (ResponseStatusException exc) {
             assertAll(
-                    () -> verify(bookInquiryService, times(1)).booksByAuthorName(author.name()),
+                    () -> verify(bookManagementInquiryPort, times(1)).booksByAuthorName(author.name()),
                     () -> assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode())
             );
         }
@@ -85,18 +84,18 @@ class BookControllerTest {
     @Test
     void getBooksByTitle() {
         bookController.getBooksByTitle(book.title());
-        verify(bookInquiryService, times(1)).booksByTitle(book.title());
+        verify(bookManagementInquiryPort, times(1)).booksByTitle(book.title());
     }
 
     @Test
     void getBooksByTitleFailed() {
-        when(bookInquiryService.booksByTitle(book.title())).thenThrow(new RuntimeException("FAIL"));
+        when(bookManagementInquiryPort.booksByTitle(book.title())).thenThrow(new RuntimeException("FAIL"));
         try {
             bookController.getBooksByTitle(book.title());
             fail("ResponseStatusException expected");
         } catch (ResponseStatusException exc) {
             assertAll(
-                    () -> verify(bookInquiryService, times(1)).booksByTitle(book.title()),
+                    () -> verify(bookManagementInquiryPort, times(1)).booksByTitle(book.title()),
                     () -> assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode())
             );
         }
@@ -104,9 +103,9 @@ class BookControllerTest {
 
     @Test
     void getBookById() throws MethodArgumentNotValidException {
-        when(bookInquiryService.bookById(book.id())).thenReturn(Optional.of(book));
+        when(bookManagementInquiryPort.bookById(book.id())).thenReturn(Optional.of(book));
         bookController.getBookById(book.id().schema().name(), book.id().id());
-        verify(bookInquiryService, times(1)).bookById(book.id());
+        verify(bookManagementInquiryPort, times(1)).bookById(book.id());
     }
 
     @Test
@@ -120,7 +119,7 @@ class BookControllerTest {
 
     @Test
     void getBookByIdNotFound() throws MethodArgumentNotValidException {
-        when(bookInquiryService.bookById(book.id())).thenReturn(Optional.empty());
+        when(bookManagementInquiryPort.bookById(book.id())).thenReturn(Optional.empty());
         try {
             bookController.getBookById(book.id().schema().name(), book.id().id());
         } catch (ResponseStatusException exc) {
@@ -133,33 +132,33 @@ class BookControllerTest {
         final BookRequestAuthor firstAuthor = new BookRequestAuthor(author.id().uuid().toString(), null, null);
         final BookRequestAuthor secondAuthor = new BookRequestAuthor(null, "Author, Second", Map.of());
 
-        final NewBookRequest bookRequest = new NewBookRequest(
+        final NewBookRequest newBookRequest = new NewBookRequest(
                 book.id().schema().name(),
                 book.id().id(),
                 book.title(),
-                List.of(firstAuthor, secondAuthor),
+                Set.of(firstAuthor, secondAuthor),
                 book.keywords(),
-                List.of(MimeTypes.EPUB.toString())
+                Set.of(MimeTypes.EPUB.toString())
         );
 
         final Author createdAuthor = new Author(AuthorId.withoutId(), secondAuthor.name());
 
-        when(bookInquiryService.authorById(author.id())).thenReturn(Optional.of(author));
-        when(bookUpdateService.registerAuthor(secondAuthor.name(), Map.of())).thenReturn(createdAuthor);
+        when(bookManagementInquiryPort.authorById(author.id())).thenReturn(Optional.of(author));
+        when(bookManagementUpdatePort.registerAuthor(secondAuthor.name(), Map.of())).thenReturn(createdAuthor);
 
-        when(bookUpdateService.registerBook(
+        when(bookManagementUpdatePort.registerBook(
                 eq(book.id()),
                 eq(book.title()),
-                eq(List.of(author, createdAuthor)),
-                eq(BookResponse.toDomain(bookRequest.formats())),
+                eq(Set.of(author, createdAuthor)),
+                eq(BookResponse.toDomain(newBookRequest.formats())),
                 eq(book.keywords())
         )).thenReturn(book);
 
-        final BookResponse createdBook = bookController.postBook(bookRequest);
+        final BookResponse createdBook = bookController.postBook(newBookRequest);
         assertAll(
                 () -> assertNotNull(createdBook),
-                () -> verify(bookInquiryService, times(1)).authorById(author.id()),
-                () -> verify(bookUpdateService, times(1)).registerAuthor(secondAuthor.name(), Map.of())
+                () -> verify(bookManagementInquiryPort, times(1)).authorById(author.id()),
+                () -> verify(bookManagementUpdatePort, times(1)).registerAuthor(secondAuthor.name(), Map.of())
         );
     }
 }

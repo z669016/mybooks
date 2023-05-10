@@ -4,7 +4,6 @@ import jakarta.activation.MimeType;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -15,9 +14,9 @@ public class BookTest {
     private static final BookId id = new BookId(BookId.BookIdScheme.ISBN, "978-1-83921-196-6");
     private static final String title = "Get Your Hands Dirty on Clean Architecture";
     private static final Author author = mock(Author.class);
-    private static final List<Author> authors = List.of(author);
+    private static final Set<Author> authors = Set.of(author);
     private static final Set<String> keywords = Set.of("architecture", "adapters", "ports");
-    private static final List<MimeType> formats = List.of(MimeTypes.EPUB);
+    private static final Set<MimeType> formats = Set.of(MimeTypes.EPUB);
     public static final Book book = new Book(id, title, authors, keywords, new MimeTypes(formats));
 
     @Test
