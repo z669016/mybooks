@@ -89,12 +89,13 @@ loaded again using Tika. Remarkably enough, this already solved the issue!
 Services on the domain model are defined using input ports, which are interfaces implemented by service-classes. These
 services can be used by adapters (e.g. Spring Rest Controller) to adapt a service for connection to the Internet.
 
-In contrast to the output ports, I separated all input ports into interfaces with all only one method. I initially 
-thought this might provide additional benefit, but I didn't find it yet. I might remove it sometime in the future.
+In contrast to the output ports, I initially separated all input ports into interfaces with all only one method as I 
+initially thought this might provide additional benefit, but it didn't. Worse it made me use the 
+```BookInquiryService``` directly instead of its interface. Fixing it was a bit of work :-(
 
 I've implemented a ```BookInquiryService``` and a ```BookUpdateService```. These components can retrieve and update 
-book data when wired to a ```BookQueryPort``` and ```BookUpdatePort``` implementation. The services do some logging at 
-info level, parameter checking, and use the output port implementation to fulfill the service request.
+book data when wired to a ```BookManagementInqueryPort``` and ```BookManagementUpdatePort``` implementation. The 
+services do some logging at info level, parameter checking, and use the output port implementation to fulfill the service request.
 
 The services are unit tested using mocks for the output ports. So the unit test validate if the expected calls are 
 being made, no if the ports return the proper information, as that's the responsibility of the unit tests of the 
@@ -102,7 +103,7 @@ output port implementations.
 
 ### Web adapters for REST endpoints
 And now finally, the step to link everything to the world-wide-web. I started with the ```AuthorController```, as it 
-simpler than the ```BookController``` (as books have a nested ```List<Author>```). The controller methods consume and 
+simpler than the ```BookController``` (as books have a nested ```Set<Author>```). The controller methods consume and 
 produce JSON only, and are wired with a ```BookInquiryService``` and a ```BookUpdateService```. Of course they should 
 have been wired to input ports as these are interfaces, but here the one-method-per-input-port-interface approach 
 didn't help (sorry, I'm only human).
@@ -173,6 +174,10 @@ invest time on that.
 
 Using ```@SpringBootTest``` and ```@AutoConfigureMockMvs``` made e2e testing pretty easy. I was able to check proper 
 response codes on errors and proper error messages. 
+
+### Set<?> instead of List<?>
+When reading on JPA and Hibernate, I read about using ```Set``` instead of ```List```, as a Set is more safe, because 
+it cannot accidentally contain duplicate entities. That made sense, so I changed it throughout the entire application. 
 
 ## Class models
 
