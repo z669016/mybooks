@@ -33,8 +33,10 @@ class BookInquiryServiceTest {
         given(bookQueryPort.findAuthorById(AUTHOR_ID)).willReturn(AUTHOR);
 
         final var found = bookInquiryService.authorById(AUTHOR_ID);
-        assertTrue(found.isPresent());
-        assertEquals(AUTHOR, found.get());
+        assertAll(
+                () -> verify(bookQueryPort,times(1)).findAuthorById(AUTHOR_ID),
+                () -> assertEquals(Optional.of(AUTHOR),found)
+        );
     }
 
     @Test
@@ -42,7 +44,10 @@ class BookInquiryServiceTest {
         given(bookQueryPort.findAuthorById(any())).willReturn(null);
 
         final var found = bookInquiryService.authorById(AUTHOR_ID);
-        assertTrue(found.isEmpty());
+        assertAll(
+                () -> verify(bookQueryPort, times(1)).findAuthorById(AUTHOR_ID),
+                () -> assertTrue(found.isEmpty())
+        );
     }
 
     @Test
@@ -55,8 +60,11 @@ class BookInquiryServiceTest {
         given(bookQueryPort.findAuthorsByName(NAME)).willReturn(List.of(AUTHOR));
 
         final var found = bookInquiryService.authorsByName(NAME);
-        assertEquals(1, found.size());
-        assertEquals(AUTHOR, found.get(0));
+        assertAll(
+                () -> verify(bookQueryPort, times(1)).findAuthorsByName(NAME),
+                () -> assertEquals(1, found.size()),
+                () -> assertEquals(AUTHOR, found.get(0))
+        );
     }
 
     @Test
@@ -64,51 +72,58 @@ class BookInquiryServiceTest {
         given(bookQueryPort.findAuthorsByName(any())).willReturn(List.of());
 
         final var found = bookInquiryService.authorsByName(NAME);
-        assertTrue(found.isEmpty());
+        assertAll(
+                () -> verify(bookQueryPort, times(1)).findAuthorsByName(NAME),
+                () -> assertTrue(found.isEmpty())
+        );
     }
 
-    @Test
-    void authorByNameError() {
-        assertThrows(ServiceException.class, () -> bookInquiryService.authorsByName(null));
-        assertThrows(ServiceException.class, () -> bookInquiryService.authorsByName(""));
-    }
     @Test
     void authorsByName() {
-        assertThrows(ServiceException.class, () -> bookInquiryService.authorsByName(null));
-        assertThrows(ServiceException.class, () -> bookInquiryService.authorsByName(" "));
-
         when(bookQueryPort.findAuthorsByName("tim")).thenReturn(List.of());
         when(bookQueryPort.findAuthorsByName("tom")).thenReturn(List.of(AuthorTest.AUTHOR));
 
-        assertEquals(0, bookInquiryService.authorsByName("tim").size());
-        verify(bookQueryPort).findAuthorsByName("tim");
+        assertAll(
+                () -> assertEquals(0, bookInquiryService.authorsByName("tim").size()),
+                () -> verify(bookQueryPort).findAuthorsByName("tim"),
 
-        assertEquals(1, bookInquiryService.authorsByName("tom").size());
-        verify(bookQueryPort).findAuthorsByName("tom");
+                () -> assertEquals(1, bookInquiryService.authorsByName("tom").size()),
+                () -> verify(bookQueryPort).findAuthorsByName("tom"),
+
+                // error conditions
+                () -> assertThrows(ServiceException.class, () -> bookInquiryService.authorsByName(null)),
+                () -> assertThrows(ServiceException.class, () -> bookInquiryService.authorsByName(" "))
+        );
     }
 
     @Test
     void authorById() {
-        assertThrows(ServiceException.class, () -> bookInquiryService.authorById(null));
-
         when(bookQueryPort.findAuthorById(any())).thenReturn(null);
         when(bookQueryPort.findAuthorById(AuthorTest.AUTHOR.id())).thenReturn(AuthorTest.AUTHOR);
-
         final Optional<Author> author = bookInquiryService.authorById(AuthorTest.AUTHOR.id());
-        assertTrue(author.isPresent());
-        assertEquals(AuthorTest.AUTHOR, author.get());
 
-        assertFalse(bookInquiryService.authorById(AuthorId.withoutId()).isPresent());
+        assertAll(
+                () -> verify(bookQueryPort, times(1)).findAuthorById(AuthorTest.AUTHOR.id()),
+                () -> assertEquals(Optional.of(AuthorTest.AUTHOR), author),
+                () -> assertFalse(bookInquiryService.authorById(AuthorId.withoutId()).isPresent()),
+
+                // error conditions
+                () -> assertThrows(ServiceException.class, () -> bookInquiryService.authorById(null))
+        );
     }
 
     @Test
     void authors() {
-        assertThrows(ServiceException.class, () -> bookInquiryService.authorsByName(null));
-
         when(bookQueryPort.findAuthors()).thenReturn(List.of(AuthorTest.AUTHOR, AuthorTest.AUTHOR));
+        final List<Author> authors = bookInquiryService.authors();
 
-        assertEquals(2, bookInquiryService.authors().size());
-        verify(bookQueryPort).findAuthors();
+        assertAll(
+                () -> verify(bookQueryPort, times(1)).findAuthors(),
+                () -> assertEquals(2, authors.size()),
+
+                // error conditions
+                () -> assertThrows(ServiceException.class, () -> bookInquiryService.authorsByName(null))
+        );
     }
 
     @Test
@@ -116,46 +131,56 @@ class BookInquiryServiceTest {
         when(bookQueryPort.findBooks()).thenReturn(List.of());
         final List<Book> books = bookInquiryService.books();
 
-        verify(bookQueryPort, times(1)).findBooks();
-        assertEquals(0, books.size());
+        assertAll(
+                () -> verify(bookQueryPort, times(1)).findBooks(),
+                () -> assertEquals(0, books.size())
+        );
     }
 
     @Test
     void bookByTitle() {
-        assertThrows(ServiceException.class, () -> bookInquiryService.booksByTitle(null));
-        assertThrows(ServiceException.class, () -> bookInquiryService.booksByTitle(" "));
-
         when(bookQueryPort.findBooksByTitle(any())).thenReturn(List.of());
         final List<Book> books = bookInquiryService.booksByTitle("architecture");
 
-        verify(bookQueryPort, times(1)).findBooksByTitle("architecture");
-        assertEquals(0, books.size());
+        assertAll(
+                () -> verify(bookQueryPort, times(1)).findBooksByTitle("architecture"),
+                () -> assertEquals(0, books.size()),
+
+                // error conditions
+                () -> assertThrows(ServiceException.class, () -> bookInquiryService.booksByTitle(null)),
+                () -> assertThrows(ServiceException.class, () -> bookInquiryService.booksByTitle(" "))
+        );
     }
 
     @Test
     void bookById() {
-        assertThrows(ServiceException.class, () -> bookInquiryService.bookById(null));
-
         when(bookQueryPort.findBookById(any())).thenReturn(null);
         final BookId id = new BookId(BookId.BookIdScheme.UUID, UUID.randomUUID().toString());
         final Optional<Book> book = bookInquiryService.bookById(id);
 
-        verify(bookQueryPort, times(1)).findBookById(id);
-        assertFalse(book.isPresent());
+        assertAll(
+                () -> verify(bookQueryPort, times(1)).findBookById(id),
+                () -> assertTrue(book.isEmpty()),
+
+                // error conditions
+                () -> assertThrows(ServiceException.class, () -> bookInquiryService.bookById(null))
+        );
     }
 
     @Test
     void bookByAuthorName() {
-        assertThrows(ServiceException.class, () -> bookInquiryService.booksByAuthorName(null));
-        assertThrows(ServiceException.class, () -> bookInquiryService.booksByAuthorName(" "));
-
         when(bookQueryPort.findAuthorsByName("tom")).thenReturn(List.of(AuthorTest.AUTHOR));
         when(bookQueryPort.findBooksByAuthorId(AuthorTest.AUTHOR.id())).thenReturn(List.of());
         final List<Book> books = bookInquiryService.booksByAuthorName("tom");
 
-        verify(bookQueryPort, times(1)).findAuthorsByName("tom");
-        verify(bookQueryPort, times(1)).findBooksByAuthorId(AuthorTest.AUTHOR.id());
-        assertEquals(0, books.size());
+        assertAll(
+                () -> verify(bookQueryPort, times(1)).findAuthorsByName("tom"),
+                () -> verify(bookQueryPort, times(1)).findBooksByAuthorId(AuthorTest.AUTHOR.id()),
+                () -> assertEquals(0, books.size()),
+
+                () -> assertThrows(ServiceException.class, () -> bookInquiryService.booksByAuthorName(null)),
+                () -> assertThrows(ServiceException.class, () -> bookInquiryService.booksByAuthorName(" "))
+        );
     }
 
     @Test

@@ -51,9 +51,11 @@ class BookControllerE2ETest {
                 .getResponse()
                 .getContentAsString();
         final List<BookResponse> books = mapper.readValue(body, new TypeReference<>() {});
-        assertTrue(books.size() >= 2);
-        assertTrue(books.contains(book1));
-        assertTrue(books.contains(book2));
+        assertAll(
+                () -> assertTrue(books.size() >= 2),
+                () -> assertTrue(books.contains(book1)),
+                () -> assertTrue(books.contains(book2))
+        );
     }
 
     @Test
@@ -68,10 +70,12 @@ class BookControllerE2ETest {
                 .getResponse()
                 .getContentAsString();
         final List<BookResponse> books = mapper.readValue(body, new TypeReference<>() {});
-        assertEquals(2, books.size());
-        assertTrue(books.contains(book1));
-        assertTrue(books.contains(book2));
-        assertFalse(books.contains(book3));
+        assertAll(
+                () -> assertEquals(2, books.size()),
+                () -> assertTrue(books.contains(book1)),
+                () -> assertTrue(books.contains(book2)),
+                () -> assertFalse(books.contains(book3))
+        );
     }
 
     @Test
@@ -94,10 +98,12 @@ class BookControllerE2ETest {
                 .getResponse()
                 .getContentAsString();
         final List<BookResponse> books = mapper.readValue(body, new TypeReference<>() {});
-        assertEquals(2, books.size());
-        assertTrue(books.contains(book1));
-        assertTrue(books.contains(book2));
-        assertFalse(books.contains(book3));
+        assertAll(
+                () -> assertEquals(2, books.size()),
+                () -> assertTrue(books.contains(book1)),
+                () -> assertTrue(books.contains(book2)),
+                () -> assertFalse(books.contains(book3))
+        );
     }
 
     @Test

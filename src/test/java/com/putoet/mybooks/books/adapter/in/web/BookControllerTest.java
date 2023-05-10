@@ -42,8 +42,10 @@ class BookControllerTest {
     @Test
     void getBooks() {
         final List<BookResponse> books = bookController.getBooks();
-        assertEquals(0, books.size());
-        verify(bookInquiryService, times(1)).books();
+        assertAll(
+                () -> assertEquals(0, books.size()),
+                () -> verify(bookInquiryService, times(1)).books()
+        );
     }
 
     @Test
@@ -53,8 +55,10 @@ class BookControllerTest {
             bookController.getBooks();
             fail("ResponseStatusException expected");
         } catch (ResponseStatusException exc) {
-            verify(bookInquiryService, times(1)).books();
-            assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
+            assertAll(
+                    () -> verify(bookInquiryService, times(1)).books(),
+                    () -> assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode())
+            );
         }
     }
 
@@ -71,8 +75,10 @@ class BookControllerTest {
             bookController.getBooksByAuthorName(author.name());
             fail("ResponseStatusException expected");
         } catch (ResponseStatusException exc) {
-            verify(bookInquiryService, times(1)).booksByAuthorName(author.name());
-            assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
+            assertAll(
+                    () -> verify(bookInquiryService, times(1)).booksByAuthorName(author.name()),
+                    () -> assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode())
+            );
         }
     }
 
@@ -89,8 +95,10 @@ class BookControllerTest {
             bookController.getBooksByTitle(book.title());
             fail("ResponseStatusException expected");
         } catch (ResponseStatusException exc) {
-            verify(bookInquiryService, times(1)).booksByTitle(book.title());
-            assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
+            assertAll(
+                    () -> verify(bookInquiryService, times(1)).booksByTitle(book.title()),
+                    () -> assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode())
+            );
         }
     }
 
@@ -148,9 +156,10 @@ class BookControllerTest {
         )).thenReturn(book);
 
         final BookResponse createdBook = bookController.postBook(bookRequest);
-        assertNotNull(createdBook);
-
-        verify(bookInquiryService, times(1)).authorById(author.id());
-        verify(bookUpdateService, times(1)).registerAuthor(secondAuthor.name(), Map.of());
+        assertAll(
+                () -> assertNotNull(createdBook),
+                () -> verify(bookInquiryService, times(1)).authorById(author.id()),
+                () -> verify(bookUpdateService, times(1)).registerAuthor(secondAuthor.name(), Map.of())
+        );
     }
 }

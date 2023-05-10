@@ -15,8 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class AuthorControllerTest {
@@ -36,8 +35,10 @@ class AuthorControllerTest {
     @Test
     void getAuthors() {
         final List<AuthorResponse> authors = authorController.getAuthors();
-        assertEquals(0, authors.size());
-        verify(bookInquiryService, times(1)).authors();
+        assertAll(
+                () -> assertEquals(0, authors.size()),
+                () -> verify(bookInquiryService, times(1)).authors()
+        );
     }
 
     @Test
@@ -47,8 +48,10 @@ class AuthorControllerTest {
             authorController.getAuthors();
             fail("ResponseStatusException expected");
         } catch (ResponseStatusException exc) {
-            verify(bookInquiryService, times(1)).authors();
-            assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
+            assertAll(
+                    () -> verify(bookInquiryService, times(1)).authors(),
+                    () -> assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode())
+            );
         }
     }
 

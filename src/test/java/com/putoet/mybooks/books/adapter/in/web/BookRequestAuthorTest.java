@@ -12,19 +12,23 @@ class BookRequestAuthorTest {
     @Test
     void existingAuthorRequest() {
         final BookRequestAuthor bookRequestAuthor = new BookRequestAuthor(UUID.randomUUID().toString(), null, null);
-        assertTrue(bookRequestAuthor.isExistingRequest());
-        assertFalse(bookRequestAuthor.isNewRequest());
-        assertEquals(bookRequestAuthor.id(), bookRequestAuthor.existingAuthorRequest().id());
-        assertThrows(IllegalStateException.class, bookRequestAuthor::newAuthorRequest);
+        assertAll(
+                () -> assertTrue(bookRequestAuthor.isExistingRequest()),
+                () -> assertFalse(bookRequestAuthor.isNewRequest()),
+                () -> assertEquals(bookRequestAuthor.id(), bookRequestAuthor.existingAuthorRequest().id()),
+                () -> assertThrows(IllegalStateException.class, bookRequestAuthor::newAuthorRequest)
+        );
     }
 
     @Test
     void newAuthorRequest() {
         final BookRequestAuthor bookRequestAuthor = new BookRequestAuthor(null, "name", Map.of("Google", "https://www.google.com"));
-        assertTrue(bookRequestAuthor.isNewRequest());
-        assertFalse(bookRequestAuthor.isExistingRequest());
-        assertEquals(bookRequestAuthor.name(), bookRequestAuthor.newAuthorRequest().name());
-        assertEquals(bookRequestAuthor.sites(), bookRequestAuthor.newAuthorRequest().sites());
-        assertThrows(IllegalStateException.class, bookRequestAuthor::existingAuthorRequest);
+        assertAll(
+                () -> assertTrue(bookRequestAuthor.isNewRequest()),
+                () -> assertFalse(bookRequestAuthor.isExistingRequest()),
+                () -> assertEquals(bookRequestAuthor.name(), bookRequestAuthor.newAuthorRequest().name()),
+                () -> assertEquals(bookRequestAuthor.sites(), bookRequestAuthor.newAuthorRequest().sites()),
+                () -> assertThrows(IllegalStateException.class, bookRequestAuthor::existingAuthorRequest)
+        );
     }
 }

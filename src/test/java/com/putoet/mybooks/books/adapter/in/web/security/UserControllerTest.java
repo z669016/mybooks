@@ -81,9 +81,11 @@ class UserControllerTest {
         when(userDetailService.loadUserByUsername(loginRequest.id())).thenReturn(userDetails);
         final JwtResponse result = userController.login(loginRequest, response);
 
-        verify(authenticationManager, times(1)).authenticate(any());
-        verify(response, times(1)).addCookie(any());
-        assertNotNull(result.access_token());
+        assertAll(
+                () -> verify(authenticationManager, times(1)).authenticate(any()),
+                () -> verify(response, times(1)).addCookie(any()),
+                () -> assertNotNull(result.access_token())
+        );
     }
 
     @Test
@@ -94,9 +96,11 @@ class UserControllerTest {
             userController.login(loginRequest, response);
             fail("ResponseStatusException expected");
         } catch (ResponseStatusException exc) {
-            assertEquals(HttpStatus.FORBIDDEN, exc.getStatusCode());
-            verify(authenticationManager, times(1)).authenticate(any());
-            verify(response, times(0)).addCookie(any());
+            assertAll(
+                    () -> assertEquals(HttpStatus.FORBIDDEN, exc.getStatusCode()),
+                    () -> verify(authenticationManager, times(1)).authenticate(any()),
+                    () -> verify(response, times(0)).addCookie(any())
+            );
         }
     }
     @Test
@@ -135,10 +139,12 @@ class UserControllerTest {
                 .thenReturn(new User(request.id(), request.name(), request.password(), AccessRole.from(request.accessRole())));
         final UserResponse user = userController.postUser(request);
 
-        verify(userService, times(1)).registerUser(request.id(), request.name(), request.password(), AccessRole.from(request.accessRole()));
-        assertEquals(request.id(), user.id());
-        assertEquals(request.name(), user.name());
-        assertEquals(request.accessRole(), user.accessRole());
+        assertAll(
+                () -> verify(userService, times(1)).registerUser(request.id(), request.name(), request.password(), AccessRole.from(request.accessRole())),
+                () -> assertEquals(request.id(), user.id()),
+                () -> assertEquals(request.name(), user.name()),
+                () -> assertEquals(request.accessRole(), user.accessRole())
+        );
     }
 
     @Test
@@ -157,8 +163,10 @@ class UserControllerTest {
         when(userService.users()).thenReturn(List.of(new User(request.id(), request.name(), request.password(), AccessRole.from(request.accessRole()))));
         final List<UserResponse> users = userController.getUsers();
 
-        verify(userService, times(1)).users();
-        assertEquals(1, users.size());
+        assertAll(
+                () -> verify(userService, times(1)).users(),
+                () -> assertEquals(1, users.size())
+        );
     }
 
     @Test
@@ -177,10 +185,12 @@ class UserControllerTest {
         when(userService.userById(request.id())).thenReturn(Optional.of(new User(request.id(), request.name(), request.password(), AccessRole.from(request.accessRole()))));
         final UserResponse response = userController.getUserById(request.id());
 
-        verify(userService, times(1)).userById(request.id());
-        assertEquals(request.id(), response.id());
-        assertEquals(request.name(), response.name());
-        assertEquals(request.accessRole(), response.accessRole());
+        assertAll(
+                () -> verify(userService, times(1)).userById(request.id()),
+                () -> assertEquals(request.id(), response.id()),
+                () -> assertEquals(request.name(), response.name()),
+                () -> assertEquals(request.accessRole(), response.accessRole())
+        );
     }
 
     @Test
@@ -190,8 +200,10 @@ class UserControllerTest {
             userController.getUserById(request.id());
             fail("ResponseStatusException expected");
         } catch (ResponseStatusException exc) {
-            assertEquals(HttpStatus.NOT_FOUND, exc.getStatusCode());
-            verify(userService, times(1)).userById(request.id());
+            assertAll(
+                    () -> assertEquals(HttpStatus.NOT_FOUND, exc.getStatusCode()),
+                    () -> verify(userService, times(1)).userById(request.id())
+            );
         }
     }
 

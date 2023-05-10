@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
@@ -29,38 +30,49 @@ class UserServiceTest {
 
     @Test
     void forgetUser() {
-        assertThrows(UserException.class, () -> userService.forgetUser(null));
-        assertThrows(UserException.class, () -> userService.forgetUser("   "));
-
         userService.forgetUser(USER.id());
-        verify(userPort).forgetUser(USER.id());
+
+        assertAll(
+                () -> verify(userPort).forgetUser(USER.id()),
+
+                // error conditions
+                () -> assertThrows(UserException.class, () -> userService.forgetUser(null)),
+                () -> assertThrows(UserException.class, () -> userService.forgetUser("   "))
+        );
+
     }
 
     @Test
     void registerUser() {
-        assertThrows(UserException.class, () -> userService.registerUser(null, null, null, null));
-        assertThrows(UserException.class, () -> userService.registerUser("   ", null, null, null));
-        assertThrows(UserException.class, () -> userService.registerUser(USER.id(), null, null, null));
-        assertThrows(UserException.class, () -> userService.registerUser(USER.id(), "  ", null, null));
-        assertThrows(UserException.class, () -> userService.registerUser(USER.id(), USER.name(), null, null));
-        assertThrows(UserException.class, () -> userService.registerUser(USER.id(), USER.name(), "  ", null));
-        assertThrows(UserException.class, () -> userService.registerUser(USER.id(), USER.name(), "2password!", null));
-
         final String password = "encoded_password";
         when(passwordEncoder.encode(USER.password())).thenReturn(password);
         userService.registerUser(USER.id(), USER.name(), USER.password(), USER.accessRole());
 
-        verify(passwordEncoder).encode(USER.password());
-        verify(userPort).registerUser(USER.id(), USER.name(), password, USER.accessRole());
+        assertAll(
+                () -> verify(passwordEncoder).encode(USER.password()),
+                () -> verify(userPort).registerUser(USER.id(), USER.name(), password, USER.accessRole()),
+
+                // error conditions
+                () -> assertThrows(UserException.class, () -> userService.registerUser(null, null, null, null)),
+                () -> assertThrows(UserException.class, () -> userService.registerUser("   ", null, null, null)),
+                () -> assertThrows(UserException.class, () -> userService.registerUser(USER.id(), null, null, null)),
+                () -> assertThrows(UserException.class, () -> userService.registerUser(USER.id(), "  ", null, null)),
+                () -> assertThrows(UserException.class, () -> userService.registerUser(USER.id(), USER.name(), null, null)),
+                () -> assertThrows(UserException.class, () -> userService.registerUser(USER.id(), USER.name(), "  ", null)),
+                () -> assertThrows(UserException.class, () -> userService.registerUser(USER.id(), USER.name(), "2password!", null))
+        );
     }
 
     @Test
     void userById() {
-        assertThrows(UserException.class, () -> userService.userById(null));
-        assertThrows(UserException.class, () -> userService.userById("   "));
-
         userService.userById(USER.id());
-        verify(userPort).findUserById(USER.id());
+        assertAll(
+                () -> verify(userPort).findUserById(USER.id()),
+
+                // error conditions
+                () -> assertThrows(UserException.class, () -> userService.userById(null)),
+                () -> assertThrows(UserException.class, () -> userService.userById("   "))
+        );
     }
 
     @Test

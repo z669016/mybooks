@@ -19,14 +19,17 @@ class AuthorResponseTest {
     @Test
     void from() {
         final AuthorResponse response = AuthorResponse.from(author);
-        assertEquals(author.id().uuid().toString(), response.id());
-        assertEquals(author.version().toString(), response.version());
-        assertEquals(author.name(), response.name());
-        assertEquals(author.sites().size(), response.sites().size());
-
         final List<AuthorResponse> responses = AuthorResponse.from(List.of(author));
-        assertEquals(1, responses.size());
-        assertEquals(response, responses.get(0));
+
+        assertAll(
+                () -> assertEquals(author.id().uuid().toString(), response.id()),
+                () -> assertEquals(author.version().toString(), response.version()),
+                () -> assertEquals(author.name(), response.name()),
+                () -> assertEquals(author.sites().size(), response.sites().size()),
+
+                () -> assertEquals(1, responses.size()),
+                () -> assertEquals(response, responses.get(0))
+        );
     }
 
     @Test

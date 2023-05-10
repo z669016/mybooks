@@ -24,8 +24,10 @@ class FolderBookRepositoryTest {
     @Test
     void findAuthorByName() {
         final List<Author> authors = leanpub.findAuthorsByName("stuart");
-        assertEquals(1, authors.size());
-        assertEquals("Gunter, Stuart", authors.get(0).name());
+        assertAll(
+                () -> assertEquals(1, authors.size()),
+                () -> assertEquals("Gunter, Stuart", authors.get(0).name())
+        );
     }
 
     @Test
@@ -57,8 +59,11 @@ class FolderBookRepositoryTest {
         final String id = "https://leanpub.com/wardley-maps";
         final BookId bookId = new BookId(BookId.BookIdScheme.URL, id);
         final Book book = leanpub.findBookById(bookId);
-        assertNotNull(book);
-        assertEquals(bookId, book.id());
+
+        assertAll(
+                () -> assertNotNull(book),
+                () -> assertEquals(bookId, book.id())
+        );
     }
 
     @Test

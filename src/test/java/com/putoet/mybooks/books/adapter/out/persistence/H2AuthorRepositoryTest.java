@@ -68,16 +68,17 @@ class H2AuthorRepositoryTest {
     @Test
     void registerAuthor() {
         final int count = repository.findAuthors().size();
-
         final Author author = repository.registerAuthor(NAME, Map.of(TYPE, SITE_URL));
 
-        assertNotNull(author);
-        assertNotNull(author.id());
-        assertEquals(NAME, author.name());
-        assertEquals(1, author.sites().size());
-        assertEquals(SITE_URL, author.sites().get(SiteType.HOMEPAGE));
-        assertEquals(count + 1, repository.findAuthors().size());
-        assertEquals(NAME, repository.findAuthorById(author.id()).name());
+        assertAll(
+                () -> assertNotNull(author),
+                () -> assertNotNull(author.id()),
+                () -> assertEquals(NAME, author.name()),
+                () -> assertEquals(1, author.sites().size()),
+                () -> assertEquals(SITE_URL, author.sites().get(SiteType.HOMEPAGE)),
+                () -> assertEquals(count + 1, repository.findAuthors().size()),
+                () -> assertEquals(NAME, repository.findAuthorById(author.id()).name())
+        );
     }
 
     @Test
@@ -85,14 +86,14 @@ class H2AuthorRepositoryTest {
         final String oldName = "Old, Name";
         final String newName = "New, Name";
 
-        Author author = repository.registerAuthor(oldName, Map.of(TYPE, SITE_URL));
-        final Instant oldVersion = author.version();
-        repository.updateAuthor(author.id(), oldVersion, newName);
+        final Author original = repository.registerAuthor(oldName, Map.of(TYPE, SITE_URL));
+        final Author author = repository.updateAuthor(original.id(), original.version(), newName);
 
-        author = repository.findAuthorById(author.id());
-        assertNotEquals(oldVersion, author.version());
-        assertEquals(newName, author.name());
-        assertEquals(author.sites(), Map.of(TYPE, SITE_URL));
+        assertAll(
+                () -> assertNotEquals(original.version(), author.version()),
+                () -> assertEquals(newName, author.name()),
+                () -> assertEquals(author.sites(), Map.of(TYPE, SITE_URL))
+        );
     }
 
     @Test
@@ -104,13 +105,10 @@ class H2AuthorRepositoryTest {
     @Test
     void forgetAuthor() {
         final String oldName = "Old, Name";
-
-        Author author = repository.registerAuthor(oldName, Map.of(TYPE, SITE_URL));
-        author = repository.findAuthorById(author.id());
-        assertNotNull(author);
+        final Author author = repository.registerAuthor(oldName, Map.of(TYPE, SITE_URL));
         repository.forgetAuthor(author.id());
-        author = repository.findAuthorById(author.id());
-        assertNull(author);
+
+        assertNull(repository.findAuthorById(author.id()));
     }
 
     @Test
@@ -134,11 +132,13 @@ class H2AuthorRepositoryTest {
         final Set<String> keywords = Set.of("A", "B");
 
         final Book book = repository.registerBook(bookId, title, authors, formats, keywords);
-        assertNotNull(book);
-        assertEquals(bookId, book.id());
-        assertEquals(title, book.title());
-        assertEquals(authors, book.authors());
-        assertEquals(formats, book.formats());
-        assertEquals(keywords, book.keywords());
+        assertAll(
+                () -> assertNotNull(book),
+                () -> assertEquals(bookId, book.id()),
+                () -> assertEquals(title, book.title()),
+                () -> assertEquals(authors, book.authors()),
+                () -> assertEquals(formats, book.formats()),
+                () -> assertEquals(keywords, book.keywords())
+        );
     }
 }

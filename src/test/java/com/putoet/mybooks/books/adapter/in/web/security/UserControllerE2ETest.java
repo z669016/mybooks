@@ -19,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -86,9 +87,11 @@ class UserControllerE2ETest {
                 .getContentAsString();
 
         final UserResponse userResponse = mapper.readValue(body, UserResponse.class);
-        assertEquals(newUserRequest.id(), userResponse.id());
-        assertEquals(newUserRequest.name(), userResponse.name());
-        assertEquals(newUserRequest.accessRole().toLowerCase(), userResponse.accessRole().toLowerCase());
+        assertAll(
+                () -> assertEquals(newUserRequest.id(), userResponse.id()),
+                () -> assertEquals(newUserRequest.name(), userResponse.name()),
+                () -> assertEquals(newUserRequest.accessRole().toLowerCase(), userResponse.accessRole().toLowerCase())
+        );
     }
 
     @Test

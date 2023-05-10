@@ -11,7 +11,10 @@ class RezipperTest {
     void bookForFile() {
         final String fileName = "/Users/renevanputten/OneDrive/Documents/Books/Manning Books/Node.js in Action, Second Edition/Node.js_in_Action_S.epub";
         final Optional<String> epub = Rezipper.repackage(fileName);
-        assertTrue(epub.isPresent());
-        assertNotEquals(fileName, epub.get());
+
+        assertAll(
+                () -> assertTrue(epub.isPresent()),
+                () -> assertNotEquals(fileName, epub.get())
+        );
     }
 }
