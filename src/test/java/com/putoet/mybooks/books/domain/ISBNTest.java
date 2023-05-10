@@ -12,21 +12,23 @@ public class ISBNTest {
 
     @Test
     void isValid() {
-        assertTrue(ISBN.isValid(ISBN_13_TEXT));
-        assertTrue(ISBN.isValid(ISBN_10_TEXT));
+        assertAll(
+                () -> assertTrue(ISBN.isValid(ISBN_13_TEXT)),
+                () -> assertTrue(ISBN.isValid(ISBN_10_TEXT)),
+                () -> assertFalse(ISBN.isValid("978-0-7645-7682-8")),
+                () -> assertFalse(ISBN.isValid("0-7645-7682-7")),
 
-        // isbn must be valid
-        assertFalse(ISBN.isValid("978-0-7645-7682-8"));
-        assertFalse(ISBN.isValid("0-7645-7682-7"));
-
-        // isbn must not be null
-        assertThrows(NullPointerException.class, () -> ISBN.withISBN(null));
+                // error conditions
+                () -> assertThrows(NullPointerException.class, () -> ISBN.withISBN(null))
+        );
     }
 
     @Test
     void with() {
-        assertEquals(ISBN_13_TEXT, ISBN.withISBN(ISBN_13_TEXT).toString());
-        assertEquals(ISBN_13_TEXT, ISBN.withISBN(ISBN_10_TEXT).toString());
+        assertAll(
+                () -> assertEquals(ISBN_13_TEXT, ISBN.withISBN(ISBN_13_TEXT).toString()),
+                () -> assertEquals(ISBN_13_TEXT, ISBN.withISBN(ISBN_10_TEXT).toString())
+        );
     }
 
     @Test

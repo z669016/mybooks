@@ -8,17 +8,19 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class BookIdTest {
     @Test
-    void nullParameters() {
-        assertThrows(IllegalArgumentException.class, () -> new BookId("", ""));
-        assertThrows(IllegalArgumentException.class, () -> new BookId("BLA", ""));
-        assertThrows(NullPointerException.class, () -> new BookId(BookId.BookIdScheme.UUID, null));
-    }
-
-    @Test
-    void defaultBookId() {
+    void constructor() {
         final BookId bookId = new BookId();
-        assertEquals(BookId.BookIdScheme.UUID, bookId.schema());
-        assertNotNull(bookId.id());
+
+        assertAll(
+                // error conditions
+                () -> assertThrows(IllegalArgumentException.class, () -> new BookId("", "")),
+                () -> assertThrows(IllegalArgumentException.class, () -> new BookId("BLA", "")),
+                () -> assertThrows(NullPointerException.class, () -> new BookId(BookId.BookIdScheme.UUID, null)),
+
+                // normal expected outcome
+                () -> assertEquals(BookId.BookIdScheme.UUID, bookId.schema()),
+                () -> assertNotNull(bookId.id())
+        );
     }
 
     @Test
@@ -27,15 +29,18 @@ public class BookIdTest {
         final String id13 = "978-3-16-148410-0";
         final BookId.BookIdScheme schema = BookId.BookIdScheme.ISBN;
 
-        BookId bookId = new BookId(schema, id10);
-        assertEquals(schema, bookId.schema());
-        assertEquals(id10, bookId.id());
+        final BookId bookId10 = new BookId(schema, id10);
+        final BookId bookId13 = new BookId(schema, id13);
 
-        bookId = new BookId(schema, id13);
-        assertEquals(schema, bookId.schema());
-        assertEquals(id13, bookId.id());
+        assertAll(
+                () -> assertEquals(schema, bookId10.schema()),
+                () -> assertEquals(id10, bookId10.id()),
+                () -> assertEquals(schema, bookId13.schema()),
+                () -> assertEquals(id13, bookId13.id()),
 
-        assertThrows(IllegalArgumentException.class, () -> new BookId(schema, "123"));
+                // error conditions
+                () -> assertThrows(IllegalArgumentException.class, () -> new BookId(schema, "123"))
+        );
     }
 
     @Test
@@ -44,10 +49,13 @@ public class BookIdTest {
         final BookId bookId = new BookId(BookId.BookIdScheme.URI, id);
         final BookId.BookIdScheme schema = BookId.BookIdScheme.URI;
 
-        assertEquals(schema, bookId.schema());
-        assertEquals(id, bookId.id());
+        assertAll(
+                () -> assertEquals(schema, bookId.schema()),
+                () -> assertEquals(id, bookId.id()),
 
-        assertThrows(IllegalArgumentException.class, () -> new BookId(schema, "ftp.{jt-software.net}/style.css"));
+                // error conditions
+                () -> assertThrows(IllegalArgumentException.class, () -> new BookId(schema, "ftp.{jt-software.net}/style.css"))
+        );
     }
 
     @Test
@@ -56,21 +64,27 @@ public class BookIdTest {
         final BookId bookId = new BookId(BookId.BookIdScheme.URL, id);
         final BookId.BookIdScheme schema = BookId.BookIdScheme.URL;
 
-        assertEquals(schema, bookId.schema());
-        assertEquals(id, bookId.id());
+        assertAll(
+                () -> assertEquals(schema, bookId.schema()),
+                () -> assertEquals(id, bookId.id()),
 
-        assertThrows(IllegalArgumentException.class, () -> new BookId(schema, "leanpub.com/wardley-maps"));
+                // error conditions
+                () -> assertThrows(IllegalArgumentException.class, () -> new BookId(schema, "leanpub.com/wardley-maps"))
+        );
     }
 
     @Test
     void uuidBookId() {
         final String id = UUID.randomUUID().toString();
         final BookId.BookIdScheme schema = BookId.BookIdScheme.UUID;
-
         final BookId bookId = new BookId(schema, id);
-        assertEquals(schema, bookId.schema());
-        assertEquals(id, bookId.id());
 
-        assertThrows(IllegalArgumentException.class, () -> new BookId(schema, "123"));
+        assertAll(
+                () -> assertEquals(schema, bookId.schema()),
+                () -> assertEquals(id, bookId.id()),
+
+                // error conditions
+                () -> assertThrows(IllegalArgumentException.class, () -> new BookId(schema, "123"))
+        );
     }
 }

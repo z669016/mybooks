@@ -160,10 +160,19 @@ render the error situations. This required a change to the ```SecurityConfig```.
 But to have proper rendering of validation errors requires a ```ValidationExceptionHandler``` with a controller 
 advice. Getting the request path in the error, required some experiments, but proofed pretty straight forward.
 
-### Stringer passwords
+### Stronger passwords
 [Passay](http://www.passay.org/) provides some validation rules to test passwords for rules (e.g. special characters,
 character repetition, etc). It was just a nice step to implement this with a ```PasswordConstraint``` 
 (custom bean validator). 
+
+### End2end tests
+The validations do not kick in on unit tests, they require at least a mocked web environment to be tested. Of course 
+you can test using Postman or some other tool, but I guess that's is not even that easy when using security tokens you 
+get after login and must be passed though a header. Possibly Postman has a standard soluyion, but I didn't want to 
+invest time on that. 
+
+Using ```@SpringBootTest``` and ```@AutoConfigureMockMvs``` made e2e testing pretty easy. I was able to check proper 
+response codes on errors and proper error messages. 
 
 ## Class models
 

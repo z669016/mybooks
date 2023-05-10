@@ -9,8 +9,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AuthorTest {
     private static final AuthorId id = AuthorId.withoutId();
@@ -49,22 +48,21 @@ public class AuthorTest {
 
     @Test
     void constructor() {
-        // attributes must not be null
-        assertThrows(NullPointerException.class, () -> new Author(null, null, null, null));
-        assertThrows(NullPointerException.class, () -> new Author(id, null, null, null));
-        assertThrows(NullPointerException.class, () -> new Author(id, now, null, null));
-        assertThrows(NullPointerException.class, () -> new Author(id, now, name, null));
-
-        // name must not be blank
-        assertThrows(IllegalArgumentException.class, () -> new Author(id, now, "  ", sites));
-
-        // should be fine
         final Author author = new Author(id, name);
-        assertEquals(id, author.id());
-        assertEquals(name, author.name());
-        assertEquals(0, author.sites().size());
 
-        System.out.println(Timestamp.from(now));
+        assertAll(
+                // check error conditions
+                () -> assertThrows(NullPointerException.class, () -> new Author(null, null, null, null)),
+                () -> assertThrows(NullPointerException.class, () -> new Author(id, null, null, null)),
+                () -> assertThrows(NullPointerException.class, () -> new Author(id, now, null, null)),
+                () -> assertThrows(NullPointerException.class, () -> new Author(id, now, name, null)),
+                () -> assertThrows(IllegalArgumentException.class, () -> new Author(id, now, "  ", sites)),
+
+                // check constructor
+                () -> assertEquals(id, author.id()),
+                () -> assertEquals(name, author.name()),
+                () -> assertEquals(0, author.sites().size())
+        );
     }
 
     @Test

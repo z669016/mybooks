@@ -22,52 +22,55 @@ public class BookTest {
 
     @Test
     void constructor() {
-        // Null values are not allowed for any attribute
-        assertThrows(NullPointerException.class, () -> new Book(null,null, null, null, null));
-        assertThrows(NullPointerException.class, () -> new Book(id, null, null, null, null));
-        assertThrows(NullPointerException.class, () -> new Book(id, null, null, null, null));
-        assertThrows(NullPointerException.class, () -> new Book(id, title, null, null, null));
-        assertThrows(NullPointerException.class, () -> new Book(id, title, authors, null, null));
-        assertThrows(NullPointerException.class, () -> new Book(id, title, authors, null, null));
-        assertThrows(NullPointerException.class, () -> new Book(id, title, authors, keywords, null));
+        assertAll(
+                // error conditions
+                () -> assertThrows(NullPointerException.class, () -> new Book(null,null, null, null, null)),
+                () -> assertThrows(NullPointerException.class, () -> new Book(id, null, null, null, null)),
+                () -> assertThrows(NullPointerException.class, () -> new Book(id, null, null, null, null)),
+                () -> assertThrows(NullPointerException.class, () -> new Book(id, title, null, null, null)),
+                () -> assertThrows(NullPointerException.class, () -> new Book(id, title, authors, null, null)),
+                () -> assertThrows(NullPointerException.class, () -> new Book(id, title, authors, null, null)),
+                () -> assertThrows(NullPointerException.class, () -> new Book(id, title, authors, keywords, null)),
+                () -> assertThrows(IllegalArgumentException.class, () -> new Book(id, "", authors, keywords, new MimeTypes(formats))),
+                () -> assertThrows(IllegalArgumentException.class, () -> new Book(id, " ", authors, keywords, new MimeTypes(formats))),
 
-        // Title and list of authors may not be empty
-        assertThrows(IllegalArgumentException.class, () -> new Book(id, "", authors, keywords, new MimeTypes(formats)));
-        assertThrows(IllegalArgumentException.class, () -> new Book(id, " ", authors, keywords, new MimeTypes(formats)));
 
+                // Description, formats and keywords may be empty
+                () -> new Book(id, title, authors, keywords, new MimeTypes(formats)),
+                () -> new Book(id, title, authors, Set.of(), new MimeTypes(formats)),
+                () -> new Book(id, title, authors, keywords, new MimeTypes()),
 
-        // Description, formats and keywords may be empty
-        new Book(id, title, authors, keywords, new MimeTypes(formats));
-        new Book(id, title, authors, Set.of(), new MimeTypes(formats));
-        new Book(id, title, authors, keywords, new MimeTypes());
-
-        // correctly constructed book
-        new Book(id, title, authors, keywords, new MimeTypes(formats));
+                // correctly constructed book
+                () -> new Book(id, title, authors, keywords, new MimeTypes(formats))
+        );
     }
 
     @Test
     void addFormat() {
         final var updated = book.addFormat(MimeTypes.PDF);
 
-        assertNotEquals(book, updated);
-        assertEquals(2, updated.formats().mimeTypes().size());
-        assertTrue(updated.formats().contains(MimeTypes.PDF));
+        assertAll(
+                () -> assertNotEquals(book, updated),
+                () -> assertEquals(2, updated.formats().mimeTypes().size()),
+                () -> assertTrue(updated.formats().contains(MimeTypes.PDF)),
 
-        assertThrows(IllegalArgumentException.class, () -> updated.addFormat(MimeTypes.PDF));
+                // error conditions
+                () -> assertThrows(IllegalArgumentException.class, () -> updated.addFormat(MimeTypes.PDF))
+        );
     }
 
     @Test
     void addKeyword() {
-        assertThrows(NullPointerException.class, () -> book.addKeyword(null));
-        assertThrows(IllegalArgumentException.class, () -> book.addKeyword(" "));
-
         final var updated = book.addKeyword(" Hexagonal");
 
-        assertNotEquals(book, updated);
-        assertEquals(4, updated.keywords().size());
-        assertTrue(updated.keywords().contains("hexagonal"));
-
-        assertThrows(IllegalArgumentException.class, () -> updated.addKeyword("hexagonal"));
+        assertAll(
+                () -> assertThrows(NullPointerException.class, () -> book.addKeyword(null)),
+                () -> assertThrows(IllegalArgumentException.class, () -> book.addKeyword(" ")),
+                () -> assertNotEquals(book, updated),
+                () -> assertEquals(4, updated.keywords().size()),
+                () -> assertTrue(updated.keywords().contains("hexagonal")),
+                () -> assertThrows(IllegalArgumentException.class, () -> updated.addKeyword("hexagonal"))
+        );
     }
 
     @Test
@@ -75,10 +78,13 @@ public class BookTest {
         final var me = new Author(AuthorId.withoutId(), Instant.now(), "My Name", Map.of());
         final var updated = book.addAuthor(me);
 
-        assertNotEquals(book, updated);
-        assertEquals(2, updated.authors().size());
-        assertTrue(updated.authors().contains(me));
+        assertAll(
+                () -> assertNotEquals(book, updated),
+                () -> assertEquals(2, updated.authors().size()),
+                () -> assertTrue(updated.authors().contains(me)),
 
-        assertThrows(IllegalArgumentException.class, () -> updated.addAuthor(me));
+                // error conditions
+                () -> assertThrows(IllegalArgumentException.class, () -> updated.addAuthor(me))
+        );
     }
 }
