@@ -12,10 +12,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Class BookInquiryService
- * BookInquiryService contains all services (In ports) that only do read actions. This enables an implementation
+ * Class BookInquiryService contains all services (In ports) that only do read actions. This enables an implementation
  * on different media, like for instance a folder with EPUB books. By separating read-only and write-services
- * in enables several nice features, like a simple approach to load a databse from EPUB books on a file system.
+ * in enables several nice features, like a simple approach to load a database from EPUB books on a file system.
  */
 @Service("bookInquiryService")
 public class BookInquiryService implements BookManagementInquiryPort {
