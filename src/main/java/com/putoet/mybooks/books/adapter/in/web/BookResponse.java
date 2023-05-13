@@ -32,7 +32,7 @@ public record BookResponse(String schema, String id, String title, Set<AuthorRes
                 book.title(),
                 AuthorResponse.from(book.authors()),
                 book.keywords(),
-                book.formats().mimeTypes().stream().map(Object::toString).collect(Collectors.toSet())
+                book.formats().stream().map(Object::toString).collect(Collectors.toSet())
         );
     }
 

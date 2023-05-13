@@ -14,7 +14,7 @@ class RezipperTest {
 
         assertAll(
                 () -> assertTrue(epub.isPresent()),
-                () -> assertNotEquals(fileName, epub.get())
+                () -> assertNotEquals(fileName, epub.orElseThrow())
         );
     }
 }

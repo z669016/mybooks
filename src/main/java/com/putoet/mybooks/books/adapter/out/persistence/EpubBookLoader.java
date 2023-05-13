@@ -64,7 +64,7 @@ public class EpubBookLoader {
             final Set<MimeType> formats = Set.of(MimeTypes.toMimeType(mimeType));
             final Set<String> keywords = data.isPresent() ? findKeywords(data.get()) : Set.of();
 
-            return new Book(bookId, title, authors, keywords, new MimeTypes(formats));
+            return new Book(bookId, title, authors, keywords, formats);
         }
     }
 

@@ -135,7 +135,7 @@ public class H2BookRepositoryPersistence implements BookPersistenceUpdatePort {
                 , row.getString("title")
                 , authors
                 , keywords
-                , new MimeTypes(formats)
+                , formats
         );
     }
 
@@ -266,7 +266,7 @@ public class H2BookRepositoryPersistence implements BookPersistenceUpdatePort {
     }
 
     @Override
-    public Book registerBook(BookId bookId, String title, Set<Author> authors, MimeTypes formats, Set<String> keywords) {
+    public Book registerBook(BookId bookId, String title, Set<Author> authors, Set<MimeType> formats, Set<String> keywords) {
         logger.info("registerBook({}, {}, {}, {})", bookId, title, authors, formats);
 
         final String sql = "insert into book (book_id_type, book_id, title) values (?, ?, ?)";
@@ -289,7 +289,7 @@ public class H2BookRepositoryPersistence implements BookPersistenceUpdatePort {
             }
         }
 
-        for (MimeType format : formats.mimeTypes()) {
+        for (MimeType format : formats) {
             final String sql2 = "insert into book_format (book_id_type, book_id, format) values (?, ?, ?)";
             sqlInfo(logger, sql2, bookId.schema().name(), bookId.id(), format.toString());
 

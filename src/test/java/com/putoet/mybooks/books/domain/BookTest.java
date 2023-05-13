@@ -17,7 +17,7 @@ public class BookTest {
     private static final Set<Author> authors = Set.of(author);
     private static final Set<String> keywords = Set.of("architecture", "adapters", "ports");
     private static final Set<MimeType> formats = Set.of(MimeTypes.EPUB);
-    public static final Book book = new Book(id, title, authors, keywords, new MimeTypes(formats));
+    public static final Book book = new Book(id, title, authors, keywords, formats);
 
     @Test
     void constructor() {
@@ -30,17 +30,17 @@ public class BookTest {
                 () -> assertThrows(NullPointerException.class, () -> new Book(id, title, authors, null, null)),
                 () -> assertThrows(NullPointerException.class, () -> new Book(id, title, authors, null, null)),
                 () -> assertThrows(NullPointerException.class, () -> new Book(id, title, authors, keywords, null)),
-                () -> assertThrows(IllegalArgumentException.class, () -> new Book(id, "", authors, keywords, new MimeTypes(formats))),
-                () -> assertThrows(IllegalArgumentException.class, () -> new Book(id, " ", authors, keywords, new MimeTypes(formats))),
+                () -> assertThrows(IllegalArgumentException.class, () -> new Book(id, "", authors, keywords, formats)),
+                () -> assertThrows(IllegalArgumentException.class, () -> new Book(id, " ", authors, keywords, formats)),
 
 
                 // Description, formats and keywords may be empty
-                () -> new Book(id, title, authors, keywords, new MimeTypes(formats)),
-                () -> new Book(id, title, authors, Set.of(), new MimeTypes(formats)),
-                () -> new Book(id, title, authors, keywords, new MimeTypes()),
+                () -> new Book(id, title, authors, keywords, formats),
+                () -> new Book(id, title, authors, Set.of(), formats),
+                () -> new Book(id, title, authors, keywords, Set.of()),
 
                 // correctly constructed book
-                () -> new Book(id, title, authors, keywords, new MimeTypes(formats))
+                () -> new Book(id, title, authors, keywords, formats)
         );
     }
 
@@ -50,7 +50,7 @@ public class BookTest {
 
         assertAll(
                 () -> assertNotEquals(book, updated),
-                () -> assertEquals(2, updated.formats().mimeTypes().size()),
+                () -> assertEquals(2, updated.formats().size()),
                 () -> assertTrue(updated.formats().contains(MimeTypes.PDF)),
 
                 // error conditions

@@ -60,7 +60,7 @@ class MybooksLoaderTest {
                     .map(author -> storedAuthors.get(author.name()))
                     .collect(Collectors.toSet());
             try {
-                outputBookManagementUpdatePort.registerBook(book.id(), book.title(), authors, book.formats().mimeTypes(), book.keywords());
+                outputBookManagementUpdatePort.registerBook(book.id(), book.title(), authors, book.formats(), book.keywords());
             } catch (RuntimeException exc) {
                 logger.error("Failed to register book '" + book + "'", exc);
             }

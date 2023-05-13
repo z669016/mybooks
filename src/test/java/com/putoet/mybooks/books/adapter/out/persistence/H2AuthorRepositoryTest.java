@@ -2,6 +2,7 @@ package com.putoet.mybooks.books.adapter.out.persistence;
 
 import com.putoet.mybooks.books.application.port.in.ServiceException;
 import com.putoet.mybooks.books.domain.*;
+import jakarta.activation.MimeType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -127,7 +128,7 @@ class H2AuthorRepositoryTest {
         final BookId bookId = new BookId(BookId.BookIdScheme.ISBN, "978-1839211966");
         final String title = "Get Your Hands Dirty on Clean Architecture";
         final Set<Author> authors = Set.of(author);
-        final MimeTypes formats = new MimeTypes(Set.of(MimeTypes.EPUB));
+        final Set<MimeType> formats = Set.of(MimeTypes.EPUB);
         final Set<String> keywords = Set.of("A", "B");
 
         final Book book = repository.registerBook(bookId, title, authors, formats, keywords);

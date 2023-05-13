@@ -117,13 +117,13 @@ class BookUpdateServiceTest {
         final String title = "Get Your Hands Dirty on Clean Architecture";
         final Set<Author> authors = Set.of(author);
         final Set<MimeType> formats = Set.of(MimeTypes.EPUB);
-        final Book book = new Book(bookId, title, authors, Set.of(), new MimeTypes(formats));
+        final Book book = new Book(bookId, title, authors, Set.of(), formats);
 
-        when(bookPersistenceUpdatePort.registerBook(bookId, title, authors, new MimeTypes(formats), Set.of())).thenReturn(book);
+        when(bookPersistenceUpdatePort.registerBook(bookId, title, authors, formats, Set.of())).thenReturn(book);
         final Book created = bookManagementUpdatePort.registerBook(bookId, title, authors, formats, Set.of());
 
         assertAll(
-                () -> verify(bookPersistenceUpdatePort).registerBook(bookId, title, authors, new MimeTypes(formats), Set.of()),
+                () -> verify(bookPersistenceUpdatePort).registerBook(bookId, title, authors, formats, Set.of()),
                 () -> assertNotNull(created),
                 () -> assertEquals(book, created),
 

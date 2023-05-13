@@ -17,7 +17,7 @@ class BookResponseTest {
             "Get Your Hands Dirty on Clean Architecture",
             Set.of(author),
             Set.of("architecture", "rest"),
-            new MimeTypes(BookResponse.toDomain(formats))
+            BookResponse.toDomain(formats)
     );
 
     @Test

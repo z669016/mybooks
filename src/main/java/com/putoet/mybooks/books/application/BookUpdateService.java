@@ -21,12 +21,12 @@ import java.util.Set;
 public class BookUpdateService implements BookManagementUpdatePort {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final BookPersistenceUpdatePort bookUpdatePort;
+    private final BookPersistenceUpdatePort bookPersistenceUpdatePort;
 
-    public BookUpdateService(BookPersistenceUpdatePort bookUpdatePort) {
-        this.bookUpdatePort = bookUpdatePort;
+    public BookUpdateService(BookPersistenceUpdatePort bookPersistenceUpdatePort) {
+        this.bookPersistenceUpdatePort = bookPersistenceUpdatePort;
 
-        logger.info("BookService({})", bookUpdatePort);
+        logger.info("BookService({})", bookPersistenceUpdatePort);
     }
 
     @Override
@@ -38,7 +38,7 @@ public class BookUpdateService implements BookManagementUpdatePort {
             ServiceError.AUTHOR_NAME_REQUIRED.raise();
         }
 
-        final Author author = bookUpdatePort.registerAuthor(name, sites != null ? sites : Map.of());
+        final Author author = bookPersistenceUpdatePort.registerAuthor(name, sites != null ? sites : Map.of());
         if (author == null)
             ServiceError.AUTHOR_NOT_REGISTERED.raise();
 
@@ -52,7 +52,7 @@ public class BookUpdateService implements BookManagementUpdatePort {
         if (authorId == null)
             ServiceError.AUTHOR_ID_REQUIRED.raise();
 
-        bookUpdatePort.forgetAuthor(authorId);
+        bookPersistenceUpdatePort.forgetAuthor(authorId);
     }
 
     @Override
@@ -66,7 +66,7 @@ public class BookUpdateService implements BookManagementUpdatePort {
         if (name == null || name.isBlank())
             ServiceError.AUTHOR_NAME_REQUIRED.raise();
 
-        return bookUpdatePort.updateAuthor(authorId, version, name);
+        return bookPersistenceUpdatePort.updateAuthor(authorId, version, name);
     }
 
     @Override
@@ -80,11 +80,11 @@ public class BookUpdateService implements BookManagementUpdatePort {
         if (url == null)
             ServiceError.AUTHOR_SITE_URL_INVALID.raise();
 
-        final Author author = bookUpdatePort.findAuthorById(authorId);
+        final Author author = bookPersistenceUpdatePort.findAuthorById(authorId);
         if (author == null)
             ServiceError.AUTHOR_FOR_ID_NOT_FOUND.raise(authorId.toString());
 
-        return bookUpdatePort.setAuthorSite(authorId, type, url);
+        return bookPersistenceUpdatePort.setAuthorSite(authorId, type, url);
     }
 
     @Override
@@ -100,6 +100,6 @@ public class BookUpdateService implements BookManagementUpdatePort {
         if (keywords == null)
             ServiceError.BOOK_KEYWORDS_REQUIRED.raise();
 
-        return bookUpdatePort.registerBook(bookId, title, authors, new MimeTypes(formats), keywords);
+        return bookPersistenceUpdatePort.registerBook(bookId, title, authors, formats, keywords);
     }
 }
