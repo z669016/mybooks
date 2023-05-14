@@ -12,7 +12,7 @@ import java.time.Instant;
 import java.time.format.DateTimeParseException;
 
 @Documented
-@Constraint(validatedBy = VersionConstraint.ObjectIDValidator.class)
+@Constraint(validatedBy = VersionConstraint.VersionValidator.class)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface VersionConstraint {
 
@@ -22,7 +22,7 @@ public @interface VersionConstraint {
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 
-    class ObjectIDValidator implements ConstraintValidator<VersionConstraint,String> {
+    class VersionValidator implements ConstraintValidator<VersionConstraint,String> {
         @Override
         public void initialize(VersionConstraint constraintAnnotation) {
             ConstraintValidator.super.initialize(constraintAnnotation);
