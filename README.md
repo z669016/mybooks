@@ -163,19 +163,26 @@ All in all, an interesting journey :-)
 
 ### Validation
 The application has validation all over the place, every level takes care of its own validation. But at the controller
-level, I should be able to use [Jakarta Bean Validation](https://beanvalidation.org/). 
+level, it has been implemented using [Jakarta Bean Validation](https://beanvalidation.org/). 
 
-This step forced me to create more POJO's for the controllers, as the coarse grained ```AuthorRequestResponse```
-didn't allow proper use of validation annotations. Next to that, I needed some additional custom annotations for
-domain level attributes (e.g. object ID) as well as controller level POJO's. Adding the ```@Validated``` annotation
-to the controllers was step one, after which annotations were added to the controller method parameters. 
+This worked best with fine grained request and response POJO's for the controllers. For some of the properties custom
+validations were required (e.g. for an object ID, which was implemented with a UUID).
 
-This gave not the expected ```400 BAD_REQUEST``` response, but a ```403 FORBIDDEN``` response. This was cause dby my 
-choice to require access to all paths to be authenticated, but creates this issue on the ```/error``` path used to 
-render the error situations. This required a change to the ```SecurityConfig```.
+Adding validation annotations wasn't that much of an issue. Unit testing required some help of 
+[Stackoverflow](https://stackoverflow.com/questions/28768577/how-to-test-a-validator-which-implements-constraintvalidator-in-java).
 
-But to have proper rendering of validation errors requires a ```ValidationExceptionHandler``` with a controller 
-advice. Getting the request path in the error, required some experiments, but proofed pretty straight forward.
+Testing the annotation on the controllers using Postman. Initially it seemed to trigger the validation but didn't 
+generate the expected response, as it didn't return the expected ```400 BAD_REQUEST``` response, but a 
+```403 FORBIDDEN``` response. This was caused by my choice to require access to all paths to be authenticated, but this 
+also required authentication on  the ```/error``` path used to render the error situations. This required a minor change 
+to the ```SecurityConfig```. 
+
+Proper rendering of validation errors required a ```ValidationExceptionHandler``` with a controller advice to catch and 
+render ```ConstraintViolationException``` and ```MethodArgumentNotValidException```. Getting the request path in the 
+error, required some experiments, but proofed pretty straight forward by adding the ```ServletRequest``` to the handler 
+as parameter. Somehow Spring didn't take a ```HttpServletRequest``` as first parameter to the handler. When the type of 
+the first parameter was set to ```HttpServletRequest```, the  handler wasn't called anymore, but using 
+```ServletRequest``` did work okay.
 
 ### Stronger passwords
 [Passay](http://www.passay.org/) provides some validation rules to test passwords for rules (e.g. special characters,
@@ -184,12 +191,17 @@ character repetition, etc.). It was just a nice step to implement this with a ``
 
 ### End-to-end tests
 The validations do not kick in on unit tests, they require at least a mocked web environment to be tested. Of course, 
-you can test using Postman or some other tool, but I guess that is not even that easy when using security tokens you 
-get after login and must be passed though a header. Possibly Postman has a standard soluyion, but I didn't want to 
-invest time on that. 
+you can test using [Postman](https://www.postman.com/) or some other tool, but I guess that is not even that easy when 
+using security tokens you get after login and must be passed though a header. Possibly Postman has a standard solution, 
+but I didn't want to invest time on that. Nonetheless, automated end-to-end tests with as little additional technology as 
+possible was preferred.
 
-Using ```@SpringBootTest``` and ```@AutoConfigureMockMvs``` made e2e testing pretty easy. I was able to check proper 
+Using ```@SpringBootTest``` and ```@AutoConfigureMockMvs``` made end-to-end testing pretty easy. I was able to check proper 
 response codes on errors and proper error messages. 
+
+With [Jackson FasterXML](https://github.com/FasterXML/jackson) it was quite straight forward to transform JSON responses 
+back into POJO's for additional validation of the content of the response body, or to set the content on the request 
+body.   
 
 ### Set<?> instead of List<?>
 When reading on JPA and Hibernate, I read about using ```Set``` instead of ```List```, as a Set is more safe, because 
@@ -206,36 +218,28 @@ classDiagram
     Site "1" -- "1" SiteType: has
     Book "1" *-- "1..*" Author: has
     Book "1" -- "1" BookId: has
-    Book "1" *-- "1..1" MimeTypes: has
-    MimeTypes "1" *-- "1..1" MimeType: has
+    Book "1" *-- "1..*" MimeType: has
 ```
 
 Services:
 ```mermaid
 classDiagram
-    BookInquiryService --|> Authors: implements
-    BookInquiryService --|> AuthorById: implements
-    BookInquiryService --|> AuthorsByName: implements
-    BookInquiryService --|> Books: implements
-    BookInquiryService --|> BookById: implements
-    BookInquiryService --|> BooksByTitle: implements
-    BookInquiryService --|> BooksByAuthorName: implements
-    BookService --|> BookInquiryService: extends
-    BookService --|> RegisterAuthor: implements
-    BookService --|> UpdateAuthor: implements
-    BookService --|> ForgetAuthor: implements
-    BookService --|> RegisterBook: implements
+    BookInquiryService --|> BookManagementInquiryService: implements
+    BookUpdateService --|> BookManagementUpdateService: implements
+
+    BookPersistenceQueryPost <|-- BookPersistenceUpdatePort: extends
     
-    BookInquiryService "1" -- "1" BookReadOnlyRepository: has
-    BookService "1" -- "1" BookRepository: has
+    BookInquiryService "1" -- "1" BookPersistenceQueryPost: has
+    BookUpdateService "1" -- "1" BookPersistenceUpdatePort: has
+    
 ```
 
 Framework:
 ```mermaid
 classDiagram
-    FolderBookRepository --|> BookReadPort: implements
+    FolderBookRepository --|> BookPersistenceQueryPost: implements
     FolderBookRepository -- TikaEpubBookLoader: uses
-    H2BookRepository --|> BookUpdatePort: implements
+    H2BookRepository --|> BookPersistenceUpdatePort: implements
     EpubBookLoader -- KeywordLoader: uses
     EpubBookLoader -- Rezipper: uses
 ```
