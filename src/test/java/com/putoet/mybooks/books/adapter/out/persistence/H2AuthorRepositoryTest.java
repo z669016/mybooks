@@ -34,11 +34,11 @@ class H2AuthorRepositoryTest {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    private H2BookRepositoryPersistence repository;
+    private H2BookRepository repository;
 
     @BeforeEach
     void setup() {
-        repository = new H2BookRepositoryPersistence(jdbcTemplate);
+        repository = new H2BookRepository(jdbcTemplate);
     }
 
     @Test

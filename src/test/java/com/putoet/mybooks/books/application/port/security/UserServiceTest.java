@@ -3,6 +3,7 @@ package com.putoet.mybooks.books.application.port.security;
 import com.putoet.mybooks.books.application.port.in.security.UserException;
 import com.putoet.mybooks.books.application.port.in.security.UserManagementPort;
 import com.putoet.mybooks.books.application.port.out.security.UserPersistencePort;
+import com.putoet.mybooks.books.application.security.UserService;
 import com.putoet.mybooks.books.domain.security.AccessRole;
 import com.putoet.mybooks.books.domain.security.User;
 import org.junit.jupiter.api.BeforeEach;

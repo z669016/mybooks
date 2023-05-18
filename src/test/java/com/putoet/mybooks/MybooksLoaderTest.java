@@ -1,8 +1,8 @@
 package com.putoet.mybooks;
 
 import com.putoet.mybooks.books.adapter.out.persistence.EpubBookLoader;
-import com.putoet.mybooks.books.adapter.out.persistence.FolderBookRepositoryPersistence;
-import com.putoet.mybooks.books.adapter.out.persistence.H2BookRepositoryPersistence;
+import com.putoet.mybooks.books.adapter.out.persistence.FolderBookRepository;
+import com.putoet.mybooks.books.adapter.out.persistence.H2BookRepository;
 import com.putoet.mybooks.books.application.BookInquiryService;
 import com.putoet.mybooks.books.application.BookUpdateService;
 import com.putoet.mybooks.books.application.port.in.BookManagementInquiryPort;
@@ -35,8 +35,8 @@ class MybooksLoaderTest {
     @Test
     void loadBooks() {
         final long start = System.currentTimeMillis();
-        final H2BookRepositoryPersistence database = new H2BookRepositoryPersistence(jdbcTemplate);
-        final FolderBookRepositoryPersistence folder = new FolderBookRepositoryPersistence(Paths.get(BOOKS));
+        final H2BookRepository database = new H2BookRepository(jdbcTemplate);
+        final FolderBookRepository folder = new FolderBookRepository(Paths.get(BOOKS));
 
         final BookManagementInquiryPort inputBbookManagementInquiryPort = new BookInquiryService(folder);
         final BookManagementInquiryPort outputBookManagementInquiryPort = new BookInquiryService(database);
@@ -78,7 +78,7 @@ class MybooksLoaderTest {
     @Test
     void validateBooks() {
         final Path folder = Paths.get(BOOKS);
-        final Set<String> epubFiles = FolderBookRepositoryPersistence.listEpubFiles(folder);
+        final Set<String> epubFiles = FolderBookRepository.listEpubFiles(folder);
 
         long start = System.currentTimeMillis();
         epubFiles.parallelStream().forEach(fileName -> {

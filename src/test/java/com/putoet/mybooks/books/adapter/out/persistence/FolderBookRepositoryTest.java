@@ -14,11 +14,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class FolderBookRepositoryTest {
     private static final String LEANPUB = "/Users/renevanputten/OneDrive/Documents/Books/leanpub";
-    private static FolderBookRepositoryPersistence leanpub;
+    private static FolderBookRepository leanpub;
 
     @BeforeAll
     static void bookFolder() {
-        leanpub = new FolderBookRepositoryPersistence(Paths.get(LEANPUB));
+        leanpub = new FolderBookRepository(Paths.get(LEANPUB));
     }
 
     @Test

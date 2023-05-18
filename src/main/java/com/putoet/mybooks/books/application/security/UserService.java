@@ -1,4 +1,4 @@
-package com.putoet.mybooks.books.application.port.security;
+package com.putoet.mybooks.books.application.security;
 
 import com.putoet.mybooks.books.application.port.in.security.*;
 import com.putoet.mybooks.books.application.port.out.security.UserPersistencePort;

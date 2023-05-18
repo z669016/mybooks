@@ -31,14 +31,14 @@ import static java.util.stream.Collectors.toMap;
  * been collected, the list is processed (again as parallel stream) to load all data from the books.
  * </p>
  */
-public class FolderBookRepositoryPersistence implements BookPersistenceQueryPort {
-    private static final Logger logger = LoggerFactory.getLogger(FolderBookRepositoryPersistence.class);
+public class FolderBookRepository implements BookPersistenceQueryPort {
+    private static final Logger logger = LoggerFactory.getLogger(FolderBookRepository.class);
     private final Path folder;
     private final Set<String> files;
     private final Map<AuthorId, Author> authors;
     private final Map<BookId, Book> books;
 
-    public FolderBookRepositoryPersistence(Path folder) {
+    public FolderBookRepository(Path folder) {
         logger.info("FolderRepository({})", folder);
         Objects.requireNonNull(folder, "Book folder must be provided");
 
@@ -65,8 +65,8 @@ public class FolderBookRepositoryPersistence implements BookPersistenceQueryPort
         return files.parallelStream()
                 .map(filename -> EpubBookLoader.bookForFile(filename, true))
                 .reduce(new HashMap<>(),
-                        FolderBookRepositoryPersistence::addBookWithoutDuplicateIds,
-                        FolderBookRepositoryPersistence::addBookWithoutDuplicateIds
+                        FolderBookRepository::addBookWithoutDuplicateIds,
+                        FolderBookRepository::addBookWithoutDuplicateIds
                 );
     }
 

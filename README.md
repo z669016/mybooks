@@ -209,32 +209,108 @@ it cannot accidentally contain duplicate entities. That made sense, so I changed
 
 ## Class models
 
-Entities:
+domain:
 ```mermaid
 classDiagram
+    class Author {
+        +Instant version
+        +String name
+        +id() AuthorId
+        +sites() Map~SiteType->URL~
+    }
+    
+    class AuthorId {
+        +UUID uuid
+    }
+    
+    class SiteType {
+        +String name
+    }
+    
+    class Site {
+        +URL url
+        +type()
+    }
+    
+    class Book{
+        +String title
+        +Set~String~ keywords
+        +Set~MimeType~ formats
+        +id() BookId
+        +authors() Set~Author~
+        +addFormat(MimeType) Book
+        +addKeyword(String) Book
+        +addAuthor(Author) Book
+    }
+    
+    class BookId {
+        +String schema
+        +String id
+    }
+    
+    class MimeTypes {
+        +toMimeType(String) MimeType
+    }
+    
     Author "1" -- "1" AuthorId: has
     Author "1" *-- "0..*" Site: has
-    Site "1" -- "1" SiteId: has
     Site "1" -- "1" SiteType: has
     Book "1" *-- "1..*" Author: has
     Book "1" -- "1" BookId: has
-    Book "1" *-- "1..*" MimeType: has
 ```
 
-Services:
+domain.security:
+```mermaid
+classDiagram
+    class User {
+        +String id     
+    }
+    
+    User "1" *-- "1" AccessRole: has
+```
+
+application:
 ```mermaid
 classDiagram
     BookInquiryService --|> BookManagementInquiryService: implements
     BookUpdateService --|> BookManagementUpdateService: implements
 
-    BookPersistenceQueryPost <|-- BookPersistenceUpdatePort: extends
+    BookPersistenceQueryPort <|-- BookPersistenceUpdatePort: extends
     
-    BookInquiryService "1" -- "1" BookPersistenceQueryPost: has
+    BookInquiryService "1" -- "1" BookPersistenceQueryPort: has
     BookUpdateService "1" -- "1" BookPersistenceUpdatePort: has
     
 ```
 
-Framework:
+application.security:
+```mermaid
+classDiagram
+    UserService --|> UserManagementPort: implements
+    UserService "1" -- "1" UserPersistencePort: has
+    UserService "1" -- "1" PasswordEncoder: has
+```
+
+adapter.in.web:
+```mermaid
+classDiagram
+    AuthorController "1" -- "1" BookManagementInquiryPort: has
+    AuthorController "1" -- "1" BookManagementUpdatePort: has
+
+    BookController "1" -- "1" BookManagementInquiryPort: has
+    BookController "1" -- "1" BookManagementUpdatePort: has
+```
+
+adapter.in.web.security:
+```mermaid
+classDiagram
+    UserController "1" -- "1" UserManagementPort: has
+    AuthorController "1" -- "1" AuthenticationManager: has
+
+    BookController "1" -- "1" BookManagementInquiryPort: has
+    BookController "1" -- "1" BookManagementUpdatePort: has
+```
+
+adapter.out.persistence:
 ```mermaid
 classDiagram
     FolderBookRepository --|> BookPersistenceQueryPost: implements
@@ -244,4 +320,9 @@ classDiagram
     EpubBookLoader -- Rezipper: uses
 ```
 
+adapter.out.security:
+```mermaid
+classDiagram
+    H2UserRepository --|> UserPersistencePort: implements
+```
 

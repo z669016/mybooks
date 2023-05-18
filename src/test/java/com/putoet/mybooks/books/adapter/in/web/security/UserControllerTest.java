@@ -1,6 +1,6 @@
 package com.putoet.mybooks.books.adapter.in.web.security;
 
-import com.putoet.mybooks.books.application.port.security.UserService;
+import com.putoet.mybooks.books.application.security.UserService;
 import com.putoet.mybooks.books.domain.security.AccessRole;
 import com.putoet.mybooks.books.domain.security.User;
 import jakarta.servlet.http.HttpServletResponse;

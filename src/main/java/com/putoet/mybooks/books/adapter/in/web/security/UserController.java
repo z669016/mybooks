@@ -25,16 +25,16 @@ import java.util.Optional;
 @RestController
 public class UserController {
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final UserManagementPort userService;
+    private final UserManagementPort userManagementPort;
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
     private final JwtTokenUtils jwtTokenUtils;
 
-    public UserController(UserManagementPort userService,
+    public UserController(UserManagementPort userManagementPort,
                           AuthenticationManager authenticationManager,
                           UserDetailsService userDetailsService,
                           JwtTokenUtils jwtTokenUtils) {
-        this.userService = userService;
+        this.userManagementPort = userManagementPort;
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
         this.jwtTokenUtils = jwtTokenUtils;
@@ -86,7 +86,7 @@ public class UserController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public UserResponse postUser(@RequestBody @Valid NewUserRequest request) {
         try {
-            return UserResponse.from(userService.registerUser(request.id(),
+            return UserResponse.from(userManagementPort.registerUser(request.id(),
                     request.name(),
                     request.password(),
                     AccessRole.from(request.accessRole()))
@@ -100,7 +100,7 @@ public class UserController {
     @GetMapping(path = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<UserResponse> getUsers() {
         try {
-            return UserResponse.from(userService.users());
+            return UserResponse.from(userManagementPort.users());
         } catch (RuntimeException exc) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
         }
@@ -110,7 +110,7 @@ public class UserController {
     @GetMapping(path = "/user/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public UserResponse getUserById(@PathVariable(name = "id") @Email String id) {
         try {
-            final Optional<User> user = userService.userById(id);
+            final Optional<User> user = userManagementPort.userById(id);
             if (user.isPresent())
                 return UserResponse.from(user.get());
         } catch (RuntimeException exc) {

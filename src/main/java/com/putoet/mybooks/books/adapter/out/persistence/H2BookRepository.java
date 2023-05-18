@@ -27,12 +27,12 @@ import static com.putoet.mybooks.books.adapter.out.persistence.SqlUtil.sqlInfo;
  * A read/write repository for book and author data, connected to an H4 database using a Spring JdbcTemplate
  */
 @Repository
-public class H2BookRepositoryPersistence implements BookPersistenceUpdatePort {
+public class H2BookRepository implements BookPersistenceUpdatePort {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final JdbcTemplate template;
 
-    public H2BookRepositoryPersistence(JdbcTemplate template) {
+    public H2BookRepository(JdbcTemplate template) {
         logger.info("AuthorRepository initialized with JDBC template {}", template.getDataSource());
         this.template = template;
     }
