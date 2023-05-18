@@ -133,6 +133,9 @@
 				</executions>
 				<configuration>
 					<generateGitPropertiesFile>true</generateGitPropertiesFile>
+					<generateGitPropertiesFilename>
+						${project.basedir}/src/main/resources/git.properties
+					</generateGitPropertiesFilename>
 				</configuration>
 			</plugin>
 		</plugins>
