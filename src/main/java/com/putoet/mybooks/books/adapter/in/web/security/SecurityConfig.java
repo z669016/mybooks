@@ -34,9 +34,8 @@ public class SecurityConfig {
                 .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login").permitAll()
-                        .requestMatchers("/error").anonymous()
-                        .requestMatchers("/user", "/users").hasRole("ADMIN")
+                        .requestMatchers("/login", "/error/**").permitAll()
+                        .requestMatchers("/user", "/users", "/actuator/**").hasRole("ADMIN")
                         .requestMatchers("/author", "/authors").authenticated()
                         .requestMatchers("/book", "/books").authenticated()
                         .anyRequest().authenticated())
