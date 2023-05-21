@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -27,6 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = MybooksApplication.class)
 @AutoConfigureMockMvc
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 class AuthorControllerE2ETest {
 
     @Autowired
@@ -70,7 +72,7 @@ class AuthorControllerE2ETest {
     void getAuthorWithBlankIdFails() throws Exception {
         mvc.perform(mockRequest.jwtGetRequestWithToken("/author/  ", userToken))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error", Matchers.startsWith("getAuthorById.id: " + ObjectIDConstraint.ID_ERROR)));
+                .andExpect(jsonPath("$.errors.parameter", Matchers.startsWith("getAuthorById.id: " + ObjectIDConstraint.ID_ERROR)));
     }
 
     @Test
@@ -88,20 +90,20 @@ class AuthorControllerE2ETest {
         String json = mapper.writeValueAsString(newAuthorRequest);
         mvc.perform(mockRequest.jwtPostRequestWithToken("/author", userToken, json))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error.name").value(StandardValidations.message(NotBlank.class)))
-                .andExpect(jsonPath("$.error.sites").value(SiteMapConstraint.SITEMAP_ERROR));
+                .andExpect(jsonPath("$.errors.name").value(StandardValidations.message(NotBlank.class)))
+                .andExpect(jsonPath("$.errors.sites").value(SiteMapConstraint.SITEMAP_ERROR));
 
         newAuthorRequest = new NewAuthorRequest("name", Map.of("  ", "https://www.google.com"));
         json = mapper.writeValueAsString(newAuthorRequest);
         mvc.perform(mockRequest.jwtPostRequestWithToken("/author", userToken, json))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error.sites").value(SiteMapConstraint.SITEMAP_ERROR));
+                .andExpect(jsonPath("$.errors.sites").value(SiteMapConstraint.SITEMAP_ERROR));
 
         newAuthorRequest = new NewAuthorRequest("name", Map.of("google", "bla"));
         json = mapper.writeValueAsString(newAuthorRequest);
         mvc.perform(mockRequest.jwtPostRequestWithToken("/author", userToken, json))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error.sites").value(SiteMapConstraint.SITEMAP_ERROR));
+                .andExpect(jsonPath("$.errors.sites").value(SiteMapConstraint.SITEMAP_ERROR));
     }
 
     @Test
@@ -124,15 +126,15 @@ class AuthorControllerE2ETest {
         String json = mapper.writeValueAsString(updateAuthorRequest);
         mvc.perform(mockRequest.jwtPutRequestWithToken("/author/" + author.id(), userToken, json))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error.name").value(StandardValidations.message(NotBlank.class)))
-                .andExpect(jsonPath("$.error.version").value(VersionConstraint.VERSION_ERROR));
+                .andExpect(jsonPath("$.errors.name").value(StandardValidations.message(NotBlank.class)))
+                .andExpect(jsonPath("$.errors.version").value(VersionConstraint.VERSION_ERROR));
 
         updateAuthorRequest = new UpdateAuthorRequest("bla", "  ");
         json = mapper.writeValueAsString(updateAuthorRequest);
         mvc.perform(mockRequest.jwtPutRequestWithToken("/author/" + author.id(), userToken, json))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error.name").value(StandardValidations.message(NotBlank.class)))
-                .andExpect(jsonPath("$.error.version").value(VersionConstraint.VERSION_ERROR));
+                .andExpect(jsonPath("$.errors.name").value(StandardValidations.message(NotBlank.class)))
+                .andExpect(jsonPath("$.errors.version").value(VersionConstraint.VERSION_ERROR));
     }
 
     private AuthorResponse newTempAuthor() throws Exception {

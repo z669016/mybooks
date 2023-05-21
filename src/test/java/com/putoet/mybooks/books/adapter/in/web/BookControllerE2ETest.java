@@ -83,7 +83,7 @@ class BookControllerE2ETest {
         mvc.perform(mockRequest.jwtGetRequestWithToken("/books/author/" + "   ", userToken))
                 .andExpect(status().isBadRequest())
                 .andDo(result -> System.out.println(result.getResponse().getContentAsString()))
-                .andExpect(jsonPath("$.error").value("getBooksByAuthorName.name: must not be blank"));
+                .andExpect(jsonPath("$.errors.parameter").value("getBooksByAuthorName.name: must not be blank"));
     }
 
     @Test
@@ -111,7 +111,7 @@ class BookControllerE2ETest {
         mvc.perform(mockRequest.jwtGetRequestWithToken("/books/" + "   ", userToken))
                 .andExpect(status().isBadRequest())
                 .andDo(result -> System.out.println(result.getResponse().getContentAsString()))
-                .andExpect(jsonPath("$.error").value("getBooksByTitle.title: must not be blank"));
+                .andExpect(jsonPath("$.errors.parameter").value("getBooksByTitle.title: must not be blank"));
     }
 
     @Test
@@ -132,7 +132,7 @@ class BookControllerE2ETest {
         final BookResponse book = createTempBook("getBookByIdFails");
         mvc.perform(mockRequest.jwtGetRequestWithToken("/book/" + book.schema() + "/" + "bla", userToken))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error.parameters").value(ExistingBookRequestConstraint.BOOK_REQUEST_ERROR));
+                .andExpect(jsonPath("$.errors.parameters").value(ExistingBookRequestConstraint.BOOK_REQUEST_ERROR));
     }
 
     @Test

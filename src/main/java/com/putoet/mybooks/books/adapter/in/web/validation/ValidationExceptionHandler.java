@@ -1,5 +1,6 @@
 package com.putoet.mybooks.books.adapter.in.web.validation;
 
+import com.putoet.mybooks.books.adapter.in.web.ApiError;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -19,33 +20,33 @@ import java.util.stream.Collectors;
 public class ValidationExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(ConstraintViolationException.class)
-    public Map<String,String> handleConstraintViolation(ServletRequest request, ConstraintViolationException exc) {
-        return Map.of(
-                "timestamp", Instant.now().toString(),
-                "status", String.valueOf(HttpStatus.BAD_REQUEST.value()),
-                "message", HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                "error", exc.getMessage(),
-                "method", ((HttpServletRequest) request).getMethod(),
-                "path", ((HttpServletRequest) request).getRequestURI()
-        );
+    public ApiError handleConstraintViolation(ServletRequest request, ConstraintViolationException exc) {
+        return new ApiError(
+                ((HttpServletRequest) request).getMethod(),
+                ((HttpServletRequest) request).getRequestURI(),
+                HttpStatus.BAD_REQUEST,
+                Map.of("parameter", exc.getMessage()),
+                exc.getMessage(),
+                Instant.now()
+                );
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String,Object> handleConstraintViolation(ServletRequest request, MethodArgumentNotValidException exc) {
-        final Map<String,Object> messages = exc.getBindingResult().getAllErrors().stream()
+    public ApiError handleConstraintViolation(ServletRequest request, MethodArgumentNotValidException exc) {
+        final Map<String,String> errors = exc.getBindingResult().getAllErrors().stream()
             .map(error -> error instanceof FieldError ?
                     Pair.of(((FieldError) error).getField(), error.getDefaultMessage())
                     : Pair.of("parameters", error.getDefaultMessage())
                     )
                 .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
-        return Map.of(
-                "timestamp", Instant.now().toString(),
-                "status", String.valueOf(HttpStatus.BAD_REQUEST.value()),
-                "message", HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                "error", messages,
-                "method", ((HttpServletRequest) request).getMethod(),
-                "path", ((HttpServletRequest) request).getRequestURI()
+        return new ApiError(
+                ((HttpServletRequest) request).getMethod(),
+                ((HttpServletRequest) request).getRequestURI(),
+                HttpStatus.BAD_REQUEST,
+                errors,
+                exc.getMessage(),
+                Instant.now()
         );
     }
 }

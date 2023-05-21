@@ -59,21 +59,21 @@ class UserControllerE2ETest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(new UserLoginRequest(null, null))))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error.password").value(PasswordConstraint.PASSWORD_ERROR));
+                .andExpect(jsonPath("$.errors.password").value(PasswordConstraint.PASSWORD_ERROR));
 
         mvc.perform(MockMvcRequestBuilders
                         .post("/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(new UserLoginRequest(null, "1password!"))))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error.id").value(StandardValidations.message(NotNull.class)));
+                .andExpect(jsonPath("$.errors.id").value(StandardValidations.message(NotNull.class)));
 
         mvc.perform(MockMvcRequestBuilders
                         .post("/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(new UserLoginRequest("bla", "1password!"))))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error.id").value(StandardValidations.message(Email.class)))
+                .andExpect(jsonPath("$.errors.id").value(StandardValidations.message(Email.class)))
                 .andDo(result -> System.out.println(result.getResponse().getContentAsString()));
     }
 
@@ -99,10 +99,10 @@ class UserControllerE2ETest {
         NewUserRequest newUserRequest = new NewUserRequest(null, null, null, null);
         mvc.perform(mockRequest.jwtPostRequestWithToken("/user", adminToken, mapper.writeValueAsString(newUserRequest)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error.password").value(PasswordConstraint.PASSWORD_ERROR))
-                .andExpect(jsonPath("$.error.accessRole").value(AccessRoleConstraint.ACCESS_ROLE_ERROR))
-                .andExpect(jsonPath("$.error.name").value(StandardValidations.message(NotBlank.class)))
-                .andExpect(jsonPath("$.error.id").value(StandardValidations.message(NotNull.class)))
+                .andExpect(jsonPath("$.errors.password").value(PasswordConstraint.PASSWORD_ERROR))
+                .andExpect(jsonPath("$.errors.accessRole").value(AccessRoleConstraint.ACCESS_ROLE_ERROR))
+                .andExpect(jsonPath("$.errors.name").value(StandardValidations.message(NotBlank.class)))
+                .andExpect(jsonPath("$.errors.id").value(StandardValidations.message(NotNull.class)))
                 .andDo(result -> System.out.println(result.getResponse().getContentAsString()));
     }
 }
