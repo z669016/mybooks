@@ -83,6 +83,7 @@ public class AuthorController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @ResponseStatus(HttpStatus.CREATED)
     public AuthorResponse postAuthor(@RequestBody @Valid NewAuthorRequest author) {
         try {
             return AuthorResponse.from(bookManagementUpdatePort.registerAuthor(author.name(), author.sitesWithURLs()));
