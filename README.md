@@ -161,6 +161,24 @@ in the```SecurityConfig```.
 
 All in all, an interesting journey :-)
 
+### SSL
+Enabling SSL was quite simple, the process is described at 
+[HTTPS using Self-Signed Certificate in Spring Boot](https://www.baeldung.com/spring-boot-https-self-signed-certificate)
+
+The application.yml needed some additional settings to enable SSL:
+```
+server:
+    port: 443
+    servlet:
+        context-path: /
+    error:
+        include-message: always
+    ssl:
+        key-store-type: PKCS12
+        key-store: classpath:certificate.p12
+        key-store-password: password
+```
+
 ### Validation
 The application has validation all over the place, every level takes care of its own validation. But at the controller
 level, it has been implemented using [Jakarta Bean Validation](https://beanvalidation.org/). 
@@ -206,6 +224,63 @@ body.
 ### Set<?> instead of List<?>
 When reading on JPA and Hibernate, I read about using ```Set``` instead of ```List```, as a Set is more safe, because 
 it cannot accidentally contain duplicate entities. That made sense, so I changed it throughout the entire application. 
+
+### Actuator
+```
+management:
+    endpoints:
+        web:
+            exposure:
+                include: health, metrics, info
+    endpoint:
+        health:
+            show-details: always
+            show-components: always
+```
+
+### Using Cucumber
+It looked like a nice idea to enable BDD style end-to-end tests using Cucumber. I worked with 
+[Fitnesse](https://github.com/unclebob/fitnesse) before, and it was an interesting way to write and execute tests.
+I decided to try something else this time. The first steps where easy, as there is a good 
+[Cucumber Spring Integration](https://www.baeldung.com/cucumber-spring-integration).
+
+The Gerkin feature descriptions are stored in ```src/test/resources/features```, and the end-2end test runner is 
+implemented by ```MyBooksApplicationE2E```. It's an empty class annotated to run with Cucumber, and with a
+configuration setting to the right folder for the feature files.
+
+The ```MyBooksE2EBase``` provides base class for the annotated test steps. It contains the methods for sending HTTP 
+requests (GET, POST, PUT), making a login for a user with the USER_ROLE and a user with the ADMIN_ROLE. After a login
+the JWT is stored so it can be used on subsequent requests that require authentication.
+
+```MyBooksE2EStepDef``` contains the individual steps, and the methods use the lower level features provided by the 
+base class.
+
+Making it all work using SSL proofed quite a challenge. Spring Boot 3 made quite some changes on the use of the Apache 
+HTTP client (now using v5 instead of v4). It took some research and it required an additional dependency in the pom file
+```
+<dependency>
+    <groupId>org.apache.httpcomponents.client5</groupId>
+    <artifactId>httpclient5</artifactId>
+    <scope>test</scope>
+</dependency>
+```
+
+Next, the setup of the ```RestTemplate``` needed to change, to ensure the template would use an ```HttpRequestFactory``` 
+that actually uses an SSL connection. It took some searching as the articles at Bealdung mostly use Spring Boot 2,
+and especially that part changed considerably. The description that worked (although I slightly changed my 
+implementation) also refers to Spring Boot 2, but it did use the right approach. 
+[Configuring HttpClient with Spring RestTemplate](https://howtodoinjava.com/spring-boot2/resttemplate/resttemplate-httpclient-java-config/)
+
+The ```SSLRestTemplateConfiguration``` (src/test/java) contains the bean definition for ```RestTemplate``` to be used
+for SSL connections. The ```SSLContext``` needs access to the certificate (trust material). To prevent additional issues
+the ```SSLConnectionSocketFactory``` must not check the host name of the certificate (use ```NoopHostnameVerifier```). 
+
+A ```Registry<ConnectionSocketFactory>``` must have an ```ConnectionSocketFactory``` for http, and https (the one
+just created, while the factory for http is a plan simple one). he you need an ```PoolingHttpClientConnectionManager```,
+and an HttpClient using the connection manager, and a ```HttpComponentsClientHttpRequestFactory``` using the 
+```HttpClient```. In the final step, create a RestTemplate using the request factory.
+
+Details on how to handle Cucumber expressions are documented [here](https://github.com/cucumber/cucumber-expressions#readme).
 
 ## Class models
 

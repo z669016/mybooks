@@ -93,6 +93,7 @@ public class BookController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @ResponseStatus(HttpStatus.CREATED)
     public BookResponse postBook(@RequestBody @Valid NewBookRequest book) {
         try {
             final BookId bookId = new BookId(book.schema(), book.id());
