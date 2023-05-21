@@ -146,7 +146,7 @@ class BookControllerE2ETest {
                 Set.of(MimeTypes.EPUB.toString()));
 
         final String body = mvc.perform(mockRequest.jwtPostRequestWithToken("/book", userToken, mapper.writeValueAsString(newBookRequest)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andDo(result -> System.out.println(result.getResponse().getContentAsString()))
                 .andReturn()
                 .getResponse()
@@ -165,7 +165,7 @@ class BookControllerE2ETest {
                 Set.of(MimeTypes.EPUB.toString()));
 
         final String result = mvc.perform(mockRequest.jwtPostRequestWithToken("/book", userToken, mapper.writeValueAsString(newBookRequest)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
