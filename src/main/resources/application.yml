@@ -10,7 +10,6 @@ spring:
         bootstrap-mode: default
   mvc:
     log-request-details: 'true'
-
   jpa:
     properties:
       hibernate:
@@ -20,7 +19,7 @@ spring:
 
 logging:
   level:
-    root: info
+    root: warn
 
 server:
   port: 443

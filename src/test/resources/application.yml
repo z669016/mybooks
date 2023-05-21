@@ -2,9 +2,6 @@ spring:
   h2:
     console:
       enabled: 'true'
-  sql:
-    init:
-      mode: always
   datasource:
     url: jdbc:h2:mem:test_books;time zone=UTC
     #url: jdbc:h2:file:./h2db/books;time zone=UTC
@@ -12,24 +9,37 @@ spring:
     jpa:
       repositories:
         bootstrap-mode: default
+  mvc:
+    log-request-details: 'true'
+
   jpa:
     properties:
       hibernate:
         generate_statistics: 'true'
         format_sql: 'true'
+    show-sql: 'true'
 
 logging:
   level:
     root: warn
-    org:
-      hibernate:
-        stat: debug
-        type: trace
-      springframework:
-        jdbc:
-          core:
-            JdbcTemplate: debug
-            StatementCreatorUtils: trace
+
 server:
+  port: 443
+  servlet:
+    context-path: /
   error:
     include-message: always
+  ssl:
+    key-store-type: PKCS12
+    key-store: classpath:certificate.p12
+    key-store-password: password
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, info
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
