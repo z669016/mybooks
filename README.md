@@ -280,7 +280,13 @@ just created, while the factory for http is a plan simple one). he you need an `
 and an HttpClient using the connection manager, and a ```HttpComponentsClientHttpRequestFactory``` using the 
 ```HttpClient```. In the final step, create a RestTemplate using the request factory.
 
-Details on how to handle Cucumber expressions are documented [here](https://github.com/cucumber/cucumber-expressions#readme).
+Details on Cucumber expressions for the given/when/then/and clauses are documented 
+[here](https://github.com/cucumber/cucumber-expressions#readme).  Actually, the implementation of the BDD tests was 
+quite simple, once you get the relationships between the different 
+files and components.
+
+Possible nest step, is tp replace the use of the RestTemplate with something like 
+[RestAssured](https://rest-assured.io/), that might be my next refactoring :-D 
 
 ## Class models
 
