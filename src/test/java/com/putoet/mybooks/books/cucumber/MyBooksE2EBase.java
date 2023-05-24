@@ -1,6 +1,7 @@
-package com.putoet.mybooks;
+package com.putoet.mybooks.books.cucumber;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.putoet.mybooks.MybooksApplication;
 import com.putoet.mybooks.books.adapter.in.web.security.JwtResponse;
 import com.putoet.mybooks.books.adapter.in.web.security.UserLoginRequest;
 import io.cucumber.spring.CucumberContextConfiguration;
@@ -109,5 +110,12 @@ public class MyBooksE2EBase {
         }
 
         return headers;
+    }
+
+    protected String translateParameter(String param) {
+        return switch (param) {
+            case "null" -> null;
+            default -> param;
+        };
     }
 }

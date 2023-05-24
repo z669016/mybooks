@@ -1,4 +1,4 @@
-package com.putoet.mybooks;
+package com.putoet.mybooks.books.cucumber;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -40,7 +40,7 @@ public class AuthorFeatureStepDef extends MyBooksE2EBase {
     @And("response contains details on more than {int} authors")
     public void responseContainsDetailsOnMoreThanAuthors(int minNumberOfAuthorsReturned) throws JsonProcessingException {
         final List<AuthorResponse> authors = mapper.readValue(context.response().getBody(), new TypeReference<>() {});
-        assertTrue(authors.size() >= minNumberOfAuthorsReturned);
+        assertTrue(authors.size() > minNumberOfAuthorsReturned);
     }
 
     @When("send a get request for author with id {word}")

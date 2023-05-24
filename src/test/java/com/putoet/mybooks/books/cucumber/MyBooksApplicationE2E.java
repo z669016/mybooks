@@ -1,4 +1,4 @@
-package com.putoet.mybooks;
+package com.putoet.mybooks.books.cucumber;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.junit.Cucumber;

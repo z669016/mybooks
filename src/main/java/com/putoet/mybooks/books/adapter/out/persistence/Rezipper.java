@@ -8,7 +8,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -21,16 +25,40 @@ import java.util.zip.ZipOutputStream;
  */
 public class Rezipper {
     private static final Logger logger = LoggerFactory.getLogger(Rezipper.class);
-
     private static final int BUFFER_SIZE = 4 * 1024;
 
+    private static final AtomicInteger repackageCount = new AtomicInteger();
+    private static final AtomicInteger repackageFailedCount = new AtomicInteger();
+    private static final Set<String> repackagedFiles = ConcurrentHashMap.newKeySet();
+
     public static Optional<String> repackage(String filename) {
+        repackageCount.incrementAndGet();
+        repackagedFiles.add(filename);
+
         final Optional<String> tmp = Rezipper.unzipEpubFile(filename);
         if (tmp.isPresent()) {
             return Rezipper.zipFolder(tmp.get());
         }
 
+        repackageFailedCount.incrementAndGet();
         return Optional.empty();
+    }
+
+    public static int repackageCount() {
+        return repackageCount.get();
+    }
+
+    public static int repackageFailedCount() {
+        return repackageFailedCount.get();
+    }
+
+    public static Set<String> repackagedFiles() {
+        return Collections.unmodifiableSet(repackagedFiles);
+    }
+
+    public void resetCount() {
+        repackageCount.set(0);
+        repackageFailedCount.set(0);
     }
 
     private static Optional<File> tempFolder() {

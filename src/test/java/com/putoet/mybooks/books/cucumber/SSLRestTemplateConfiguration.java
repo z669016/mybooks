@@ -1,4 +1,4 @@
-package com.putoet.mybooks;
+package com.putoet.mybooks.books.cucumber;
 
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
