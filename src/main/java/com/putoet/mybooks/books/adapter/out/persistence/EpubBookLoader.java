@@ -26,16 +26,18 @@ import java.util.stream.Collectors;
  * Loads data from an EPUB file using Apache Tika and returns a Book entity. In case book data cannot be properly
  * extracted, the epub file could be 'repackaged' (unzipped and zipped again) which can do miracles ;-)
  */
-public class EpubBookLoader {
-    private static final Logger logger = LoggerFactory.getLogger(EpubBookLoader.class);
+public final class EpubBookLoader {
+    private static final Logger log = LoggerFactory.getLogger(EpubBookLoader.class);
     public static final int MAX_EPUB_LOAD_SIZE = 10_000_000;
+
+    private EpubBookLoader() {}
 
     public static Book bookForFile(String fileName, boolean repair) {
         try {
             return bookForFile(fileName);
         } catch (IOException | NullPointerException exc) {
             if (!repair) {
-                logger.error("Could not load book {}", fileName, exc);
+                log.error("Could not load book {}", fileName, exc);
                 throw new IllegalStateException(exc);
             }
         }
@@ -44,7 +46,7 @@ public class EpubBookLoader {
         if (temp.isEmpty())
             throw new IllegalStateException("Could not repackage file " + fileName);
 
-        logger.warn("Repackaged '{}' into '{}'", fileName, temp.get());
+        log.warn("Repackaged '{}' into '{}'", fileName, temp.get());
         return bookForFile(temp.get(), false);
     }
 
@@ -73,14 +75,14 @@ public class EpubBookLoader {
             if (key.startsWith("X-TIKA")) {
                 final String[] names = key.split(":");
                 if ("EXCEPTION".equalsIgnoreCase(names[1])) {
-                    logger.error("TIKA Exception: {}", metadata.get(key));
-                    logger.info("metadata={}", metadata);
+                    log.error("TIKA Exception: {}", metadata.get(key));
+                    log.info("metadata={}", metadata);
                 }
             }
         }
 
         if (metadata.get("dc:title") == null) {
-            logger.error("Book '{}' doesnt have a title", fileName);
+            log.error("Book '{}' doesnt have a title", fileName);
         }
     }
 
@@ -88,7 +90,7 @@ public class EpubBookLoader {
         try {
             return Optional.of(tika.parseToString(is, metadata, MAX_EPUB_LOAD_SIZE));
         } catch (TikaException | IOException e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return Optional.empty();
     }
@@ -108,7 +110,7 @@ public class EpubBookLoader {
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    protected static BookId extractBookId(String fileName, String identifier) {
+    private static BookId extractBookId(String fileName, String identifier) {
         if (identifier == null || identifier.isBlank())
             return new BookId(BookId.BookIdScheme.UUID, UUID.randomUUID().toString());
 
@@ -141,7 +143,7 @@ public class EpubBookLoader {
         } catch (URISyntaxException ignored) {
         }
 
-        logger.warn("Invalid book identifier '{}' for {}, generated a uuid", id, fileName);
+        log.warn("Invalid book identifier '{}' for {}, generated a uuid", id, fileName);
         return new BookId(BookId.BookIdScheme.UUID, UUID.randomUUID().toString());
     }
 
