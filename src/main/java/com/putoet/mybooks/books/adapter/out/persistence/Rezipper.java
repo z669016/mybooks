@@ -23,13 +23,14 @@ import java.util.zip.ZipOutputStream;
  * name of the (temporary) rezipped file when successful.
  * Source code was reused from samples of Bealdung for unzipping and zipping files.
  */
-public class Rezipper {
+public final class Rezipper {
     private static final Logger logger = LoggerFactory.getLogger(Rezipper.class);
     private static final int BUFFER_SIZE = 4 * 1024;
-
     private static final AtomicInteger repackageCount = new AtomicInteger();
     private static final AtomicInteger repackageFailedCount = new AtomicInteger();
     private static final Set<String> repackagedFiles = ConcurrentHashMap.newKeySet();
+
+    private Rezipper() {}
 
     public static Optional<String> repackage(String filename) {
         repackageCount.incrementAndGet();
@@ -56,7 +57,7 @@ public class Rezipper {
         return Collections.unmodifiableSet(repackagedFiles);
     }
 
-    public void resetCount() {
+    public static void resetCount() {
         repackageCount.set(0);
         repackageFailedCount.set(0);
     }
