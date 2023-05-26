@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-@Service("userService")
+@Service
 @RequiredArgsConstructor
 @Slf4j
 @ToString

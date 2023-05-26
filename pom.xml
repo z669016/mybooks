@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.0.6</version>
+		<version>3.1.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 
@@ -15,15 +15,14 @@
 	<name>mybooks</name>
 	<description>API on my list of ebooks</description>
 	<properties>
-		<epublib-core.version>3.1</epublib-core.version>
 		<guava.version>31.1-jre</guava.version>
-		<tika.version>2.7.0</tika.version>
-		<opennlp.version>2.1.1</opennlp.version>
+		<tika.version>2.8.0</tika.version>
 		<ahocorasick.version>0.6.3</ahocorasick.version>
 		<jjwt.version>0.11.5</jjwt.version>
 		<passay.version>1.6.3</passay.version>
 		<git-commit-id-plugin.version>4.9.10</git-commit-id-plugin.version>
 		<cucumber-java.version>7.12.0</cucumber-java.version>
+		<commons-compress.version>1.23.0</commons-compress.version>
 	</properties>
 
 	<dependencies>
@@ -52,6 +51,10 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.fasterxml.jackson.datatype</groupId>
 			<artifactId>jackson-datatype-jsr310</artifactId>
 		</dependency>
@@ -76,8 +79,13 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-configuration-processor</artifactId>
+			<groupId>org.apache.httpcomponents.client5</groupId>
+			<artifactId>httpclient5</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.tika</groupId>
@@ -92,7 +100,7 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-compress</artifactId>
-			<version>1.23.0</version>
+			<version>${commons-compress.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -108,11 +116,6 @@
 			<groupId>org.passay</groupId>
 			<artifactId>passay</artifactId>
 			<version>${passay.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-inline</artifactId>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.cucumber</groupId>
@@ -138,15 +141,6 @@
 			<version>${cucumber-java.version}</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.httpcomponents.client5</groupId>
-			<artifactId>httpclient5</artifactId>
-			<scope>test</scope>
-		</dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
     </dependencies>
 	<build>
 		<plugins>

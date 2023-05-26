@@ -7,8 +7,6 @@ import jakarta.activation.MimeType;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.net.URL;
@@ -20,7 +18,7 @@ import java.util.Set;
  * Class BookUpdateService
  * BookUpdateService provides write services for the book repository
  */
-@Service("bookUpdateService")
+@Service
 @Slf4j
 @RequiredArgsConstructor
 @ToString

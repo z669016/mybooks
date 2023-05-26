@@ -51,7 +51,6 @@ public class LoadEpubStepdefs extends MyBooksE2EBase {
         final FolderBookRepository folder = new FolderBookRepository(Paths.get(context.get(ROOT_FOLDER, String.class)));
 
         final BookManagementInquiryPort inputBbookManagementInquiryPort = new BookInquiryService(folder);
-        final BookManagementInquiryPort outputBookManagementInquiryPort = new BookInquiryService(database);
         final BookManagementUpdatePort outputBookManagementUpdatePort = new BookUpdateService(database);
 
         final Map<String, Author> storedAuthors = new HashMap<>();

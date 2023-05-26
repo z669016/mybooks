@@ -3,18 +3,15 @@ package com.putoet.mybooks.books.cucumber;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.putoet.mybooks.books.adapter.in.web.ApiError;
-import com.putoet.mybooks.books.adapter.in.web.security.JwtResponse;
-import com.putoet.mybooks.books.adapter.in.web.security.UserLoginRequest;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import org.junit.jupiter.api.Assertions;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GenericFeatureStepDef extends MyBooksE2EBase {
     public GenericFeatureStepDef(RestTemplate sslRestTemplate, ObjectMapper mapper) {

@@ -7,8 +7,6 @@ import jakarta.activation.MimeType;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -39,7 +37,8 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
     @SneakyThrows
     @Override
     public String toString() {
-        return String.format("%s(%s)", this.getClass().getName(), template.getDataSource().getConnection().getMetaData().getURL());
+        return String.format("%s(%s)", this.getClass().getName(),
+                Objects.requireNonNull(template.getDataSource()).getConnection().getMetaData().getURL());
     }
 
     @Override

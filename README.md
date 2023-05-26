@@ -183,7 +183,7 @@ server:
 The application has validation all over the place, every level takes care of its own validation. But at the controller
 level, it has been implemented using [Jakarta Bean Validation](https://beanvalidation.org/). 
 
-This worked best with fine grained request and response POJO's for the controllers. For some of the properties custom
+This worked best with fine-grained request and response POJO's for the controllers. For some of the properties custom
 validations were required (e.g. for an object ID, which was implemented with a UUID).
 
 Adding validation annotations wasn't that much of an issue. Unit testing required some help of 
@@ -250,13 +250,13 @@ configuration setting to the right folder for the feature files.
 
 The ```MyBooksE2EBase``` provides base class for the annotated test steps. It contains the methods for sending HTTP 
 requests (GET, POST, PUT), making a login for a user with the USER_ROLE and a user with the ADMIN_ROLE. After a login
-the JWT is stored so it can be used on subsequent requests that require authentication.
+the JWT is stored, so it can be used on subsequent requests that require authentication.
 
 ```MyBooksE2EStepDef``` contains the individual steps, and the methods use the lower level features provided by the 
 base class.
 
 Making it all work using SSL proofed quite a challenge. Spring Boot 3 made quite some changes on the use of the Apache 
-HTTP client (now using v5 instead of v4). It took some research and it required an additional dependency in the pom file
+HTTP client (now using v5 instead of v4). It took some research, and it required an additional dependency in the pom file
 ```
 <dependency>
     <groupId>org.apache.httpcomponents.client5</groupId>
@@ -276,7 +276,7 @@ for SSL connections. The ```SSLContext``` needs access to the certificate (trust
 the ```SSLConnectionSocketFactory``` must not check the host name of the certificate (use ```NoopHostnameVerifier```). 
 
 A ```Registry<ConnectionSocketFactory>``` must have an ```ConnectionSocketFactory``` for http, and https (the one
-just created, while the factory for http is a plan simple one). he you need an ```PoolingHttpClientConnectionManager```,
+just created, while the factory for http is a plan simple one). Then you need an ```PoolingHttpClientConnectionManager```,
 and an HttpClient using the connection manager, and a ```HttpComponentsClientHttpRequestFactory``` using the 
 ```HttpClient```. In the final step, create a RestTemplate using the request factory.
 

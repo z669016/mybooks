@@ -6,16 +6,14 @@ import com.putoet.mybooks.books.domain.security.AccessRole;
 import com.putoet.mybooks.books.domain.security.User;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 
 import static com.putoet.mybooks.books.adapter.out.persistence.SqlUtil.sqlInfo;
 
@@ -29,7 +27,8 @@ public class H2UserRepository implements UserPersistencePort {
     @SneakyThrows
     @Override
     public String toString() {
-        return String.format("%s(%s)", this.getClass().getName(), template.getDataSource().getConnection().getMetaData().getURL());
+        return String.format("%s(%s)", this.getClass().getName(),
+                Objects.requireNonNull(template.getDataSource()).getConnection().getMetaData().getURL());
     }
 
     @Override

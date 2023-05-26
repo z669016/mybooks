@@ -8,8 +8,8 @@ import org.springframework.web.client.RestTemplate;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(features = "src/test/resources/features")
-public class MyBooksApplicationE2E extends MyBooksE2EBase {
-    public MyBooksApplicationE2E(RestTemplate sslRestTemplate, ObjectMapper mapper) {
+public class MyBooksApplicationTest extends MyBooksE2EBase {
+    public MyBooksApplicationTest(RestTemplate sslRestTemplate, ObjectMapper mapper) {
         super(sslRestTemplate, mapper);
     }
 }

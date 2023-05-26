@@ -1,18 +1,19 @@
 package com.putoet.mybooks.books.adapter.out.persistence;
 
-import com.google.common.base.Joiner;
 import com.putoet.mybooks.books.application.port.out.persistence.BookPersistenceQueryPort;
 import com.putoet.mybooks.books.domain.Author;
 import com.putoet.mybooks.books.domain.AuthorId;
 import com.putoet.mybooks.books.domain.Book;
 import com.putoet.mybooks.books.domain.BookId;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.file.*;
-import java.util.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -35,16 +36,16 @@ import static java.util.stream.Collectors.toMap;
 @Slf4j
 public class FolderBookRepository implements BookPersistenceQueryPort {
     private final Path folder;
-    private final Set<String> files;
     private final Map<AuthorId, Author> authors;
     private final Map<BookId, Book> books;
 
     public FolderBookRepository(Path folder) {
         log.info("FolderRepository({})", folder);
+
         Objects.requireNonNull(folder, "Book folder must be provided");
+        final Set<String> files = listEpubFiles(folder);
 
         this.folder = folder;
-        this.files = listEpubFiles(folder);
         this.books = booksForFiles(files);
         this.authors = authorsForBooks(books);
     }

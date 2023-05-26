@@ -68,14 +68,10 @@ public class MyBooksE2EBase {
     }
 
     protected void executeGet(String url, String json, boolean includeToken) {
-        final HttpHeaders headers = httpHeaders(true);
+        final HttpHeaders headers = httpHeaders(includeToken);
         final HttpEntity<String> entity = new HttpEntity<>(json, headers);
 
         context.response(executeHttpCall(() -> sslRestTemplate.exchange(URL_PREFIX + url, HttpMethod.GET, entity, String.class)));
-    }
-
-    protected void executePut(String url, String json) {
-        executePut(url, json, false);
     }
 
     protected void executePut(String url, String json, boolean includeToken) {
@@ -94,10 +90,6 @@ public class MyBooksE2EBase {
                     .headers(exc.getResponseHeaders())
                     .body(exc.getResponseBodyAsString());
         }
-    }
-
-    private HttpHeaders httpHeaders() {
-        return httpHeaders(false);
     }
 
     private HttpHeaders httpHeaders(boolean includeToken) {

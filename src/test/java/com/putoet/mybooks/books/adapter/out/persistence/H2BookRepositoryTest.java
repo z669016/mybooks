@@ -18,7 +18,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 @JdbcTest
-class H2AuthorRepositoryTest {
+class H2BookRepositoryTest {
     private static final String NAME = "Author, Name";
     private static final SiteType TYPE = SiteType.HOMEPAGE;
     private static final URL SITE_URL;

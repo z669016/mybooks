@@ -6,8 +6,6 @@ import com.putoet.mybooks.books.domain.*;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -19,7 +17,7 @@ import java.util.stream.Collectors;
  * on different media, like for instance a folder with EPUB books. By separating read-only and write-services
  * in enables several nice features, like a simple approach to load a database from EPUB books on a file system.
  */
-@Service("bookInquiryService")
+@Service
 @Slf4j
 @RequiredArgsConstructor
 @ToString
