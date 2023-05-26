@@ -113,7 +113,6 @@ public class BookController {
                     book.keywords()
             ));
         } catch (RuntimeException exc) {
-            log.warn(exc.getMessage(), exc);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
         }
     }

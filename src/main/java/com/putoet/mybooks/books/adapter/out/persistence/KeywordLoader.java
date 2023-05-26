@@ -1,5 +1,6 @@
 package com.putoet.mybooks.books.adapter.out.persistence;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,9 +14,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Slf4j
 public final class KeywordLoader {
-    private static final Logger logger = LoggerFactory.getLogger(KeywordLoader.class);
-
     private static final String KEYWORD = "/keywords";
     public static final Set<String> KEYWORD_SET = loadKeywords(KEYWORD);
 
@@ -24,7 +24,7 @@ public final class KeywordLoader {
         try {
             final URL url = KeywordLoader.class.getResource(keyword);
             if (url == null) {
-                logger.error("Resource '{}' not found.", KEYWORD);
+                log.error("Resource '{}' not found.", KEYWORD);
                 throw new IllegalStateException("Resource '" + KEYWORD + "' not found.");
             }
             path = Paths.get(url.toURI());

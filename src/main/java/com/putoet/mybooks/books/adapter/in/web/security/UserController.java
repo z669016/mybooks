@@ -66,7 +66,7 @@ public class UserController {
     }
 
     private static Cookie jwtCookie(String jwt) {
-        final Cookie cookie = new Cookie("jwt", jwt);
+        final Cookie cookie = new Cookie(JwtRequestFilter.AUTHORIZATION_COOKIE, jwt);
         cookie.setMaxAge(JwtTokenUtils.EXPIRES_IN); // expires in 7 days
         cookie.setHttpOnly(true);
         cookie.setPath("/"); // Global

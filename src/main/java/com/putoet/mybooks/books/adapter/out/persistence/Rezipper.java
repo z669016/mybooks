@@ -1,5 +1,6 @@
 package com.putoet.mybooks.books.adapter.out.persistence;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,8 +24,8 @@ import java.util.zip.ZipOutputStream;
  * name of the (temporary) rezipped file when successful.
  * Source code was reused from samples of Bealdung for unzipping and zipping files.
  */
+@Slf4j
 public final class Rezipper {
-    private static final Logger logger = LoggerFactory.getLogger(Rezipper.class);
     private static final int BUFFER_SIZE = 4 * 1024;
     private static final AtomicInteger repackageCount = new AtomicInteger();
     private static final AtomicInteger repackageFailedCount = new AtomicInteger();
@@ -66,7 +67,7 @@ public final class Rezipper {
         try {
             return Optional.of(Files.createTempDirectory("tmp_epub").toFile());
         } catch (IOException e) {
-            logger.error("Could not create temp directory!");
+            log.error("Could not create temp directory!");
         }
         return Optional.empty();
     }
@@ -75,7 +76,7 @@ public final class Rezipper {
         try {
             return Optional.of(Files.createTempFile("tmp_epub", ".epub").toFile());
         } catch (IOException e) {
-            logger.error("Could not create temp file!");
+            log.error("Could not create temp file!");
         }
         return Optional.empty();
     }
@@ -121,7 +122,7 @@ public final class Rezipper {
 
             return Optional.of(tmp.get().getAbsolutePath());
         } catch (IOException e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
 
         return Optional.empty();
@@ -150,7 +151,7 @@ public final class Rezipper {
                 zipFolder(folderToZip, zipOut);
                 return Optional.of(tmp.get().getAbsolutePath());
             } catch (IOException e) {
-                logger.error(e.getMessage(), e);
+                log.error(e.getMessage(), e);
             }
         }
 

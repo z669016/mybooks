@@ -25,8 +25,8 @@ public class MybooksApplication {
 	@EventListener
 	public void onApplicationEvent(ContextRefreshedEvent event) {
 		log.warn("Application context refresh:");
-		log.warn("{}", userService);
-		log.warn("{}", inquiryService);
-		log.warn("{}", updateService);
+		log.warn("UserService({})", userService);
+		log.warn("BookInquiryService({})", inquiryService);
+		log.warn("BookUpdateService({})", updateService);
 	}
 }

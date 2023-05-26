@@ -9,8 +9,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
@@ -33,8 +31,6 @@ public class AuthorController {
         try {
             return AuthorResponse.from(bookManagementInquiryPort.authors());
         } catch (RuntimeException exc) {
-            log.warn(exc.getMessage());
-            log.debug(exc.getMessage(), exc);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
         }
     }
@@ -46,8 +42,6 @@ public class AuthorController {
             if (author.isPresent())
                     return AuthorResponse.from(author.get());
         } catch (RuntimeException exc) {
-            log.warn(exc.getMessage());
-            log.debug(exc.getMessage(), exc);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
         }
 
@@ -59,8 +53,6 @@ public class AuthorController {
         try {
             return AuthorResponse.from(bookManagementInquiryPort.authorsByName(name));
         } catch (RuntimeException exc) {
-            log.warn(exc.getMessage());
-            log.debug(exc.getMessage(), exc);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
         }
     }
@@ -70,8 +62,6 @@ public class AuthorController {
         try {
             bookManagementUpdatePort.forgetAuthor(AuthorId.withId(id));
         } catch (RuntimeException exc) {
-            log.warn(exc.getMessage());
-            log.debug(exc.getMessage(), exc);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
         }
     }
@@ -85,8 +75,6 @@ public class AuthorController {
         try {
             return AuthorResponse.from(bookManagementUpdatePort.registerAuthor(author.name(), author.sitesWithURLs()));
         } catch (RuntimeException exc) {
-            log.warn(exc.getMessage());
-            log.debug(exc.getMessage(), exc);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
         }
     }
@@ -99,8 +87,6 @@ public class AuthorController {
         try {
             return AuthorResponse.from(bookManagementUpdatePort.updateAuthor(AuthorId.withId(id), author.versionAsInstant(), author.name()));
         } catch (RuntimeException exc) {
-            log.warn(exc.getMessage());
-            log.debug(exc.getMessage(), exc);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
         }
     }

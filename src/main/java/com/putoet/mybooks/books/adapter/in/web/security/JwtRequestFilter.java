@@ -6,6 +6,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,7 +22,9 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtRequestFilter extends OncePerRequestFilter {
+    public static final String AUTHORIZATION_COOKIE = "jwt";
     public static final String AUTHORIZATION_KEY = "Authorization";
     public static final String AUTHORIZATION_SCHEME = "Bearer";
 
@@ -33,12 +36,13 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
         Optional<String> jwtToken = Optional.empty();
-
         if (request.getCookies() != null) {
             jwtToken = Arrays.stream(request.getCookies())
-                    .filter(c -> c.getName().equals(AUTHORIZATION_KEY))
+                    .filter(c -> c.getName().equals(AUTHORIZATION_COOKIE))
                     .map(Cookie::getValue)
                     .findFirst();
+            if (jwtToken.isPresent())
+                log.info("Found JWT in cookie {}", AUTHORIZATION_COOKIE);
         }
 
         if (jwtToken.isEmpty()) {
@@ -46,6 +50,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             if (header != null && header.toLowerCase().startsWith(AUTHORIZATION_SCHEME.toLowerCase() + " ")) {
                 jwtToken = Optional.of(request.getHeader(AUTHORIZATION_KEY).substring(AUTHORIZATION_SCHEME.length() + 1));
             }
+            if (jwtToken.isPresent())
+                log.info("Found JWT in header {} with scheme {}", AUTHORIZATION_KEY, AUTHORIZATION_SCHEME);
         }
 
         if (jwtToken.isPresent()) {
@@ -53,6 +59,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             if (id != null) {
                 if (SecurityContextHolder.getContext().getAuthentication() != null &&
                     !id.equals(SecurityContextHolder.getContext().getAuthentication().getPrincipal())) {
+
+                    log.info("Reset security context for user {} to user {}", SecurityContextHolder.getContext().getAuthentication().getPrincipal(), id);
                     SecurityContextHolder.getContext().setAuthentication(null);
                 }
 
@@ -63,6 +71,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                                 new UsernamePasswordAuthenticationToken(id, null, jwtTokenUtils.extractAuthorities(jwtToken.get()));
                         authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                        log.info("Set security context to {}", authenticationToken);
                     }
                 }
             }
