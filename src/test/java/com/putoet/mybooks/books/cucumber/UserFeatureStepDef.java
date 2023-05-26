@@ -6,10 +6,13 @@ import com.putoet.mybooks.books.adapter.in.web.security.*;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.When;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.client.RestTemplate;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class UserFeatureStepDef extends MyBooksE2EBase {
     public UserFeatureStepDef(RestTemplate sslRestTemplate, ObjectMapper mapper) {
@@ -38,11 +41,33 @@ public class UserFeatureStepDef extends MyBooksE2EBase {
     }
 
     @And("response authorization header contains bearer token")
-    public void responseAuthorizationHeaderContainsBearerToken() {
+    public void responseAuthorizationHeaderContainsBearerToken() throws JsonProcessingException {
+        final JwtResponse response = mapper.readValue(context.response().getBody(), JwtResponse.class);
+        final List<String> header = context.response().getHeaders().get(JwtRequestFilter.AUTHORIZATION_KEY);
+        assertNotNull(header);
+        assertEquals(1, header.size());
+        assertTrue(header.get(0).startsWith(JwtRequestFilter.AUTHORIZATION_SCHEME + " "));
+        assertEquals(response.access_token(), header.get(0).substring(JwtRequestFilter.AUTHORIZATION_SCHEME.length() + 1));
     }
 
     @And("response cookie jwt is set with token")
-    public void responseCookieJwtIsSetWithToken() {
+    public void responseCookieJwtIsSetWithToken() throws JsonProcessingException {
+        final JwtResponse response = mapper.readValue(context.response().getBody(), JwtResponse.class);
+        final List<String> header = context.response().getHeaders().get(HttpHeaders.SET_COOKIE);
+        assertNotNull(header);
+
+        final Optional<String> jwt = header.stream()
+                .filter(s -> s.startsWith(JwtRequestFilter.AUTHORIZATION_COOKIE + "="))
+                .findFirst();
+        assertTrue(jwt.isPresent());
+
+        final String[] cookie = jwt.get().split("; ");
+        assertEquals(5, cookie.length);
+        assertEquals(response.access_token(), cookie[0].substring(JwtRequestFilter.AUTHORIZATION_COOKIE.length() + 1));
+        assertEquals("Max-Age=3600", cookie[1]);
+        assertTrue(cookie[2].startsWith("Expires="));
+        assertEquals("Path=/", cookie[3]);
+        assertEquals("HttpOnly", cookie[4]);
     }
 
     @When("send a new user request for user with id {string}, name {string}, password {string} and role {string}")
