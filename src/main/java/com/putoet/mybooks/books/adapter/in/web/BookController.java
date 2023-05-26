@@ -8,6 +8,8 @@ import com.putoet.mybooks.books.domain.Book;
 import com.putoet.mybooks.books.domain.BookId;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.MethodParameter;
@@ -24,19 +26,12 @@ import java.util.*;
 
 @Validated
 @RestController
+@RequiredArgsConstructor
+@Slf4j
 public class BookController {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     private final BookManagementInquiryPort bookManagementInquiryPort;
     private final BookManagementUpdatePort bookManagementUpdatePort;
-
     private final SmartValidator validator;
-
-    public BookController(BookManagementInquiryPort bookManagementInquiryPort, BookManagementUpdatePort bookManagementUpdatePort, SmartValidator validator) {
-        this.bookManagementInquiryPort = bookManagementInquiryPort;
-        this.bookManagementUpdatePort = bookManagementUpdatePort;
-        this.validator = validator;
-    }
 
     @GetMapping(path = "/books", produces = MediaType.APPLICATION_JSON_VALUE)
     public Set<BookResponse> getBooks() {
@@ -118,7 +113,7 @@ public class BookController {
                     book.keywords()
             ));
         } catch (RuntimeException exc) {
-            logger.warn(exc.getMessage(), exc);
+            log.warn(exc.getMessage(), exc);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
         }
     }

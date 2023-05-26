@@ -1,5 +1,6 @@
 package com.putoet.mybooks.books.adapter.in.web.observability;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.actuate.info.GitInfoContributor;
 import org.springframework.boot.actuate.info.Info;
 import org.springframework.boot.info.GitProperties;

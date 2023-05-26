@@ -6,6 +6,7 @@ import com.putoet.mybooks.books.domain.Author;
 import com.putoet.mybooks.books.domain.AuthorId;
 import com.putoet.mybooks.books.domain.Book;
 import com.putoet.mybooks.books.domain.BookId;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,15 +32,15 @@ import static java.util.stream.Collectors.toMap;
  * been collected, the list is processed (again as parallel stream) to load all data from the books.
  * </p>
  */
+@Slf4j
 public class FolderBookRepository implements BookPersistenceQueryPort {
-    private static final Logger logger = LoggerFactory.getLogger(FolderBookRepository.class);
     private final Path folder;
     private final Set<String> files;
     private final Map<AuthorId, Author> authors;
     private final Map<BookId, Book> books;
 
     public FolderBookRepository(Path folder) {
-        logger.info("FolderRepository({})", folder);
+        log.info("FolderRepository({})", folder);
         Objects.requireNonNull(folder, "Book folder must be provided");
 
         this.folder = folder;
@@ -81,7 +82,7 @@ public class FolderBookRepository implements BookPersistenceQueryPort {
 
     private static HashMap<BookId, Book> addBookWithoutDuplicateIds(HashMap<BookId, Book> hashMap, Book book) {
         if (hashMap.containsKey(book.id())) {
-            logger.warn("Duplicate id {}, generated new book id for {}", book.id(), book.title());
+            log.warn("Duplicate id {}, generated new book id for {}", book.id(), book.title());
             book = new Book(new BookId(), book.title(), book.authors(), book.keywords(), book.formats());
         }
         hashMap.put(book.id(), book);
@@ -96,15 +97,14 @@ public class FolderBookRepository implements BookPersistenceQueryPort {
 
     @Override
     public Set<Author> findAuthors() {
-        logger.info("findAuthors()");
-
+        log.info("findAuthors()");
 
         return Set.copyOf(authors.values());
     }
 
     @Override
     public Set<Author> findAuthorsByName(String name) {
-        logger.info("findAuthorsByName({})", name);
+        log.info("findAuthorsByName({})", name);
 
         return authors.values().parallelStream()
                 .filter(author -> author.name().toLowerCase().contains(name.toLowerCase()))
@@ -113,21 +113,21 @@ public class FolderBookRepository implements BookPersistenceQueryPort {
 
     @Override
     public Author findAuthorById(AuthorId authorId) {
-        logger.info("findAuthorById({})", authorId);
+        log.info("findAuthorById({})", authorId);
 
         return authors.get(authorId);
     }
 
     @Override
     public Set<Book> findBooks() {
-        logger.info("findBooks()");
+        log.info("findBooks()");
 
         return Set.copyOf(books.values());
     }
 
     @Override
     public Set<Book> findBooksByTitle(String title) {
-        logger.info("findBooksByTitle({})", title);
+        log.info("findBooksByTitle({})", title);
 
         return books.values().parallelStream()
                 .filter(book -> book.title().toLowerCase().contains(title.toLowerCase()))
@@ -136,14 +136,14 @@ public class FolderBookRepository implements BookPersistenceQueryPort {
 
     @Override
     public Book findBookById(BookId bookId) {
-        logger.info("findBookById({})", bookId);
+        log.info("findBookById({})", bookId);
 
         return books.get(bookId);
     }
 
     @Override
     public Set<Book> findBooksByAuthorId(AuthorId authorId) {
-        logger.info("findBooksByAuthorId({})", authorId);
+        log.info("findBooksByAuthorId({})", authorId);
 
         return books.values().parallelStream()
                 .filter(book -> book.authors().stream().anyMatch(author -> author.id().equals(authorId)))
@@ -152,11 +152,6 @@ public class FolderBookRepository implements BookPersistenceQueryPort {
 
     @Override
     public String toString() {
-        return "BookFolder{" +
-               "folder=" + folder +
-               ", files=" + files +
-               ", authors=" + Joiner.on(";").withKeyValueSeparator("=").join(authors) +
-               ", books=" + books.values() +
-               '}';
+        return String.format("%s(folder=%s)", this.getClass().getName(), folder);
     }
 }

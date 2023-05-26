@@ -1,11 +1,13 @@
 package com.putoet.mybooks.books.application.security;
 
-import com.putoet.mybooks.books.application.port.in.security.*;
+import com.putoet.mybooks.books.application.port.in.security.UserError;
+import com.putoet.mybooks.books.application.port.in.security.UserManagementPort;
 import com.putoet.mybooks.books.application.port.out.security.UserPersistencePort;
 import com.putoet.mybooks.books.domain.security.AccessRole;
 import com.putoet.mybooks.books.domain.security.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -21,23 +23,19 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 @Service("userService")
+@RequiredArgsConstructor
+@Slf4j
+@ToString
 public class UserService implements UserManagementPort {
     // Regular Expression by RFC 5322 for Email Validation
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$");
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final UserPersistencePort userPersistencePort;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserPersistencePort userPersistencePort, PasswordEncoder passwordEncoder) {
-        logger.info("SecurityService({}, {})", userPersistencePort, passwordEncoder);
-        this.userPersistencePort = userPersistencePort;
-        this.passwordEncoder = passwordEncoder;
-    }
-
     @Override
     public void forgetUser(String id) {
-        logger.info("forgetUser({})", id);
+        log.info("forgetUser({})", id);
 
         if (id == null || id.isBlank())
             UserError.USER_ID_REQUIRED.raise();
@@ -67,7 +65,7 @@ public class UserService implements UserManagementPort {
 
     @Override
     public Optional<User> userById(String id) {
-        logger.info("userById({})", id);
+        log.info("userById({})", id);
 
         if (id == null || id.isBlank())
             UserError.USER_ID_REQUIRED.raise();
@@ -77,7 +75,7 @@ public class UserService implements UserManagementPort {
 
     @Override
     public List<User> users() {
-        logger.info("users()");
+        log.info("users()");
 
         return userPersistencePort.findUsers();
     }

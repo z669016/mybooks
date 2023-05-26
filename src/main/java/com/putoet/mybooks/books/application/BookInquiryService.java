@@ -3,6 +3,9 @@ package com.putoet.mybooks.books.application;
 import com.putoet.mybooks.books.application.port.in.*;
 import com.putoet.mybooks.books.application.port.out.persistence.BookPersistenceQueryPort;
 import com.putoet.mybooks.books.domain.*;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -17,20 +20,16 @@ import java.util.stream.Collectors;
  * in enables several nice features, like a simple approach to load a database from EPUB books on a file system.
  */
 @Service("bookInquiryService")
+@Slf4j
+@RequiredArgsConstructor
+@ToString
 public class BookInquiryService implements BookManagementInquiryPort {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final BookPersistenceQueryPort bookPersistenceQueryPort;
 
-    public BookInquiryService(BookPersistenceQueryPort bookPersistenceQueryPort) {
-        this.bookPersistenceQueryPort = bookPersistenceQueryPort;
-
-        logger.info("BookInquiryService({})", bookPersistenceQueryPort);
-    }
-
     @Override
     public Set<Author> authorsByName(String name) {
-        logger.info("authorsByName({})", name);
+        log.info("authorsByName({})", name);
 
         if (name== null || name.isBlank())
             ServiceError.AUTHOR_NAME_REQUIRED.raise();
@@ -40,7 +39,7 @@ public class BookInquiryService implements BookManagementInquiryPort {
 
     @Override
     public Optional<Author> authorById(AuthorId authorId) {
-        logger.info("authorById({})", authorId);
+        log.info("authorById({})", authorId);
         if (authorId == null)
             ServiceError.AUTHOR_ID_REQUIRED.raise();
 
@@ -49,21 +48,21 @@ public class BookInquiryService implements BookManagementInquiryPort {
 
     @Override
     public Set<Author> authors() {
-        logger.info("authors()");
+        log.info("authors()");
 
         return bookPersistenceQueryPort.findAuthors();
     }
 
     @Override
     public Set<Book> books() {
-        logger.info("books()");
+        log.info("books()");
 
         return bookPersistenceQueryPort.findBooks();
     }
 
     @Override
     public Set<Book> booksByTitle(String title) {
-        logger.info("booksByTitle({})", title);
+        log.info("booksByTitle({})", title);
 
         if (title== null || title.isBlank())
             ServiceError.BOOK_TITLE_REQUIRED.raise();
@@ -73,7 +72,7 @@ public class BookInquiryService implements BookManagementInquiryPort {
 
     @Override
     public Optional<Book> bookById(BookId bookId) {
-        logger.info("bookById({})", bookId);
+        log.info("bookById({})", bookId);
 
         if (bookId == null)
             ServiceError.BOOK_ID_REQUIRED.raise();
@@ -83,7 +82,7 @@ public class BookInquiryService implements BookManagementInquiryPort {
 
     @Override
     public Set<Book> booksByAuthorName(String name) {
-        logger.info("booksByAuthorName({})", name);
+        log.info("booksByAuthorName({})", name);
 
         if (name == null || name.isBlank())
             ServiceError.AUTHOR_NAME_REQUIRED.raise();
@@ -96,7 +95,7 @@ public class BookInquiryService implements BookManagementInquiryPort {
 
     @Override
     public Set<String> authorSiteTypes() {
-        logger.info("authorSiteTypes()");
+        log.info("authorSiteTypes()");
 
         return Set.of(
                 SiteType.HOMEPAGE_NAME,

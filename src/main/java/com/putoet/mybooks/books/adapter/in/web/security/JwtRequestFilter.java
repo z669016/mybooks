@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,17 +20,13 @@ import java.util.Arrays;
 import java.util.Optional;
 
 @Component
+@RequiredArgsConstructor
 public class JwtRequestFilter extends OncePerRequestFilter {
-
     public static final String AUTHORIZATION_KEY = "Authorization";
     public static final String AUTHORIZATION_SCHEME = "Bearer";
+
     private final UserDetailsService userDetailsService;
     private final JwtTokenUtils jwtTokenUtils;
-
-    public JwtRequestFilter(UserDetailsService userDetailsService, JwtTokenUtils jwtTokenUtils) {
-        this.userDetailsService = userDetailsService;
-        this.jwtTokenUtils = jwtTokenUtils;
-    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,

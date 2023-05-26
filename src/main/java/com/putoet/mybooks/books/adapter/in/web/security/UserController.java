@@ -7,6 +7,8 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -23,22 +25,13 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
+@Slf4j
+@RequiredArgsConstructor
 public class UserController {
-    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final UserManagementPort userManagementPort;
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
     private final JwtTokenUtils jwtTokenUtils;
-
-    public UserController(UserManagementPort userManagementPort,
-                          AuthenticationManager authenticationManager,
-                          UserDetailsService userDetailsService,
-                          JwtTokenUtils jwtTokenUtils) {
-        this.userManagementPort = userManagementPort;
-        this.authenticationManager = authenticationManager;
-        this.userDetailsService = userDetailsService;
-        this.jwtTokenUtils = jwtTokenUtils;
-    }
 
     @PostMapping(path = "/login",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -58,16 +51,16 @@ public class UserController {
                 return new JwtResponse(jwt, JwtTokenUtils.EXPIRES_IN);
             }
 
-            logger.error("No user details for id {}", request.id());
+            log.error("No user details for id {}", request.id());
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No user details for id " + request.id());
         } catch (DisabledException exc) {
-            logger.error("User account was disabled for for user {}", request.id());
+            log.error("User account was disabled for for user {}", request.id());
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, exc.getMessage());
         } catch (LockedException exc) {
-            logger.error("User account was locked for user {}", request.id());
+            log.error("User account was locked for user {}", request.id());
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, exc.getMessage());
         } catch (BadCredentialsException exc) {
-            logger.error("Invalid userid/password for user {}", request.id());
+            log.error("Invalid userid/password for user {}", request.id());
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, exc.getMessage());
         }
     }

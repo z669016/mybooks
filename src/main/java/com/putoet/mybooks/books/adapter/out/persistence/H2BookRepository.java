@@ -4,6 +4,9 @@ import com.putoet.mybooks.books.application.port.in.ServiceError;
 import com.putoet.mybooks.books.application.port.out.persistence.BookPersistenceUpdatePort;
 import com.putoet.mybooks.books.domain.*;
 import jakarta.activation.MimeType;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -27,99 +30,100 @@ import static com.putoet.mybooks.books.adapter.out.persistence.SqlUtil.sqlInfo;
  * A read/write repository for book and author data, connected to an H4 database using a Spring JdbcTemplate
  */
 @Repository
+@Slf4j
+@RequiredArgsConstructor
 public class H2BookRepository implements BookPersistenceUpdatePort {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final JdbcTemplate template;
 
-    public H2BookRepository(JdbcTemplate template) {
-        logger.info("AuthorRepository initialized with JDBC template {}", template.getDataSource());
-        this.template = template;
+    @SneakyThrows
+    @Override
+    public String toString() {
+        return String.format("%s(%s)", this.getClass().getName(), template.getDataSource().getConnection().getMetaData().getURL());
     }
-
 
     @Override
     public Set<Author> findAuthors() {
-        logger.info("findAuthors()");
+        log.info("findAuthors()");
 
         final String sql = "select author_id, version, name from author";
-        sqlInfo(logger, sql);
+        sqlInfo(log, sql);
 
         return Set.copyOf(template.query(sql, this::authorMapper));
     }
 
     @Override
     public Set<Author> findAuthorsByName(String name) {
-        logger.info("findAuthorsByName({})", name);
+        log.info("findAuthorsByName({})", name);
         name = "%" + name.toLowerCase() + "%";
 
         final String sql = "select author_id, version, name from author where lower(name) like ?";
-        sqlInfo(logger, sql, name);
+        sqlInfo(log, sql, name);
 
         return Set.copyOf(template.query(sql, this::authorMapper, name));
     }
 
     @Override
     public Author findAuthorById(AuthorId id) {
-        logger.info("findAuthorById({})", id);
+        log.info("findAuthorById({})", id);
 
         try {
             final String sql = "select author_id, version, name from author where author_id = ?";
-            sqlInfo(logger, sql, id.uuid());
+            sqlInfo(log, sql, id.uuid());
 
             return template.queryForObject(sql, this::authorMapper, id.uuid());
         } catch (EmptyResultDataAccessException exc) {
-            logger.warn(exc.getMessage());
+            log.warn(exc.getMessage());
         }
         return null;
     }
 
     @Override
     public Set<Book> findBooks() {
-        logger.info("findBooks()");
+        log.info("findBooks()");
 
         final String sql = "select book_id_type, book_id, title from book";
-        sqlInfo(logger, sql);
+        sqlInfo(log, sql);
 
         return Set.copyOf(template.query(sql, this::bookMapper));
     }
 
     @Override
     public Set<Book> findBooksByTitle(String title) {
-        logger.info("findBooksByTitle({})", title);
+        log.info("findBooksByTitle({})", title);
 
         if (title == null || title.isBlank()) {
-            logger.error(ServiceError.BOOK_TITLE_REQUIRED.name());
+            log.error(ServiceError.BOOK_TITLE_REQUIRED.name());
             ServiceError.BOOK_TITLE_REQUIRED.raise();
         }
 
         title = "%" + title + "%";
         final String sql = "select book_id_type, book_id, title from book where title like ?";
-        sqlInfo(logger, sql, title);
+        sqlInfo(log, sql, title);
 
         return Set.copyOf(template.query(sql, this::bookMapper, title));
     }
 
     @Override
     public Book findBookById(BookId bookId) {
-        logger.info("findBookById({})", bookId);
+        log.info("findBookById({})", bookId);
 
         if (bookId == null) {
-            logger.error(ServiceError.BOOK_ID_REQUIRED.name());
+            log.error(ServiceError.BOOK_ID_REQUIRED.name());
             ServiceError.BOOK_ID_REQUIRED.raise();
         }
 
         final String sql = "select book_id_type, book_id, title from book where book_id_type = ? and book_id = ?";
-        sqlInfo(logger, sql, bookId.schema().name(), bookId.id());
+        sqlInfo(log, sql, bookId.schema().name(), bookId.id());
         return template.queryForObject(sql, this::bookMapper, bookId.schema().name(), bookId.id());
     }
 
     @Override
     public Set<Book> findBooksByAuthorId(AuthorId authorId) {
-        logger.info("findBooksByAuthorId({})", authorId);
+        log.info("findBooksByAuthorId({})", authorId);
 
         final String sql = "select book_id_type, book_id, title from book where (book_id_type, book_id) in (select book_id_type, book_id from book_author where author_id = ?)";
-        sqlInfo(logger, sql, authorId.uuid());
+        sqlInfo(log, sql, authorId.uuid());
 
         return Set.copyOf(template.query(sql, this::bookMapper, authorId.uuid()));
     }
@@ -140,10 +144,10 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
     }
 
     private Set<String> findKeywordsForBook(String bookIdType, String bookId) {
-        logger.info("findKeywordsForBook({}, {})", bookIdType, bookId);
+        log.info("findKeywordsForBook({}, {})", bookIdType, bookId);
 
         final String sql = "select book_id_type, book_id, keyword from book_key_word where book_id_type = ? and book_id = ?";
-        sqlInfo(logger, sql, bookIdType, bookId);
+        sqlInfo(log, sql, bookIdType, bookId);
 
         return Set.copyOf(template.query(sql, this::keywordMapper, bookIdType, bookId));
     }
@@ -153,10 +157,10 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
     }
 
     private Set<MimeType> findFormatsForBook(String bookIdType, String bookId) {
-        logger.info("findFormatsForBook({}, {})", bookIdType, bookId);
+        log.info("findFormatsForBook({}, {})", bookIdType, bookId);
 
         final String sql = "select book_id_type, book_id, format from book_format where book_id_type = ? and book_id = ?";
-        sqlInfo(logger, sql, bookIdType, bookId);
+        sqlInfo(log, sql, bookIdType, bookId);
 
         return Set.copyOf(template.query(sql, this::formatTypeMapper, bookIdType, bookId));
     }
@@ -167,10 +171,10 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
     }
 
     private Set<Author> findAuthorsForBook(String bookIdType, String bookId) {
-        logger.info("findAuthorsForBook({}, {})", bookIdType, bookId);
+        log.info("findAuthorsForBook({}, {})", bookIdType, bookId);
 
         final String sql = "select author_id, version, name from author where author_id in (select author_id from book_author where book_id_type = ? and book_id = ?)";
-        sqlInfo(logger, sql, bookIdType, bookId);
+        sqlInfo(log, sql, bookIdType, bookId);
 
         return Set.copyOf(template.query(sql, this::authorMapper, bookIdType, bookId));
     }
@@ -178,7 +182,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
     private Author authorMapper(ResultSet row, int rowNum) throws SQLException {
         final String authorId = row.getString("author_id");
         final String sql = "select name, url from site where author_id = ?";
-        sqlInfo(logger, sql, authorId);
+        sqlInfo(log, sql, authorId);
 
         final List<Site> sites = template.query(sql, this::siteMapper, authorId);
         return new Author(AuthorId.withId(authorId),
@@ -200,16 +204,16 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
 
     @Override
     public Author registerAuthor(String name, Map<SiteType,URL> sites) {
-        logger.info("registerAuthor({}, {})", name, sites);
+        log.info("registerAuthor({}, {})", name, sites);
 
         final AuthorId id = AuthorId.withoutId();
         final Instant version = Instant.now();
         final String sql = "insert into author (author_id, version, name) values (?, ?, ?)";
-        sqlInfo(logger, sql, id.uuid(), version, name);
+        sqlInfo(log, sql, id.uuid(), version, name);
 
         int count = template.update(sql, id.uuid(), version, name);
         if (count != 1) {
-            logger.error("{}: {} {} {}", ServiceError.AUTHOR_NOT_REGISTERED, id.uuid(), version, name);
+            log.error("{}: {} {} {}", ServiceError.AUTHOR_NOT_REGISTERED, id.uuid(), version, name);
             ServiceError.AUTHOR_NOT_REGISTERED.raise("Author with new id " + id + " and name " + name);
         }
 
@@ -222,15 +226,15 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
 
     @Override
     public Author updateAuthor(AuthorId authorId, Instant version, String name) {
-        logger.info("updateAuthor({}, {})", authorId, name);
+        log.info("updateAuthor({}, {})", authorId, name);
 
         final Timestamp newVersion = Timestamp.from(Instant.now());
         final String sql = "update author set version = ?, name = ? where author_id = ? and version = ?";
-        sqlInfo(logger, sql, newVersion, name, authorId.uuid(), version);
+        sqlInfo(log, sql, newVersion, name, authorId.uuid(), version);
 
         int count = template.update(sql, newVersion, name, authorId.uuid(), version);
         if (count != 1) {
-            logger.error("Could not update one author, count is {}, author id is {}, version is {}", count, authorId, version);
+            log.error("Could not update one author, count is {}, author id is {}, version is {}", count, authorId, version);
             ServiceError.AUTHOR_NOT_UPDATED.raise(authorId + ", " + version + ", '" + name + "'");
         }
         return findAuthorById(authorId);
@@ -238,28 +242,28 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
 
     @Override
     public void forgetAuthor(AuthorId authorId) {
-        logger.info("forgetAuthor({})", authorId);
+        log.info("forgetAuthor({})", authorId);
 
         final String sql = "delete from author where author_id = ?";
-        sqlInfo(logger, sql, authorId);
+        sqlInfo(log, sql, authorId);
 
         int count = template.update(sql, authorId.uuid());
         if (count != 1) {
-            logger.error("{}: {}", ServiceError.AUTHOR_FOR_ID_NOT_FOUND.name(), authorId );
+            log.error("{}: {}", ServiceError.AUTHOR_FOR_ID_NOT_FOUND.name(), authorId );
             ServiceError.AUTHOR_FOR_ID_NOT_FOUND.raise();
         }
     }
 
     @Override
     public Author setAuthorSite(AuthorId authorId, SiteType type, URL url) {
-        logger.info("setAuthorSite({}, {}, {})", authorId, type, url);
+        log.info("setAuthorSite({}, {}, {})", authorId, type, url);
 
         final String sql = "merge into site (author_id, name, url) values (?, ?, ?)";
-        sqlInfo(logger, sql, authorId.uuid(),type.name(),url.toString());
+        sqlInfo(log, sql, authorId.uuid(),type.name(),url.toString());
 
         int count = template.update(sql, authorId.uuid(),type.name(),url.toString());
         if (count != 1) {
-            logger.error("{}: {} {}", ServiceError.AUTHOR_SITE_NOT_SET, authorId, type);
+            log.error("{}: {} {}", ServiceError.AUTHOR_SITE_NOT_SET, authorId, type);
             ServiceError.AUTHOR_SITE_NOT_SET.raise(authorId + " " + type);
         }
         return findAuthorById(authorId);
@@ -267,46 +271,46 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
 
     @Override
     public Book registerBook(BookId bookId, String title, Set<Author> authors, Set<MimeType> formats, Set<String> keywords) {
-        logger.info("registerBook({}, {}, {}, {})", bookId, title, authors, formats);
+        log.info("registerBook({}, {}, {}, {})", bookId, title, authors, formats);
 
         final String sql = "insert into book (book_id_type, book_id, title) values (?, ?, ?)";
-        sqlInfo(logger, sql, bookId.schema().name(), bookId.id(), title);
+        sqlInfo(log, sql, bookId.schema().name(), bookId.id(), title);
 
         int count = template.update(sql, bookId.schema().name(), bookId.id(), title);
         if (count != 1) {
-            logger.error("{}: {}, {}, {}", ServiceError.BOOK_NOT_REGISTERED.name(), bookId, title, authors);
+            log.error("{}: {}, {}, {}", ServiceError.BOOK_NOT_REGISTERED.name(), bookId, title, authors);
             ServiceError.BOOK_NOT_REGISTERED.raise(bookId.toString());
         }
 
         for (Author author : authors) {
             final String sql2 = "insert into book_author (book_id_type, book_id, author_id) values (?, ?, ?)";
-            sqlInfo(logger, sql2, bookId.schema().name(), bookId.id(), author.id().uuid().toString());
+            sqlInfo(log, sql2, bookId.schema().name(), bookId.id(), author.id().uuid().toString());
 
             count = template.update(sql2, bookId.schema().name(), bookId.id(), author.id().uuid().toString());
             if (count != 1) {
-                logger.error("{}: {}, {})", ServiceError.BOOK_NOT_REGISTERED.name(), bookId, author);
+                log.error("{}: {}, {})", ServiceError.BOOK_NOT_REGISTERED.name(), bookId, author);
                 ServiceError.BOOK_NOT_REGISTERED.raise(bookId + " " + author);
             }
         }
 
         for (MimeType format : formats) {
             final String sql2 = "insert into book_format (book_id_type, book_id, format) values (?, ?, ?)";
-            sqlInfo(logger, sql2, bookId.schema().name(), bookId.id(), format.toString());
+            sqlInfo(log, sql2, bookId.schema().name(), bookId.id(), format.toString());
 
             count = template.update(sql2, bookId.schema().name(), bookId.id(), format.toString());
             if (count != 1) {
-                logger.error("{}: {}, {}, {})", ServiceError.BOOK_NOT_REGISTERED.name(), bookId.schema(), bookId.id(), format);
+                log.error("{}: {}, {}, {})", ServiceError.BOOK_NOT_REGISTERED.name(), bookId.schema(), bookId.id(), format);
                 ServiceError.BOOK_NOT_REGISTERED.raise(bookId + " " + format);
             }
         }
 
         for (String keyword : keywords) {
             final String sql3 = "insert into book_key_word (book_id_type, book_id, keyword) values (?, ?, ?)";
-            sqlInfo(logger, sql3, bookId.schema().name(), bookId.id(), keyword);
+            sqlInfo(log, sql3, bookId.schema().name(), bookId.id(), keyword);
 
             count = template.update(sql3, bookId.schema().name(), bookId.id(), keyword);
             if (count != 1) {
-                logger.error("{}: {}, {}, {})", ServiceError.BOOK_NOT_REGISTERED.name(), bookId.schema(), bookId.id(), keyword);
+                log.error("{}: {}, {}, {})", ServiceError.BOOK_NOT_REGISTERED.name(), bookId.schema(), bookId.id(), keyword);
                 ServiceError.BOOK_NOT_REGISTERED.raise(bookId + " " + keyword);
             }
         }

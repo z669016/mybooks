@@ -15,7 +15,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
-public class JwtTokenUtils implements Serializable {
+public final class JwtTokenUtils implements Serializable {
     private static final String SECRET_KEY = "FlorisEmmaHannesPoppieLevelAlHeelLangSamenBijOnsInHuis";
     private static final SecretKey SIGNING_KEY = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
     public static final String AUTHORITIES_KEY = "authorities";

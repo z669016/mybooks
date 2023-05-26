@@ -4,6 +4,9 @@ import com.putoet.mybooks.books.application.port.in.*;
 import com.putoet.mybooks.books.application.port.out.persistence.BookPersistenceUpdatePort;
 import com.putoet.mybooks.books.domain.*;
 import jakarta.activation.MimeType;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -18,23 +21,18 @@ import java.util.Set;
  * BookUpdateService provides write services for the book repository
  */
 @Service("bookUpdateService")
+@Slf4j
+@RequiredArgsConstructor
+@ToString
 public class BookUpdateService implements BookManagementUpdatePort {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     private final BookPersistenceUpdatePort bookPersistenceUpdatePort;
-
-    public BookUpdateService(BookPersistenceUpdatePort bookPersistenceUpdatePort) {
-        this.bookPersistenceUpdatePort = bookPersistenceUpdatePort;
-
-        logger.info("BookService({})", bookPersistenceUpdatePort);
-    }
 
     @Override
     public Author registerAuthor(String name, Map<SiteType, URL> sites) {
-        logger.info("registerAuthor({}, {})", name, sites);
+        log.info("registerAuthor({}, {})", name, sites);
 
         if (name == null || name.isBlank()) {
-            logger.warn(ServiceError.AUTHOR_NAME_REQUIRED.name());
+            log.warn(ServiceError.AUTHOR_NAME_REQUIRED.name());
             ServiceError.AUTHOR_NAME_REQUIRED.raise();
         }
 
@@ -47,7 +45,7 @@ public class BookUpdateService implements BookManagementUpdatePort {
 
     @Override
     public void forgetAuthor(AuthorId authorId) {
-        logger.info("forgetAuthor({})", authorId);
+        log.info("forgetAuthor({})", authorId);
 
         if (authorId == null)
             ServiceError.AUTHOR_ID_REQUIRED.raise();
@@ -57,7 +55,7 @@ public class BookUpdateService implements BookManagementUpdatePort {
 
     @Override
     public Author updateAuthor(AuthorId authorId, Instant version, String name) {
-        logger.info("updateAuthor({}, {}, {})", authorId, version, name);
+        log.info("updateAuthor({}, {}, {})", authorId, version, name);
 
         if (authorId == null)
             ServiceError.AUTHOR_ID_REQUIRED.raise();
@@ -71,7 +69,7 @@ public class BookUpdateService implements BookManagementUpdatePort {
 
     @Override
     public Author setAuthorSite(AuthorId authorId, SiteType type, URL url) {
-        logger.info("setAuthorSite({}, {}, {})", authorId, type, url);
+        log.info("setAuthorSite({}, {}, {})", authorId, type, url);
 
         if (authorId == null)
             ServiceError.AUTHOR_ID_REQUIRED.raise();
@@ -89,7 +87,7 @@ public class BookUpdateService implements BookManagementUpdatePort {
 
     @Override
     public Book registerBook(BookId bookId, String title, Set<Author> authors, Set<MimeType> formats, Set<String> keywords) {
-        logger.info("registerBook({}, {}, {}, {})", bookId, title, authors, formats);
+        log.info("registerBook({}, {}, {}, {})", bookId, title, authors, formats);
 
         if (bookId == null)
             ServiceError.BOOK_ID_REQUIRED.raise();

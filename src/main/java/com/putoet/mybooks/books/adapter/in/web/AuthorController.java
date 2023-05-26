@@ -7,6 +7,8 @@ import com.putoet.mybooks.books.domain.AuthorId;
 import com.putoet.mybooks.books.domain.validation.ObjectIDConstraint;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -20,24 +22,19 @@ import java.util.Set;
 
 @Validated
 @RestController
+@RequiredArgsConstructor
+@Slf4j
 public class AuthorController {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     private final BookManagementInquiryPort bookManagementInquiryPort;
     private final BookManagementUpdatePort bookManagementUpdatePort;
-
-    public AuthorController(BookManagementInquiryPort bookManagementInquiryPort, BookManagementUpdatePort bookManagementUpdatePort) {
-        this.bookManagementInquiryPort = bookManagementInquiryPort;
-        this.bookManagementUpdatePort = bookManagementUpdatePort;
-    }
 
     @GetMapping(path = "/authors", produces = MediaType.APPLICATION_JSON_VALUE)
     public Set<AuthorResponse> getAuthors() {
         try {
             return AuthorResponse.from(bookManagementInquiryPort.authors());
         } catch (RuntimeException exc) {
-            logger.warn(exc.getMessage());
-            logger.debug(exc.getMessage(), exc);
+            log.warn(exc.getMessage());
+            log.debug(exc.getMessage(), exc);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
         }
     }
@@ -49,8 +46,8 @@ public class AuthorController {
             if (author.isPresent())
                     return AuthorResponse.from(author.get());
         } catch (RuntimeException exc) {
-            logger.warn(exc.getMessage());
-            logger.debug(exc.getMessage(), exc);
+            log.warn(exc.getMessage());
+            log.debug(exc.getMessage(), exc);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
         }
 
@@ -62,8 +59,8 @@ public class AuthorController {
         try {
             return AuthorResponse.from(bookManagementInquiryPort.authorsByName(name));
         } catch (RuntimeException exc) {
-            logger.warn(exc.getMessage());
-            logger.debug(exc.getMessage(), exc);
+            log.warn(exc.getMessage());
+            log.debug(exc.getMessage(), exc);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
         }
     }
@@ -73,8 +70,8 @@ public class AuthorController {
         try {
             bookManagementUpdatePort.forgetAuthor(AuthorId.withId(id));
         } catch (RuntimeException exc) {
-            logger.warn(exc.getMessage());
-            logger.debug(exc.getMessage(), exc);
+            log.warn(exc.getMessage());
+            log.debug(exc.getMessage(), exc);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
         }
     }
@@ -88,8 +85,8 @@ public class AuthorController {
         try {
             return AuthorResponse.from(bookManagementUpdatePort.registerAuthor(author.name(), author.sitesWithURLs()));
         } catch (RuntimeException exc) {
-            logger.warn(exc.getMessage());
-            logger.debug(exc.getMessage(), exc);
+            log.warn(exc.getMessage());
+            log.debug(exc.getMessage(), exc);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
         }
     }
@@ -102,8 +99,8 @@ public class AuthorController {
         try {
             return AuthorResponse.from(bookManagementUpdatePort.updateAuthor(AuthorId.withId(id), author.versionAsInstant(), author.name()));
         } catch (RuntimeException exc) {
-            logger.warn(exc.getMessage());
-            logger.debug(exc.getMessage(), exc);
+            log.warn(exc.getMessage());
+            log.debug(exc.getMessage(), exc);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
         }
     }
