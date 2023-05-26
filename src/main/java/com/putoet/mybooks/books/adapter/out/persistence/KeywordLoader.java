@@ -13,7 +13,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class KeywordLoader {
+public final class KeywordLoader {
     private static final Logger logger = LoggerFactory.getLogger(KeywordLoader.class);
 
     private static final String KEYWORD = "/keywords";
