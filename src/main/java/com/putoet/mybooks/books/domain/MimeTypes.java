@@ -9,12 +9,14 @@ import java.util.*;
  * Class MimeTypes
  * Container class for available book formats, where book format is represented by a MimeType
  */
-public class MimeTypes {
+public final class MimeTypes {
     public static final MimeType EPUB;
     public static final MimeType PDF;
     public static final MimeType MOBI;
 
     private static final Map<String,MimeType> cache = new HashMap<>();
+
+    private MimeTypes() {}
 
     static {
         EPUB = toMimeType("application/epub+zip");
