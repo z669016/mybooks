@@ -4,6 +4,7 @@ import com.putoet.mybooks.books.domain.Book;
 import com.putoet.mybooks.books.domain.MimeTypes;
 import jakarta.activation.MimeType;
 
+import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
  * @param formats List of String (mime type)
  */
 public record BookResponse(String schema, String id, String title, Set<AuthorResponse> authors, Set<String> keywords, Set<String> formats) {
-    public static Set<BookResponse> from(Set<Book> books) {
+    public static Set<BookResponse> from(Collection<Book> books) {
         return books.stream()
                 .map(BookResponse::from)
                 .collect(Collectors.toSet());

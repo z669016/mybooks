@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 @Service
@@ -74,7 +75,7 @@ public class UserService implements UserManagementPort {
     }
 
     @Override
-    public List<User> users() {
+    public Set<User> users() {
         log.info("users()");
 
         return userPersistencePort.findUsers();

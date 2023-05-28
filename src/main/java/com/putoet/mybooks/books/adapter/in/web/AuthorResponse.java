@@ -8,6 +8,7 @@ import com.putoet.mybooks.books.domain.validation.SiteMapConstraint;
 import com.putoet.mybooks.books.domain.validation.VersionConstraint;
 
 import java.net.URL;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,7 +31,7 @@ public record AuthorResponse(
         @NotNull String name,
         @SiteMapConstraint Map<String, String> sites
 ) {
-    public static Set<AuthorResponse> from(Set<Author> domain) {
+    public static Set<AuthorResponse> from(Collection<Author> domain) {
         return domain.stream().map(AuthorResponse::from).collect(Collectors.toSet());
     }
 

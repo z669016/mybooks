@@ -17,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -160,8 +161,8 @@ class UserControllerTest {
 
     @Test
     void getUsers() {
-        when(userService.users()).thenReturn(List.of(new User(request.id(), request.name(), request.password(), AccessRole.from(request.accessRole()))));
-        final List<UserResponse> users = userController.getUsers();
+        when(userService.users()).thenReturn(Set.of(new User(request.id(), request.name(), request.password(), AccessRole.from(request.accessRole()))));
+        final Set<UserResponse> users = userController.getUsers();
 
         assertAll(
                 () -> verify(userService, times(1)).users(),

@@ -7,13 +7,14 @@ import com.putoet.mybooks.books.domain.security.User;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import static com.putoet.mybooks.books.adapter.out.persistence.SqlUtil.sqlInfo;
 
@@ -32,27 +33,28 @@ public class H2UserRepository implements UserPersistencePort {
     }
 
     @Override
-    public List<User> findUsers() {
+    public Set<User> findUsers() {
         log.info("findUsers()");
 
         final String sql = "select id, name, password, access from users";
         sqlInfo(log, sql);
 
-        return template.query(sql, this::userMapper);
+        return Set.copyOf(template.query(sql, this::userMapper));
     }
 
     @Override
     public User findUserById(String id) {
         log.info("findUserById({})", id);
 
-        final String sql = "select id, name, password, access from users where id = ?";
-        sqlInfo(log, sql, id);
+        try {
+            final String sql = "select id, name, password, access from users where id = ?";
+            sqlInfo(log, sql, id);
 
-        final User user = template.queryForObject(sql, this::userMapper, id);
-        if (user == null)
-            UserError.USER_ID_INVALID.raise(id);
-
-        return user;
+            return template.queryForObject(sql, this::userMapper, id);
+        } catch (EmptyResultDataAccessException exc) {
+            log.warn(exc.getMessage());
+        }
+        return null;
     }
 
     private User userMapper(ResultSet resultSet, int i) throws SQLException {

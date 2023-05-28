@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @RestController
 @Slf4j
@@ -89,7 +89,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(path = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<UserResponse> getUsers() {
+    public Set<UserResponse> getUsers() {
         try {
             return UserResponse.from(userManagementPort.users());
         } catch (RuntimeException exc) {
