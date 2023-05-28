@@ -35,6 +35,7 @@ public class SecurityConfig {
                         .requestMatchers("/user", "/users", "/actuator/**").hasRole("ADMIN")
                         .requestMatchers("/author", "/authors").authenticated()
                         .requestMatchers("/book", "/books").authenticated()
+                        .requestMatchers("/graphql", "/graphiql").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)

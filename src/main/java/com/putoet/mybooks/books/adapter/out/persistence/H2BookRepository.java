@@ -96,8 +96,8 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
             ServiceError.BOOK_TITLE_REQUIRED.raise();
         }
 
-        title = "%" + title + "%";
-        final String sql = "select book_id_type, book_id, title from book where title like ?";
+        title = "%" + title.toLowerCase() + "%";
+        final String sql = "select book_id_type, book_id, title from book where lower(title) like ?";
         sqlInfo(log, sql, title);
 
         return Set.copyOf(template.query(sql, this::bookMapper, title));

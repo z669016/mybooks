@@ -1,0 +1,38 @@
+type Query {
+    users : [User]!
+    userById(id: ID!): User
+    authors : [Author]!
+    authorById(id: ID!) : Author
+    authorsByName(name: String!) : [Author]!
+    books: [Book]!
+    bookById(schema: String!, id: String!): Book
+    booksByTitle(title: String!): [Book]!
+    booksByAuthorName(name: String!): [Book]!
+}
+
+type User {
+    id: ID!
+    name: String!
+    accessRole: String!
+}
+
+type Author {
+    id: ID!
+    version: String!
+    name: String!
+    sites: [KeyValuePair]
+}
+
+type KeyValuePair {
+    key: String!
+    value: String!
+}
+
+type Book {
+    schema: String!
+    id: String!
+    title: String!
+    authors: [Author]!
+    keywords: [String]!
+    formats: [String]!
+}

@@ -16,6 +16,10 @@ spring:
         generate_statistics: 'true'
         format_sql: 'true'
     show-sql: 'true'
+  graphql:
+    graphiql:
+      enabled: true
+      path: /graphiql
 
 logging:
   level:
