@@ -288,6 +288,20 @@ files and components.
 Possible nest step, is tp replace the use of the RestTemplate with something like 
 [RestAssured](https://rest-assured.io/), that might be my next refactoring :-D 
 
+## GraphQL
+Implementation of a GraphQL interface was actually quite straight forward. The ```schema.graphqls``` has been added
+to ```main/resources/graphql```, and the implementing classes have been put in a separate package
+called ```com.putoet.mybooks.books.adapter.in.graphql```.
+
+In order to return a map (with sites) for an author, a KeyValuePair record was created, and specific response
+types have been added (```GraphqlAuthorResponse``` and ```GraphqlBookResponse```). 
+
+For proper response on not-found situations (e.g. book with id not found), the ```NotFoundException``` was
+introduced and linked into the framework using the ```NotFoundExceptionResolver```.
+
+In order to test using Graphiql (required additional setting in the ```application.yml```), security
+on the GraphQL interface was disabled in the security configuration.
+
 ## Class models
 
 domain:
