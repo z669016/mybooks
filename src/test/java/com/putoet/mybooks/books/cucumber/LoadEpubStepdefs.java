@@ -1,6 +1,5 @@
 package com.putoet.mybooks.books.cucumber;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.putoet.mybooks.books.adapter.out.persistence.FolderBookRepository;
 import com.putoet.mybooks.books.adapter.out.persistence.H2BookRepository;
 import com.putoet.mybooks.books.adapter.out.persistence.Rezipper;
@@ -17,7 +16,6 @@ import io.cucumber.java.en.When;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.web.client.RestTemplate;
 
 import java.nio.file.Paths;
 import java.util.*;
@@ -34,8 +32,7 @@ public class LoadEpubStepdefs extends MyBooksE2EBase {
     private final JdbcTemplate jdbcTemplate;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public LoadEpubStepdefs(RestTemplate sslRestTemplate, ObjectMapper mapper, JdbcTemplate jdbcTemplate) {
-        super(sslRestTemplate, mapper);
+    public LoadEpubStepdefs(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 

@@ -1,31 +1,28 @@
 package com.putoet.mybooks.books.cucumber;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.putoet.mybooks.books.adapter.in.web.AuthorResponse;
 import com.putoet.mybooks.books.adapter.in.web.NewAuthorRequest;
 import com.putoet.mybooks.books.adapter.in.web.UpdateAuthorRequest;
+import com.putoet.mybooks.books.adapter.in.web.security.JwtRequestFilter;
 import com.putoet.mybooks.books.domain.SiteType;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
-import org.springframework.web.client.RestTemplate;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 
 import java.util.List;
 import java.util.Map;
 
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AuthorFeatureStepDef extends MyBooksE2EBase {
     private static final String TEMP_AUTHOR = "temp_author";
-
-    public AuthorFeatureStepDef(RestTemplate sslRestTemplate, ObjectMapper mapper) {
-        super(sslRestTemplate, mapper);
-    }
 
     @Before
     public void setup() {
@@ -34,57 +31,70 @@ public class AuthorFeatureStepDef extends MyBooksE2EBase {
 
     @When("send a get request for authors")
     public void sendAGetRequestForAuthors() {
-        executeGet("/authors", null);
+        executeGet("/authors");
     }
 
     @And("response contains details on more than {int} authors")
-    public void responseContainsDetailsOnMoreThanAuthors(int minNumberOfAuthorsReturned) throws JsonProcessingException {
-        final List<AuthorResponse> authors = mapper.readValue(context.response().getBody(), new TypeReference<>() {});
+    public void responseContainsDetailsOnMoreThanAuthors(int minNumberOfAuthorsReturned) {
+        final List<AuthorResponse> authors = context.response()
+                .body()
+                .jsonPath()
+                .getList(".", AuthorResponse.class);
         assertTrue(authors.size() > minNumberOfAuthorsReturned);
     }
 
     @When("send a get request for author with id {word}")
     public void sendAGetRequestForAuthorWithId(String uuid) {
-        executeGet("/author/" + uuid, null);
+       executeGet("/author/" + uuid);
     }
 
     @And("author has id {word}")
-    public void authorHasId(String uuid) throws JsonProcessingException {
-        final AuthorResponse author = mapper.readValue(context.response().getBody(), AuthorResponse.class);
-        assertEquals(uuid, author.id());
+    public void authorHasId(String uuid) {
+        context.response()
+                .then()
+                .assertThat()
+                .body("id", equalTo(uuid));
     }
 
     @And("author has name {string}")
-    public void authorHasName(String name) throws JsonProcessingException {
-        final AuthorResponse author = mapper.readValue(context.response().getBody(), AuthorResponse.class);
-        assertEquals(name, author.name());
+    public void authorHasName(String name) {
+        context.response()
+                .then()
+                .assertThat()
+                .body("name", equalTo(name));
     }
 
     @When("sent a post request for a new author with name {string} and sites")
-    public void sentAPostRequestForANewAuthorWithNameAndSites(String name, DataTable table) throws JsonProcessingException {
+    public void sentAPostRequestForANewAuthorWithNameAndSites(String name, DataTable table){
         final Map<String,String> sites = table.asMap();
         final NewAuthorRequest request = new NewAuthorRequest(name, sites);
-        executePost("/author", mapper.writeValueAsString(request), true);
+        executePost("/author", request);
     }
 
     @And("author has sites")
-    public void authorHasSites(DataTable table) throws JsonProcessingException {
+    public void authorHasSites(DataTable table) {
         final Map<String,String> sites = table.asMap();
-        final AuthorResponse author = mapper.readValue(context.response().getBody(), AuthorResponse.class);
+        final AuthorResponse author = context.response().body().as(AuthorResponse.class);
         assertEquals(sites, author.sites());
     }
 
     @Given("a created temp author")
-    public void aCreatedTempAuthor() throws JsonProcessingException {
+    public void aCreatedTempAuthor() {
         final NewAuthorRequest newAuthorRequest = new NewAuthorRequest("name", Map.of(SiteType.HOMEPAGE_NAME, "https://www.google.com"));
-        executePost("/author", mapper.writeValueAsString(newAuthorRequest), true);
-        context.set(TEMP_AUTHOR, mapper.readValue(context.response().getBody(), AuthorResponse.class));
+        final Response response = given()
+                .relaxedHTTPSValidation()
+                .contentType(ContentType.JSON)
+                .header(JwtRequestFilter.AUTHORIZATION_KEY, JwtRequestFilter.AUTHORIZATION_SCHEME + " " + context.token())
+                .body(newAuthorRequest)
+                .when()
+                .post("https://localhost:443/author");
+        context.set(TEMP_AUTHOR, response.body().as(AuthorResponse.class));
     }
 
     @When("sent a put request for temp author with new name {string}")
-    public void sentAPutRequestForTempAuthorWithNewName(String name) throws JsonProcessingException {
+    public void sentAPutRequestForTempAuthorWithNewName(String name) {
         final AuthorResponse tempAuthor = context.get(TEMP_AUTHOR, AuthorResponse.class);
         final UpdateAuthorRequest update = new UpdateAuthorRequest(tempAuthor.version(), name);
-        executePut("/author/" + tempAuthor.id(), mapper.writeValueAsString(update), true);
+        executePut("/author/" + tempAuthor.id(), update);
     }
 }

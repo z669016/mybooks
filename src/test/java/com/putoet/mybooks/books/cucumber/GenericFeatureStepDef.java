@@ -1,22 +1,15 @@
 package com.putoet.mybooks.books.cucumber;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.putoet.mybooks.books.adapter.in.web.ApiError;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
-import org.junit.jupiter.api.Assertions;
-import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GenericFeatureStepDef extends MyBooksE2EBase {
-    public GenericFeatureStepDef(RestTemplate sslRestTemplate, ObjectMapper mapper) {
-        super(sslRestTemplate, mapper);
-    }
 
     @Given("a successful user login")
     public void aSuccessfulUserLogin() throws IOException {
@@ -30,12 +23,14 @@ public class GenericFeatureStepDef extends MyBooksE2EBase {
 
     @Then("the client receives status code of {int}")
     public void theClientReceivesStatusCodeOf(int statusCodeValue) {
-        Assertions.assertEquals(statusCodeValue, context.response().getStatusCode().value());
+        context.response()
+                .then()
+                .statusCode(statusCodeValue);
     }
 
     @And("errors contains {word}")
-    public void errorsContainsName(String field) throws JsonProcessingException {
-        final ApiError apiError = mapper.readValue(context.response().getBody(), ApiError.class);
+    public void errorsContainsName(String field) {
+        final ApiError apiError = context.response().getBody().as(ApiError.class);
         assertTrue(apiError.errors().containsKey(field));
     }
 }

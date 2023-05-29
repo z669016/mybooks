@@ -1,6 +1,6 @@
 package com.putoet.mybooks.books.cucumber;
 
-import org.springframework.http.ResponseEntity;
+import io.restassured.response.Response;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,11 +25,11 @@ public class TestContext {
         return instance;
     }
 
-    public ResponseEntity<String> response() {
-        return (ResponseEntity<String>) testContexts.get().get(RESPONSE);
+    public Response response() {
+        return (Response) testContexts.get().get(RESPONSE);
     }
 
-    public TestContext response(ResponseEntity<String> response) {
+    public TestContext response(Response response) {
         testContexts.get().put(RESPONSE, response);
         return this;
     }

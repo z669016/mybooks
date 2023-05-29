@@ -35,3 +35,9 @@ Feature: User login and creation
     And  errors contains name
     And  errors contains password
     And  errors contains accessRole
+
+  Scenario: Retrieve all users
+    Given a successful admin login
+    When  send a get request for users
+    Then the client receives status code of 200
+    And response contains details on more than 1 user
