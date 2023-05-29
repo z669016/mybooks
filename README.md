@@ -31,7 +31,7 @@ new (at least new to me), most of the time I found myself ending up there for gr
 
 ### Domain model
 The domain model started simple: a BOOK has an identity (an ISBN-number of course), some attributes, a set of KEYWORDS, 
-one or more FORMATS, one or more AUTHORs, and each author uses some websites for additional publicity and blogs.
+one or more FORMATS, one or more AUTHOR, and each author uses some websites for additional publicity and blogs.
 
 Well, trying to retrieve data from EPUB books and mapping it into the domain model, wasn't that straight forward. As
 said, the identity had different formats, it was certainly not always and ISBN-number, and even when a UUID was used 
@@ -301,6 +301,11 @@ introduced and linked into the framework using the ```NotFoundExceptionResolver`
 
 In order to test using Graphiql (required additional setting in the ```application.yml```), security
 on the GraphQL interface was disabled in the security configuration.
+
+## RestAssured
+Replacing the use of the RestTemplate with [rest-assured](https://rest-assured.io/), was pretty easy. It also
+allowed cleanup as the rest assured framework handles https out of th e box. It also knows how to
+translate (map) responses given a class type, so no need to pass an ObjectMapper.
 
 ## Class models
 
