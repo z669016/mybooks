@@ -58,9 +58,9 @@ class UserControllerTest {
 
     @Test
     void login() {
-        final HttpServletResponse response = mock(HttpServletResponse.class);
+        final var response = mock(HttpServletResponse.class);
         when(userDetailService.loadUserByUsername(loginRequest.id())).thenReturn(userDetails);
-        final JwtResponse result = userController.login(loginRequest, response);
+        final var result = userController.login(loginRequest, response);
 
         assertAll(
                 () -> verify(authenticationManager, times(1)).authenticate(any()),
@@ -71,7 +71,7 @@ class UserControllerTest {
 
     @Test
     void loginFailed() {
-        final HttpServletResponse response = mock(HttpServletResponse.class);
+        final var response = mock(HttpServletResponse.class);
         when(userDetailService.loadUserByUsername(loginRequest.id())).thenReturn(null);
         try {
             userController.login(loginRequest, response);
@@ -100,7 +100,7 @@ class UserControllerTest {
     }
 
     private <T extends AuthenticationException> void authenticateError(T exception) {
-        final HttpServletResponse response = mock(HttpServletResponse.class);
+        final var response = mock(HttpServletResponse.class);
         when(authenticationManager.authenticate(any())).thenThrow(exception);
         try {
             userController.login(loginRequest, response);
@@ -118,7 +118,7 @@ class UserControllerTest {
     void postUser() {
         when(userService.registerUser(request.id(), request.name(), request.password(), AccessRole.from(request.accessRole())))
                 .thenReturn(new User(request.id(), request.name(), request.password(), AccessRole.from(request.accessRole())));
-        final UserResponse user = userController.postUser(request);
+        final var user = userController.postUser(request);
 
         assertAll(
                 () -> verify(userService, times(1)).registerUser(request.id(), request.name(), request.password(), AccessRole.from(request.accessRole())),
@@ -142,7 +142,7 @@ class UserControllerTest {
     @Test
     void getUsers() {
         when(userService.users()).thenReturn(Set.of(new User(request.id(), request.name(), request.password(), AccessRole.from(request.accessRole()))));
-        final Set<UserResponse> users = userController.getUsers();
+        final var users = userController.getUsers();
 
         assertAll(
                 () -> verify(userService, times(1)).users(),

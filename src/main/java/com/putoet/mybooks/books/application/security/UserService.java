@@ -84,7 +84,7 @@ public class UserService implements UserManagementPort {
     @Bean
     public UserDetailsService userDetailsService(UserPersistencePort userPort) {
         return id -> {
-            final User user = userPort.findUserById(id);
+            final var user = userPort.findUserById(id);
             if (user == null)
                 throw new UsernameNotFoundException(id);
 

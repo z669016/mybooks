@@ -6,8 +6,6 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.When;
 import org.springframework.http.HttpHeaders;
 
-import java.util.List;
-
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,7 +20,7 @@ public class UserFeatureStepDef extends MyBooksE2EBase {
         id = translateParameter(id);
         password = translateParameter(password);
 
-        final UserLoginRequest login = new UserLoginRequest(id, password);
+        final var login = new UserLoginRequest(id, password);
         executePost("/login", login, false);
     }
 
@@ -51,7 +49,7 @@ public class UserFeatureStepDef extends MyBooksE2EBase {
         assertNotNull(header);
         assertTrue(header.startsWith(JwtRequestFilter.AUTHORIZATION_COOKIE + "="));
 
-        final String[] cookie = header.split("; ");
+        final var cookie = header.split("; ");
         assertEquals(5, cookie.length);
         assertEquals(response.access_token(), cookie[0].substring(JwtRequestFilter.AUTHORIZATION_COOKIE.length() + 1));
         assertEquals("Max-Age=3600", cookie[1]);
@@ -67,7 +65,7 @@ public class UserFeatureStepDef extends MyBooksE2EBase {
         password = translateParameter(password);
         role = translateParameter(role);
 
-        final NewUserRequest newUserRequest = new NewUserRequest(id, name, password, role);
+        final var newUserRequest = new NewUserRequest(id, name, password, role);
         executePost("/user", newUserRequest, true);
     }
 
@@ -102,7 +100,7 @@ public class UserFeatureStepDef extends MyBooksE2EBase {
 
     @And("response contains details on more than {int} user")
     public void responseContainsDetailsOnMoreThanUser(int moreThanCountUsers) {
-        final List<UserResponse> users = context.response().body().jsonPath().getList(".", UserResponse.class);
+        final var users = context.response().body().jsonPath().getList(".", UserResponse.class);
         assertTrue(users.size() > moreThanCountUsers);
 
     }

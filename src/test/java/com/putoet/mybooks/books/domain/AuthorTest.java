@@ -47,7 +47,7 @@ public class AuthorTest {
 
     @Test
     void constructor() {
-        final Author author = new Author(id, name);
+        final var author = new Author(id, name);
 
         assertAll(
                 // check error conditions

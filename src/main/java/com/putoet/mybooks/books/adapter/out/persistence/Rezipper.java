@@ -35,7 +35,7 @@ public final class Rezipper {
         repackageCount.incrementAndGet();
         repackagedFiles.add(filename);
 
-        final Optional<String> tmp = Rezipper.unzipEpubFile(filename);
+        final var tmp = Rezipper.unzipEpubFile(filename);
         if (tmp.isPresent()) {
             return Rezipper.zipFolder(tmp.get());
         }
@@ -83,32 +83,32 @@ public final class Rezipper {
         if (filename == null || !filename.endsWith(".epub"))
             throw new IllegalArgumentException("Invalid filename '" + filename + "'");
 
-        final File sourceFile = new File(filename);
+        final var sourceFile = new File(filename);
         if (!sourceFile.isFile())
             throw new IllegalArgumentException("'" + filename + "' is not a file");
 
-        final Optional<File> tmp = tempFolder();
+        final var tmp = tempFolder();
         if (tmp.isEmpty())
             throw new IllegalStateException("Could not create tmp directory to unzip epub file " + filename);
 
-        final byte[] buffer = new byte[BUFFER_SIZE];
-        try (ZipInputStream zis = new ZipInputStream(new FileInputStream(filename))) {
-            ZipEntry zipEntry = zis.getNextEntry();
+        final var buffer = new byte[BUFFER_SIZE];
+        try (var zis = new ZipInputStream(new FileInputStream(filename))) {
+            var zipEntry = zis.getNextEntry();
             while (zipEntry != null) {
-                final File newFile = newFile(tmp.get(), zipEntry);
+                final var newFile = newFile(tmp.get(), zipEntry);
                 if (zipEntry.isDirectory()) {
                     if (!newFile.isDirectory() && !newFile.mkdirs()) {
                         throw new IOException("Failed to create directory " + newFile);
                     }
                 } else {
                     // fix for Windows-created archives
-                    final File parent = newFile.getParentFile();
+                    final var parent = newFile.getParentFile();
                     if (!parent.isDirectory() && !parent.mkdirs()) {
                         throw new IOException("Failed to create directory " + parent);
                     }
 
                     // write file content
-                    final FileOutputStream fos = new FileOutputStream(newFile);
+                    final var fos = new FileOutputStream(newFile);
                     int len;
                     while ((len = zis.read(buffer)) > 0) {
                         fos.write(buffer, 0, len);
@@ -127,9 +127,9 @@ public final class Rezipper {
     }
 
     private static File newFile(File destinationDir, ZipEntry zipEntry) throws IOException {
-        final File destFile = new File(destinationDir, zipEntry.getName());
-        final String destDirPath = destinationDir.getCanonicalPath();
-        final String destFilePath = destFile.getCanonicalPath();
+        final var destFile = new File(destinationDir, zipEntry.getName());
+        final var destDirPath = destinationDir.getCanonicalPath();
+        final var destFilePath = destFile.getCanonicalPath();
 
         if (!destFilePath.startsWith(destDirPath + File.separator)) {
             throw new IOException("Entry is outside of the target dir: " + zipEntry.getName());
@@ -139,13 +139,13 @@ public final class Rezipper {
     }
 
     private static Optional<String> zipFolder(String folder) {
-        final File folderToZip = new File(folder);
+        final var folderToZip = new File(folder);
         if (!folderToZip.isDirectory())
             throw new IllegalArgumentException(folder + " is not a folder!");
 
-        final Optional<File> tmp = tempFile();
+        final var tmp = tempFile();
         if (tmp.isPresent()) {
-            try (ZipOutputStream zipOut = new ZipOutputStream(new FileOutputStream(tmp.get().getAbsolutePath()))) {
+            try (var zipOut = new ZipOutputStream(new FileOutputStream(tmp.get().getAbsolutePath()))) {
                 zipFolder(folderToZip, zipOut);
                 return Optional.of(tmp.get().getAbsolutePath());
             } catch (IOException e) {
@@ -157,7 +157,7 @@ public final class Rezipper {
     }
 
     private static void zipFolder(File folderToZip, ZipOutputStream zipOut) throws IOException {
-        final File[] children = folderToZip.listFiles();
+        final var children = folderToZip.listFiles();
         if (children != null) {
             for (File childFile : children) {
                 zipFile(childFile, childFile.getName(), zipOut);
@@ -179,20 +179,20 @@ public final class Rezipper {
                 zipOut.closeEntry();
             }
 
-            final File[] children = fileToZip.listFiles();
+            final var children = fileToZip.listFiles();
             if (children != null) {
-                for (File childFile : children) {
+                for (var childFile : children) {
                     zipFile(childFile, fileName + "/" + childFile.getName(), zipOut);
                 }
             }
             return;
         }
 
-        try (FileInputStream fis = new FileInputStream(fileToZip)) {
-            final ZipEntry zipEntry = new ZipEntry(fileName);
+        try (var fis = new FileInputStream(fileToZip)) {
+            final var zipEntry = new ZipEntry(fileName);
             zipOut.putNextEntry(zipEntry);
 
-            final byte[] bytes = new byte[BUFFER_SIZE];
+            final var bytes = new byte[BUFFER_SIZE];
             int length;
             while ((length = fis.read(bytes)) >= 0) {
                 zipOut.write(bytes, 0, length);

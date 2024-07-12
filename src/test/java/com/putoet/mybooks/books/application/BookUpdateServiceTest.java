@@ -4,7 +4,6 @@ import com.putoet.mybooks.books.application.port.in.BookManagementUpdatePort;
 import com.putoet.mybooks.books.application.port.in.ServiceException;
 import com.putoet.mybooks.books.application.port.out.persistence.BookPersistenceUpdatePort;
 import com.putoet.mybooks.books.domain.*;
-import jakarta.activation.MimeType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -30,14 +29,13 @@ class BookUpdateServiceTest {
 
     @Test
     void registerAuthor() throws MalformedURLException {
-
-        final String name = "Name, My";
-        final URL url = new URL("https://nu.nl");
-        final AuthorId id = AuthorId.withoutId();
-        final Author author = new Author(id, Instant.now(), name, Map.of(SiteType.LINKEDIN, url));
+        final var name = "Name, My";
+        final var url = new URL("https://nu.nl");
+        final var id = AuthorId.withoutId();
+        final var author = new Author(id, Instant.now(), name, Map.of(SiteType.LINKEDIN, url));
         when(bookPersistenceUpdatePort.registerAuthor(name, author.sites())).thenReturn(author);
 
-        final Author created = bookManagementUpdatePort.registerAuthor(name, Map.of(SiteType.LINKEDIN, url));
+        final var created = bookManagementUpdatePort.registerAuthor(name, Map.of(SiteType.LINKEDIN, url));
         assertAll(
                 () -> assertEquals(author, created),
 
@@ -62,20 +60,20 @@ class BookUpdateServiceTest {
     void forgetAuthor() {
         assertThrows(ServiceException.class, () -> bookManagementUpdatePort.forgetAuthor(null));
 
-        final AuthorId id = AuthorId.withoutId();
+        final var id = AuthorId.withoutId();
         bookManagementUpdatePort.forgetAuthor(id);
         verify(bookPersistenceUpdatePort).forgetAuthor(id);
     }
 
     @Test
     void updateAuthor() {
-        final AuthorId id = AuthorId.withoutId();
-        final String name = "New, Name";
-        final Instant version = Instant.now();
-        final Author author = new Author(id, version, name, Map.of());
+        final var id = AuthorId.withoutId();
+        final var name = "New, Name";
+        final var version = Instant.now();
+        final var author = new Author(id, version, name, Map.of());
         when(bookPersistenceUpdatePort.updateAuthor(id, version, name)).thenReturn(author);
 
-        final Author updated = bookManagementUpdatePort.updateAuthor(id, version, name);
+        final var updated = bookManagementUpdatePort.updateAuthor(id, version, name);
         assertAll(
                 () -> verify(bookPersistenceUpdatePort).updateAuthor(id, version, name),
                 () -> assertEquals(author, updated),
@@ -91,13 +89,13 @@ class BookUpdateServiceTest {
 
     @Test
     void setAuthorSite() throws MalformedURLException {
-        final AuthorId id = AuthorId.withoutId();
-        final Author author = new Author(id, Instant.now(), "New, name", Map.of());
-        final URL url = new URL("https://nu.nl");
+        final var id = AuthorId.withoutId();
+        final var author = new Author(id, Instant.now(), "New, name", Map.of());
+        final var url = new URL("https://nu.nl");
         when(bookPersistenceUpdatePort.findAuthorById(id)).thenReturn(author);
         when(bookPersistenceUpdatePort.setAuthorSite(id, SiteType.LINKEDIN, url)).thenReturn(author);
 
-        final Author updated = bookManagementUpdatePort.setAuthorSite(id, SiteType.LINKEDIN, url);
+        final var updated = bookManagementUpdatePort.setAuthorSite(id, SiteType.LINKEDIN, url);
         assertAll(
                 () -> verify(bookPersistenceUpdatePort).findAuthorById(id),
                 () -> verify(bookPersistenceUpdatePort).setAuthorSite(id, SiteType.LINKEDIN, url),
@@ -112,15 +110,15 @@ class BookUpdateServiceTest {
 
     @Test
     void registerBook() {
-        final Author author = new Author(AuthorId.withoutId(), Instant.now(), "New, name", Map.of());
-        final BookId bookId = new BookId(BookId.BookIdScheme.ISBN, "978-1839211966");
-        final String title = "Get Your Hands Dirty on Clean Architecture";
-        final Set<Author> authors = Set.of(author);
-        final Set<MimeType> formats = Set.of(MimeTypes.EPUB);
-        final Book book = new Book(bookId, title, authors, Set.of(), formats);
+        final var author = new Author(AuthorId.withoutId(), Instant.now(), "New, name", Map.of());
+        final var bookId = new BookId(BookId.BookIdScheme.ISBN, "978-1839211966");
+        final var title = "Get Your Hands Dirty on Clean Architecture";
+        final var authors = Set.of(author);
+        final var formats = Set.of(MimeTypes.EPUB);
+        final var book = new Book(bookId, title, authors, Set.of(), formats);
 
         when(bookPersistenceUpdatePort.registerBook(bookId, title, authors, formats, Set.of())).thenReturn(book);
-        final Book created = bookManagementUpdatePort.registerBook(bookId, title, authors, formats, Set.of());
+        final var created = bookManagementUpdatePort.registerBook(bookId, title, authors, formats, Set.of());
 
         assertAll(
                 () -> verify(bookPersistenceUpdatePort).registerBook(bookId, title, authors, formats, Set.of()),

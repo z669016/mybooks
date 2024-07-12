@@ -1,8 +1,10 @@
 package com.putoet.mybooks.books.adapter.out.persistence;
 
 import com.putoet.mybooks.books.application.port.in.ServiceException;
-import com.putoet.mybooks.books.domain.*;
-import jakarta.activation.MimeType;
+import com.putoet.mybooks.books.domain.AuthorId;
+import com.putoet.mybooks.books.domain.BookId;
+import com.putoet.mybooks.books.domain.MimeTypes;
+import com.putoet.mybooks.books.domain.SiteType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +45,7 @@ class H2BookRepositoryTest {
 
     @Test
     void findAuthorByName() {
-        final Set<Author> authors = repository.findAuthorsByName("tom");
+        final var authors = repository.findAuthorsByName("tom");
 
         assertEquals(1, authors.size());
         System.out.println(authors.stream().findFirst().orElseThrow());
@@ -51,7 +53,7 @@ class H2BookRepositoryTest {
 
     @Test
     void findAuthors() {
-        final Set<Author> authors = repository.findAuthors();
+        final var authors = repository.findAuthors();
 
         assertEquals(6, authors.size());
         authors.forEach(System.out::println);
@@ -61,14 +63,14 @@ class H2BookRepositoryTest {
     void findAuthorById() {
         assertNull(repository.findAuthorById(AuthorId.withoutId()));
 
-        final AuthorId authorId = repository.findAuthors().stream().findFirst().orElseThrow().id();
+        final var authorId = repository.findAuthors().stream().findFirst().orElseThrow().id();
         assertEquals(authorId, repository.findAuthorById(authorId).id());
     }
 
     @Test
     void registerAuthor() {
         final int count = repository.findAuthors().size();
-        final Author author = repository.registerAuthor(NAME, Map.of(TYPE, SITE_URL));
+        final var author = repository.registerAuthor(NAME, Map.of(TYPE, SITE_URL));
 
         assertAll(
                 () -> assertNotNull(author),
@@ -83,11 +85,11 @@ class H2BookRepositoryTest {
 
     @Test
     void updateAuthor() {
-        final String oldName = "Old, Name";
-        final String newName = "New, Name";
+        final var oldName = "Old, Name";
+        final var newName = "New, Name";
 
-        final Author original = repository.registerAuthor(oldName, Map.of(TYPE, SITE_URL));
-        final Author author = repository.updateAuthor(original.id(), original.version(), newName);
+        final var original = repository.registerAuthor(oldName, Map.of(TYPE, SITE_URL));
+        final var author = repository.updateAuthor(original.id(), original.version(), newName);
 
         assertAll(
                 () -> assertNotEquals(original.version(), author.version()),
@@ -98,14 +100,14 @@ class H2BookRepositoryTest {
 
     @Test
     void updateAuthorInvalidVersion() {
-        Author author = repository.registerAuthor("oldName", Map.of(TYPE, SITE_URL));
+        final var author = repository.registerAuthor("oldName", Map.of(TYPE, SITE_URL));
         assertThrows(ServiceException.class, () -> repository.updateAuthor(author.id(), Instant.now(), "newName"));
     }
 
     @Test
     void forgetAuthor() {
-        final String oldName = "Old, Name";
-        final Author author = repository.registerAuthor(oldName, Map.of(TYPE, SITE_URL));
+        final var oldName = "Old, Name";
+        final var author = repository.registerAuthor(oldName, Map.of(TYPE, SITE_URL));
         repository.forgetAuthor(author.id());
 
         assertNull(repository.findAuthorById(author.id()));
@@ -113,7 +115,7 @@ class H2BookRepositoryTest {
 
     @Test
     void setAuthorSite() {
-        Author author = repository.registerAuthor("Old,Name", Map.of());
+        var author = repository.registerAuthor("Old,Name", Map.of());
 
         assertEquals(0, author.sites().size());
         author = repository.setAuthorSite(author.id(), TYPE, SITE_URL);
@@ -124,14 +126,14 @@ class H2BookRepositoryTest {
 
     @Test
     void registerBook() {
-        final Author author = repository.findAuthorsByName("tom").stream().findFirst().orElseThrow();
-        final BookId bookId = new BookId(BookId.BookIdScheme.ISBN, "978-1839211966");
-        final String title = "Get Your Hands Dirty on Clean Architecture";
-        final Set<Author> authors = Set.of(author);
-        final Set<MimeType> formats = Set.of(MimeTypes.EPUB);
-        final Set<String> keywords = Set.of("A", "B");
+        final var author = repository.findAuthorsByName("tom").stream().findFirst().orElseThrow();
+        final var bookId = new BookId(BookId.BookIdScheme.ISBN, "978-1839211966");
+        final var title = "Get Your Hands Dirty on Clean Architecture";
+        final var authors = Set.of(author);
+        final var formats = Set.of(MimeTypes.EPUB);
+        final var keywords = Set.of("A", "B");
 
-        final Book book = repository.registerBook(bookId, title, authors, formats, keywords);
+        final var book = repository.registerBook(bookId, title, authors, formats, keywords);
         assertAll(
                 () -> assertNotNull(book),
                 () -> assertEquals(bookId, book.id()),

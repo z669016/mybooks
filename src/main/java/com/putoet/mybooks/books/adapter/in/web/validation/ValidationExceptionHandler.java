@@ -34,7 +34,7 @@ public class ValidationExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ApiError handleConstraintViolation(ServletRequest request, MethodArgumentNotValidException exc) {
-        final Map<String,String> errors = exc.getBindingResult().getAllErrors().stream()
+        final var errors = exc.getBindingResult().getAllErrors().stream()
             .map(error -> error instanceof FieldError ?
                     Pair.of(((FieldError) error).getField(), error.getDefaultMessage())
                     : Pair.of("parameters", error.getDefaultMessage())

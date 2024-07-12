@@ -30,7 +30,7 @@ public record Book(BookId id, String title, Set<Author> authors, Set<String> key
         if (formats.contains(format))
             throw new IllegalArgumentException("Book " + id + " already contains format " + format);
 
-        final Set<MimeType> formats = new HashSet<>(this.formats);
+        final var formats = new HashSet<>(this.formats);
         formats.add(format);
 
         return new Book(id, title, authors, keywords, Collections.unmodifiableSet(formats));
@@ -46,7 +46,7 @@ public record Book(BookId id, String title, Set<Author> authors, Set<String> key
         if (keywords.contains(keyword))
             throw new IllegalArgumentException("Book " + id + " keywords already contains '" + keyword + "'");
 
-        final Set<String> keywords = new HashSet<>(this.keywords);
+        final var keywords = new HashSet<>(this.keywords);
         keywords.add(keyword);
         return new Book(id, title, authors, Collections.unmodifiableSet(keywords), formats);
     }
@@ -57,7 +57,7 @@ public record Book(BookId id, String title, Set<Author> authors, Set<String> key
         if (authors.contains(author))
             throw new IllegalArgumentException("Book author list already contains '" + author + "'");
 
-        final Set<Author> authors = new HashSet<>(this.authors);
+        final var authors = new HashSet<>(this.authors);
         authors.add(author);
         return new Book(id, title, Collections.unmodifiableSet(authors), keywords, formats);
     }

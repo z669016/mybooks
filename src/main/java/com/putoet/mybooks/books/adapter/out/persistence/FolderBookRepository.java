@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toMap;
 
@@ -23,8 +22,8 @@ import static java.util.stream.Collectors.toMap;
  * class FolderRepository
  * <p>
  * Repository based on the file system. Loads recursively the data from EPUB files in the root folder provided at
- *  * construction, and extracts Book and Author data from the files. Data cannot be written to this repository as it
- *  * extends BookInquiryRepository (which only provides read operations).
+ * * construction, and extracts Book and Author data from the files. Data cannot be written to this repository as it
+ * * extends BookInquiryRepository (which only provides read operations).
  * </p>
  * <p>
  * On startup the constructor recursively loads all books from root folder and its sub folders, and creates a hash map
@@ -43,7 +42,7 @@ public class FolderBookRepository implements BookPersistenceQueryPort {
         log.info("FolderRepository({})", folder);
 
         Objects.requireNonNull(folder, "Book folder must be provided");
-        final Set<String> files = listEpubFiles(folder);
+        final var files = listEpubFiles(folder);
 
         this.folder = folder;
         this.books = booksForFiles(files);
@@ -51,7 +50,7 @@ public class FolderBookRepository implements BookPersistenceQueryPort {
     }
 
     public static Set<String> listEpubFiles(Path folder) {
-        try (Stream<Path> stream = Files.walk(folder)) {
+        try (var stream = Files.walk(folder)) {
             return stream
                     .parallel()
                     .filter(file -> !Files.isDirectory(file))
@@ -76,7 +75,7 @@ public class FolderBookRepository implements BookPersistenceQueryPort {
         if (hashMap1 == hashMap2)
             return hashMap1;
 
-        hashMap2.values().forEach(book-> addBookWithoutDuplicateIds(hashMap1,book));
+        hashMap2.values().forEach(book -> addBookWithoutDuplicateIds(hashMap1, book));
 
         return hashMap1;
     }

@@ -18,8 +18,8 @@ class AuthorResponseTest {
 
     @Test
     void from() {
-        final AuthorResponse response = AuthorResponse.from(author);
-        final Set<AuthorResponse> responses = AuthorResponse.from(Set.of(author));
+        final var response = AuthorResponse.from(author);
+        final var responses = AuthorResponse.from(Set.of(author));
 
         assertAll(
                 () -> assertEquals(author.id().uuid().toString(), response.id()),
@@ -34,12 +34,12 @@ class AuthorResponseTest {
 
     @Test
     void toDomain() throws MalformedURLException {
-        final Map<String, String> sites = Map.of(
+        final var sites = Map.of(
                 "LinkedIn", "https://au.linkedin.com/in/thombergs",
                 "GitHub", "https://github.com/thombergs"
         );
 
-        final Map<SiteType, URL> domain = Map.of(
+        final var domain = Map.of(
                 new SiteType("LinkedIn"), new URL("https://au.linkedin.com/in/thombergs"),
                 new SiteType("GitHub"), new URL("https://github.com/thombergs")
         );

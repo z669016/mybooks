@@ -14,7 +14,9 @@ public record GraphqlBookResponse(String schema, String id, String title, Collec
                 book.title(),
                 GraphqlAuthorResponse.from(book.authors()),
                 book.keywords(),
-                book.formats().stream().map(MimeType::toString).collect(Collectors.toSet())
+                book.formats().stream()
+                        .map(MimeType::toString)
+                        .collect(Collectors.toSet())
         );
     }
 

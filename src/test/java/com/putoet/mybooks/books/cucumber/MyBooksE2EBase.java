@@ -21,21 +21,21 @@ public class MyBooksE2EBase {
     protected final TestContext context = TestContext.getInstance();
 
     public void userLogin() {
-        final UserLoginRequest login = new UserLoginRequest("putoet@outlook.com", "2password!");
+        final var login = new UserLoginRequest("putoet@outlook.com", "2password!");
         executePost("/login", login, false);
         context.response().then().statusCode(HttpStatus.OK.value());
 
-        final JwtResponse jwtResponse = context.response().body().as(JwtResponse.class);
+        final var jwtResponse = context.response().body().as(JwtResponse.class);
         assertNotNull(jwtResponse.access_token());
         context.token(jwtResponse.access_token());
     }
 
     public void adminLogin() {
-        final UserLoginRequest login = new UserLoginRequest("z669016@gmail.com", "1password!");
+        final var login = new UserLoginRequest("z669016@gmail.com", "1password!");
         executePost("/login", login, false);
         context.response().then().statusCode(HttpStatus.OK.value());
 
-        final JwtResponse jwtResponse = context.response().body().as(JwtResponse.class);
+        final var jwtResponse = context.response().body().as(JwtResponse.class);
         assertNotNull(jwtResponse.access_token());
         context.token(jwtResponse.access_token());
     }

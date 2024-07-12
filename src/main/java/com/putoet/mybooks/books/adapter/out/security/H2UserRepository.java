@@ -58,10 +58,10 @@ public class H2UserRepository implements UserPersistencePort {
     }
 
     private User userMapper(ResultSet resultSet, int i) throws SQLException {
-        final String id = resultSet.getString("id");
-        final String name = resultSet.getString("name");
-        final String password = resultSet.getString("password");
-        final AccessRole accessRole = AccessRole.from(resultSet.getString("access"));
+        final var id = resultSet.getString("id");
+        final var name = resultSet.getString("name");
+        final var password = resultSet.getString("password");
+        final var accessRole = AccessRole.from(resultSet.getString("access"));
         return new User(id, name, password, accessRole);
     }
 

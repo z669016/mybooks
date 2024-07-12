@@ -2,7 +2,6 @@ package com.putoet.mybooks.books.adapter.in.web;
 
 import com.putoet.mybooks.books.application.port.in.BookManagementInquiryPort;
 import com.putoet.mybooks.books.application.port.in.BookManagementUpdatePort;
-import com.putoet.mybooks.books.domain.Author;
 import com.putoet.mybooks.books.domain.AuthorId;
 import com.putoet.mybooks.books.domain.validation.ObjectIDConstraint;
 import jakarta.validation.Valid;
@@ -15,7 +14,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Optional;
 import java.util.Set;
 
 @Validated
@@ -38,9 +36,9 @@ public class AuthorController {
     @GetMapping(path = "/author/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public AuthorResponse getAuthorById(@PathVariable @ObjectIDConstraint String id) {
         try {
-            final Optional<Author> author = bookManagementInquiryPort.authorById(AuthorId.withId(id));
+            final var author = bookManagementInquiryPort.authorById(AuthorId.withId(id));
             if (author.isPresent())
-                    return AuthorResponse.from(author.get());
+                return AuthorResponse.from(author.get());
         } catch (RuntimeException exc) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
         }
@@ -58,7 +56,7 @@ public class AuthorController {
     }
 
     @DeleteMapping(path = "/author/{id}")
-    public void deleteAuthorById(@PathVariable  @ObjectIDConstraint String id) {
+    public void deleteAuthorById(@PathVariable @ObjectIDConstraint String id) {
         try {
             bookManagementUpdatePort.forgetAuthor(AuthorId.withId(id));
         } catch (RuntimeException exc) {

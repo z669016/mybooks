@@ -1,14 +1,13 @@
 package com.putoet.mybooks.books.adapter.in.web;
 
 import com.putoet.mybooks.books.domain.*;
-import jakarta.activation.MimeType;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class BookResponseTest {
     private final Author author = new Author(AuthorId.withoutId(), Instant.now(), "Schrijver, Jaap de", Map.of());
@@ -22,13 +21,13 @@ class BookResponseTest {
 
     @Test
     void toDomain() {
-        final Set<MimeType> list = Set.of(MimeTypes.PDF, MimeTypes.EPUB);
+        final var list = Set.of(MimeTypes.PDF, MimeTypes.EPUB);
         assertEquals(list, BookResponse.toDomain(Set.of(MimeTypes.PDF.toString(), MimeTypes.EPUB.toString())));
     }
 
     @Test
     void fromBook() {
-        final BookResponse response = BookResponse.from(book);
+        final var response = BookResponse.from(book);
         assertEquals(book.id().schema().name(), response.schema());
         assertEquals(book.id().id(), response.id());
         assertEquals(book.title(), response.title());
@@ -36,7 +35,7 @@ class BookResponseTest {
         assertEquals(book.keywords(), response.keywords());
         assertEquals(formats, response.formats());
 
-        final Set<BookResponse> responses = BookResponse.from(Set.of(book));
+        final var responses = BookResponse.from(Set.of(book));
         assertEquals(1, responses.size());
         assertEquals(response, responses.stream().findFirst().orElseThrow());
     }

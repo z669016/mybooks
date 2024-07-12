@@ -40,7 +40,7 @@ class BookControllerTest {
 
     @Test
     void getBooks() {
-        final Set<BookResponse> books = bookController.getBooks();
+        final var books = bookController.getBooks();
         assertAll(
                 () -> assertEquals(0, books.size()),
                 () -> verify(bookManagementInquiryPort, times(1)).books()
@@ -129,8 +129,8 @@ class BookControllerTest {
 
     @Test
     void postBook() {
-        final BookRequestAuthor firstAuthor = new BookRequestAuthor(author.id().uuid().toString(), null, null);
-        final BookRequestAuthor secondAuthor = new BookRequestAuthor(null, "Author, Second", Map.of());
+        final var firstAuthor = new BookRequestAuthor(author.id().uuid().toString(), null, null);
+        final var secondAuthor = new BookRequestAuthor(null, "Author, Second", Map.of());
 
         final NewBookRequest newBookRequest = new NewBookRequest(
                 book.id().schema().name(),
@@ -141,7 +141,7 @@ class BookControllerTest {
                 Set.of(MimeTypes.EPUB.toString())
         );
 
-        final Author createdAuthor = new Author(AuthorId.withoutId(), secondAuthor.name());
+        final var createdAuthor = new Author(AuthorId.withoutId(), secondAuthor.name());
 
         when(bookManagementInquiryPort.authorById(author.id())).thenReturn(Optional.of(author));
         when(bookManagementUpdatePort.registerAuthor(secondAuthor.name(), Map.of())).thenReturn(createdAuthor);
@@ -154,7 +154,7 @@ class BookControllerTest {
                 eq(book.keywords())
         )).thenReturn(book);
 
-        final BookResponse createdBook = bookController.postBook(newBookRequest);
+        final var createdBook = bookController.postBook(newBookRequest);
         assertAll(
                 () -> assertNotNull(createdBook),
                 () -> verify(bookManagementInquiryPort, times(1)).authorById(author.id()),

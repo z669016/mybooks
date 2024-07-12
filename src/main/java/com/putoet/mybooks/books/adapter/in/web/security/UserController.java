@@ -2,7 +2,6 @@ package com.putoet.mybooks.books.adapter.in.web.security;
 
 import com.putoet.mybooks.books.application.port.in.security.UserManagementPort;
 import com.putoet.mybooks.books.domain.security.AccessRole;
-import com.putoet.mybooks.books.domain.security.User;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -13,13 +12,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.*;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
-import java.util.Optional;
 import java.util.Set;
 
 @RestController
@@ -34,14 +31,14 @@ public class UserController {
     @PostMapping(path = "/login",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
-        )
+    )
     public JwtResponse login(@RequestBody @Valid UserLoginRequest request, HttpServletResponse response) {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.id(), request.password(), new ArrayList<>())
             );
 
-            final UserDetails userDetails = userDetailsService.loadUserByUsername(request.id());
+            final var userDetails = userDetailsService.loadUserByUsername(request.id());
             if (userDetails != null) {
                 final String jwt = jwtTokenUtils.generateToken(userDetails);
                 response.addCookie(jwtCookie(jwt));
@@ -64,7 +61,7 @@ public class UserController {
     }
 
     private static Cookie jwtCookie(String jwt) {
-        final Cookie cookie = new Cookie(JwtRequestFilter.AUTHORIZATION_COOKIE, jwt);
+        final var cookie = new Cookie(JwtRequestFilter.AUTHORIZATION_COOKIE, jwt);
         cookie.setMaxAge(JwtTokenUtils.EXPIRES_IN); // expires in 7 days
         cookie.setHttpOnly(true);
         cookie.setPath("/"); // Global
@@ -101,7 +98,7 @@ public class UserController {
     @GetMapping(path = "/user/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public UserResponse getUserById(@PathVariable(name = "id") @Email String id) {
         try {
-            final Optional<User> user = userManagementPort.userById(id);
+            final var user = userManagementPort.userById(id);
             if (user.isPresent())
                 return UserResponse.from(user.get());
         } catch (RuntimeException exc) {

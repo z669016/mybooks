@@ -128,11 +128,11 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
     }
 
     private Book bookMapper(ResultSet row, int rowNum) throws SQLException {
-        final String book_id_type = row.getString("book_id_type");
-        final String book_id = row.getString("book_id");
-        final Set<Author> authors = findAuthorsForBook(book_id_type, book_id);
-        final Set<MimeType> formats = findFormatsForBook(book_id_type, book_id);
-        final Set<String> keywords = findKeywordsForBook(book_id_type, book_id);
+        final var book_id_type = row.getString("book_id_type");
+        final var book_id = row.getString("book_id");
+        final var authors = findAuthorsForBook(book_id_type, book_id);
+        final var formats = findFormatsForBook(book_id_type, book_id);
+        final var keywords = findKeywordsForBook(book_id_type, book_id);
 
         return new Book(new BookId(BookId.BookIdScheme.valueOf(book_id_type), book_id)
                 , row.getString("title")
@@ -183,7 +183,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
         final String sql = "select name, url from site where author_id = ?";
         sqlInfo(log, sql, authorId);
 
-        final List<Site> sites = template.query(sql, this::siteMapper, authorId);
+        final var sites = template.query(sql, this::siteMapper, authorId);
         return new Author(AuthorId.withId(authorId),
                 row.getTimestamp("version").toInstant(),
                 row.getString("name"),
@@ -193,8 +193,8 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
 
     private Site siteMapper(ResultSet row, int rowNum) throws SQLException {
         try {
-            final SiteType type = new SiteType( row.getString("name"));
-            final URL url = new URL(row.getString("url"));
+            final var type = new SiteType( row.getString("name"));
+            final var url = new URL(row.getString("url"));
             return new Site(type, url);
         } catch (MalformedURLException exc) {
             throw new SQLException("Invalid URL for site " + row, exc);
@@ -205,8 +205,8 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
     public Author registerAuthor(String name, Map<SiteType,URL> sites) {
         log.info("registerAuthor({}, {})", name, sites);
 
-        final AuthorId id = AuthorId.withoutId();
-        final Instant version = Instant.now();
+        final var id = AuthorId.withoutId();
+        final var version = Instant.now();
         final String sql = "insert into author (author_id, version, name) values (?, ?, ?)";
         sqlInfo(log, sql, id.uuid(), version, name);
 
@@ -216,7 +216,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
             ServiceError.AUTHOR_NOT_REGISTERED.raise("Author with new id " + id + " and name " + name);
         }
 
-        for (SiteType type : sites.keySet()) {
+        for (var type : sites.keySet()) {
             setAuthorSite(id, type, sites.get(type));
         }
 
@@ -227,7 +227,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
     public Author updateAuthor(AuthorId authorId, Instant version, String name) {
         log.info("updateAuthor({}, {})", authorId, name);
 
-        final Timestamp newVersion = Timestamp.from(Instant.now());
+        final var newVersion = Timestamp.from(Instant.now());
         final String sql = "update author set version = ?, name = ? where author_id = ? and version = ?";
         sqlInfo(log, sql, newVersion, name, authorId.uuid(), version);
 
@@ -281,7 +281,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
             ServiceError.BOOK_NOT_REGISTERED.raise(bookId.toString());
         }
 
-        for (Author author : authors) {
+        for (var author : authors) {
             final String sql2 = "insert into book_author (book_id_type, book_id, author_id) values (?, ?, ?)";
             sqlInfo(log, sql2, bookId.schema().name(), bookId.id(), author.id().uuid().toString());
 

@@ -4,7 +4,6 @@ import com.putoet.mybooks.books.application.port.in.BookManagementInquiryPort;
 import com.putoet.mybooks.books.application.port.in.BookManagementUpdatePort;
 import com.putoet.mybooks.books.domain.Author;
 import com.putoet.mybooks.books.domain.AuthorId;
-import com.putoet.mybooks.books.domain.Book;
 import com.putoet.mybooks.books.domain.BookId;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -61,8 +60,8 @@ public class BookController {
     @GetMapping(path = "/book/{schema}/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public BookResponse getBookById(@PathVariable String schema, @PathVariable String id) throws MethodArgumentNotValidException {
         try {
-            final ExistingBookRequest existingBookRequest = new ExistingBookRequest(schema, id);
-            final BeanPropertyBindingResult result = new BeanPropertyBindingResult(existingBookRequest, "schema");
+            final var existingBookRequest = new ExistingBookRequest(schema, id);
+            final var result = new BeanPropertyBindingResult(existingBookRequest, "schema");
             validator.validate(existingBookRequest, result);
             if (result.hasErrors())
                 throw new MethodArgumentNotValidException(new MethodParameter(this.getClass().getDeclaredMethod("getBookById", String.class, String.class), 0), result);
@@ -71,8 +70,8 @@ public class BookController {
         }
 
         try {
-            final BookId bookId = new BookId(schema, id);
-            final Optional<Book> book = bookManagementInquiryPort.bookById(bookId);
+            final var bookId = new BookId(schema, id);
+            final var book = bookManagementInquiryPort.bookById(bookId);
             if (book.isPresent())
                 return BookResponse.from(book.get());
         } catch (RuntimeException exc) {
@@ -89,14 +88,14 @@ public class BookController {
     @ResponseStatus(HttpStatus.CREATED)
     public BookResponse postBook(@RequestBody @Valid NewBookRequest book) {
         try {
-            final BookId bookId = new BookId(book.schema(), book.id());
-            final Set<Author> authors = new HashSet<>();
+            final var bookId = new BookId(book.schema(), book.id());
+            final var authors = new HashSet<Author>();
             for (BookRequestAuthor author : book.authors()) {
                 if (author.isNewRequest()) {
-                    final NewAuthorRequest newAuthorRequest = author.newAuthorRequest();
+                    final var newAuthorRequest = author.newAuthorRequest();
                     authors.add(bookManagementUpdatePort.registerAuthor(newAuthorRequest.name(), NewAuthorRequest.sitesWithURLs(newAuthorRequest.sites())));
                 } else if (author.isExistingRequest()){
-                    final ExistingAuthorRequest existingAuthorRequest = author.existingAuthorRequest();
+                    final var existingAuthorRequest = author.existingAuthorRequest();
                     authors.add(bookManagementInquiryPort.authorById(AuthorId.withId(existingAuthorRequest.id()))
                             .orElseThrow(() -> new IllegalArgumentException("author with id " + existingAuthorRequest.id() + " not found for book with id " + bookId))
                     );

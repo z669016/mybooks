@@ -101,7 +101,7 @@ class BookInquiryServiceTest {
     void authorById() {
         when(bookPersistenceQueryPort.findAuthorById(any())).thenReturn(null);
         when(bookPersistenceQueryPort.findAuthorById(AuthorTest.AUTHOR.id())).thenReturn(AuthorTest.AUTHOR);
-        final Optional<Author> author = bookManagementInquiryPort.authorById(AuthorTest.AUTHOR.id());
+        final var author = bookManagementInquiryPort.authorById(AuthorTest.AUTHOR.id());
 
         assertAll(
                 () -> verify(bookPersistenceQueryPort, times(1)).findAuthorById(AuthorTest.AUTHOR.id()),
@@ -116,7 +116,7 @@ class BookInquiryServiceTest {
     @Test
     void authors() {
         when(bookPersistenceQueryPort.findAuthors()).thenReturn(Set.of(AuthorTest.AUTHOR));
-        final Set<Author> authors = bookManagementInquiryPort.authors();
+        final var authors = bookManagementInquiryPort.authors();
 
         assertAll(
                 () -> verify(bookPersistenceQueryPort, times(1)).findAuthors(),
@@ -130,7 +130,7 @@ class BookInquiryServiceTest {
     @Test
     void books() {
         when(bookPersistenceQueryPort.findBooks()).thenReturn(Set.of());
-        final Set<Book> books = bookManagementInquiryPort.books();
+        final var books = bookManagementInquiryPort.books();
 
         assertAll(
                 () -> verify(bookPersistenceQueryPort, times(1)).findBooks(),
@@ -141,7 +141,7 @@ class BookInquiryServiceTest {
     @Test
     void bookByTitle() {
         when(bookPersistenceQueryPort.findBooksByTitle(any())).thenReturn(Set.of());
-        final Set<Book> books = bookManagementInquiryPort.booksByTitle("architecture");
+        final var books = bookManagementInquiryPort.booksByTitle("architecture");
 
         assertAll(
                 () -> verify(bookPersistenceQueryPort, times(1)).findBooksByTitle("architecture"),
@@ -156,8 +156,8 @@ class BookInquiryServiceTest {
     @Test
     void bookById() {
         when(bookPersistenceQueryPort.findBookById(any())).thenReturn(null);
-        final BookId id = new BookId(BookId.BookIdScheme.UUID, UUID.randomUUID().toString());
-        final Optional<Book> book = bookManagementInquiryPort.bookById(id);
+        final var id = new BookId(BookId.BookIdScheme.UUID, UUID.randomUUID().toString());
+        final var book = bookManagementInquiryPort.bookById(id);
 
         assertAll(
                 () -> verify(bookPersistenceQueryPort, times(1)).findBookById(id),
@@ -172,7 +172,7 @@ class BookInquiryServiceTest {
     void bookByAuthorName() {
         when(bookPersistenceQueryPort.findAuthorsByName("tom")).thenReturn(Set.of(AuthorTest.AUTHOR));
         when(bookPersistenceQueryPort.findBooksByAuthorId(AuthorTest.AUTHOR.id())).thenReturn(Set.of());
-        final Set<Book> books = bookManagementInquiryPort.booksByAuthorName("tom");
+        final var books = bookManagementInquiryPort.booksByAuthorName("tom");
 
         assertAll(
                 () -> verify(bookPersistenceQueryPort, times(1)).findAuthorsByName("tom"),
@@ -186,7 +186,7 @@ class BookInquiryServiceTest {
 
     @Test
     void authorSiteTypes() {
-        final Set<String> types = bookManagementInquiryPort.authorSiteTypes();
+        final var types = bookManagementInquiryPort.authorSiteTypes();
         assertEquals(7, types.size());
     }
 }

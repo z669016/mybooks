@@ -16,7 +16,7 @@ public record NewAuthorRequest(@NotBlank String name, @SiteMapConstraint Map<Str
 
     public static Map<SiteType, URL> sitesWithURLs(Map<String,String> sites) {
         try {
-            final Map<SiteType, URL> domain = new HashMap<>();
+            final var domain = new HashMap<SiteType, URL>();
             for (String key : sites.keySet()) {
                 domain.put(new SiteType(key), new URL(sites.get(key)));
             }

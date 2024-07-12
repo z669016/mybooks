@@ -11,7 +11,7 @@ class BookRequestAuthorTest {
 
     @Test
     void existingAuthorRequest() {
-        final BookRequestAuthor bookRequestAuthor = new BookRequestAuthor(UUID.randomUUID().toString(), null, null);
+        final var bookRequestAuthor = new BookRequestAuthor(UUID.randomUUID().toString(), null, null);
         assertAll(
                 () -> assertTrue(bookRequestAuthor.isExistingRequest()),
                 () -> assertFalse(bookRequestAuthor.isNewRequest()),
@@ -22,7 +22,7 @@ class BookRequestAuthorTest {
 
     @Test
     void newAuthorRequest() {
-        final BookRequestAuthor bookRequestAuthor = new BookRequestAuthor(null, "name", Map.of("Google", "https://www.google.com"));
+        final var bookRequestAuthor = new BookRequestAuthor(null, "name", Map.of("Google", "https://www.google.com"));
         assertAll(
                 () -> assertTrue(bookRequestAuthor.isNewRequest()),
                 () -> assertFalse(bookRequestAuthor.isExistingRequest()),

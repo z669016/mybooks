@@ -34,7 +34,7 @@ public final class JwtTokenUtils implements Serializable {
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
+        final var claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
@@ -51,7 +51,7 @@ public final class JwtTokenUtils implements Serializable {
     }
 
     public String generateToken(UserDetails userDetails) {
-        final Map<String, Object> claims = new HashMap<>();
+        final var claims = new HashMap<String, Object>();
         claims.put(AUTHORITIES_KEY, fromGrantedAuthoritiesCollection(userDetails.getAuthorities()));
         return createToken(claims, userDetails.getUsername());
     }

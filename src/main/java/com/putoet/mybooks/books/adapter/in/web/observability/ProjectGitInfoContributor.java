@@ -24,7 +24,7 @@ public class ProjectGitInfoContributor extends GitInfoContributor {
     @SneakyThrows
     @Override
     public void contribute(Info.Builder builder) {
-        final Map<String, Object> map = generateContent();
+        final var map = generateContent();
         getProperties().iterator().forEachRemaining(entry -> addKeyValue(map, entry.getKey(), entry.getValue()));
         log.info("InfoContributor({})", mapper.writeValueAsString(map));
 
@@ -39,7 +39,7 @@ public class ProjectGitInfoContributor extends GitInfoContributor {
             final String parent = key.substring(0, dot);
             key = key.substring(dot + 1);
 
-            final Object submap = map.computeIfAbsent(parent, k -> new HashMap<String, Object>());
+            final var submap = map.computeIfAbsent(parent, k -> new HashMap<String, Object>());
             if (submap instanceof Map) {
                 return addKeyValue((Map<String, Object>) submap, key, value);
             }

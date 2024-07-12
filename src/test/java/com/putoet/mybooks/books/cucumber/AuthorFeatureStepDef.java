@@ -11,9 +11,7 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import io.restassured.http.ContentType;
-import io.restassured.response.Response;
 
-import java.util.List;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
@@ -36,7 +34,7 @@ public class AuthorFeatureStepDef extends MyBooksE2EBase {
 
     @And("response contains details on more than {int} authors")
     public void responseContainsDetailsOnMoreThanAuthors(int minNumberOfAuthorsReturned) {
-        final List<AuthorResponse> authors = context.response()
+        final var authors = context.response()
                 .body()
                 .jsonPath()
                 .getList(".", AuthorResponse.class);
@@ -45,7 +43,7 @@ public class AuthorFeatureStepDef extends MyBooksE2EBase {
 
     @When("send a get request for author with id {word}")
     public void sendAGetRequestForAuthorWithId(String uuid) {
-       executeGet("/author/" + uuid);
+        executeGet("/author/" + uuid);
     }
 
     @And("author has id {word}")
@@ -65,23 +63,23 @@ public class AuthorFeatureStepDef extends MyBooksE2EBase {
     }
 
     @When("sent a post request for a new author with name {string} and sites")
-    public void sentAPostRequestForANewAuthorWithNameAndSites(String name, DataTable table){
-        final Map<String,String> sites = table.asMap();
-        final NewAuthorRequest request = new NewAuthorRequest(name, sites);
+    public void sentAPostRequestForANewAuthorWithNameAndSites(String name, DataTable table) {
+        final var sites = table.asMap();
+        final var request = new NewAuthorRequest(name, sites);
         executePost("/author", request);
     }
 
     @And("author has sites")
     public void authorHasSites(DataTable table) {
-        final Map<String,String> sites = table.asMap();
-        final AuthorResponse author = context.response().body().as(AuthorResponse.class);
+        final var sites = table.asMap();
+        final var author = context.response().body().as(AuthorResponse.class);
         assertEquals(sites, author.sites());
     }
 
     @Given("a created temp author")
     public void aCreatedTempAuthor() {
-        final NewAuthorRequest newAuthorRequest = new NewAuthorRequest("name", Map.of(SiteType.HOMEPAGE_NAME, "https://www.google.com"));
-        final Response response = given()
+        final var newAuthorRequest = new NewAuthorRequest("name", Map.of(SiteType.HOMEPAGE_NAME, "https://www.google.com"));
+        final var response = given()
                 .relaxedHTTPSValidation()
                 .contentType(ContentType.JSON)
                 .header(JwtRequestFilter.AUTHORIZATION_KEY, JwtRequestFilter.AUTHORIZATION_SCHEME + " " + context.token())
@@ -93,8 +91,8 @@ public class AuthorFeatureStepDef extends MyBooksE2EBase {
 
     @When("sent a put request for temp author with new name {string}")
     public void sentAPutRequestForTempAuthorWithNewName(String name) {
-        final AuthorResponse tempAuthor = context.get(TEMP_AUTHOR, AuthorResponse.class);
-        final UpdateAuthorRequest update = new UpdateAuthorRequest(tempAuthor.version(), name);
+        final var tempAuthor = context.get(TEMP_AUTHOR, AuthorResponse.class);
+        final var update = new UpdateAuthorRequest(tempAuthor.version(), name);
         executePut("/author/" + tempAuthor.id(), update);
     }
 }

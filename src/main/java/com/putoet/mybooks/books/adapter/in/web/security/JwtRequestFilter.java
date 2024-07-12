@@ -35,7 +35,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
-        Optional<String> jwtToken = Optional.empty();
+        var jwtToken = Optional.<String>empty();
         if (request.getCookies() != null) {
             jwtToken = Arrays.stream(request.getCookies())
                     .filter(c -> c.getName().equals(AUTHORIZATION_COOKIE))
@@ -65,9 +65,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 }
 
                 if (SecurityContextHolder.getContext().getAuthentication() == null) {
-                    final UserDetails userDetails = userDetailsService.loadUserByUsername(id);
+                    final var userDetails = userDetailsService.loadUserByUsername(id);
                     if (isActiveUser(userDetails) && jwtTokenUtils.validateToken(jwtToken.get(), userDetails.getUsername())) {
-                        final UsernamePasswordAuthenticationToken authenticationToken =
+                        final var authenticationToken =
                                 new UsernamePasswordAuthenticationToken(id, null, jwtTokenUtils.extractAuthorities(jwtToken.get()));
                         authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authenticationToken);

@@ -5,8 +5,6 @@ import com.putoet.mybooks.books.adapter.out.persistence.H2BookRepository;
 import com.putoet.mybooks.books.adapter.out.persistence.Rezipper;
 import com.putoet.mybooks.books.application.BookInquiryService;
 import com.putoet.mybooks.books.application.BookUpdateService;
-import com.putoet.mybooks.books.application.port.in.BookManagementInquiryPort;
-import com.putoet.mybooks.books.application.port.in.BookManagementUpdatePort;
 import com.putoet.mybooks.books.domain.Author;
 import com.putoet.mybooks.books.domain.Book;
 import io.cucumber.java.en.And;
@@ -18,7 +16,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -44,16 +45,16 @@ public class LoadEpubStepdefs extends MyBooksE2EBase {
     @When("all books are loaded from the the root folder")
     public void allBooksAreLoadedFromTheTheRootFolder() {
         final long start = System.currentTimeMillis();
-        final H2BookRepository database = new H2BookRepository(jdbcTemplate);
-        final FolderBookRepository folder = new FolderBookRepository(Paths.get(context.get(ROOT_FOLDER, String.class)));
+        final var database = new H2BookRepository(jdbcTemplate);
+        final var folder = new FolderBookRepository(Paths.get(context.get(ROOT_FOLDER, String.class)));
 
-        final BookManagementInquiryPort inputBbookManagementInquiryPort = new BookInquiryService(folder);
-        final BookManagementUpdatePort outputBookManagementUpdatePort = new BookUpdateService(database);
+        final var inputBookManagementInquiryPort = new BookInquiryService(folder);
+        final var outputBookManagementUpdatePort = new BookUpdateService(database);
 
-        final Map<String, Author> storedAuthors = new HashMap<>();
-        final Set<Book> storedBooks = new HashSet<>();
+        final var storedAuthors = new HashMap<String, Author>();
+        final var storedBooks = new HashSet<Book>();
 
-        for (Author author : inputBbookManagementInquiryPort.authors()) {
+        for (var author : inputBookManagementInquiryPort.authors()) {
             try {
                 storedAuthors.put(author.name(), outputBookManagementUpdatePort.registerAuthor(author.name(), author.sites()));
             } catch (RuntimeException exc) {
@@ -61,8 +62,8 @@ public class LoadEpubStepdefs extends MyBooksE2EBase {
             }
         }
 
-        for (Book book : inputBbookManagementInquiryPort.books()) {
-            final Set<Author> authors = book.authors().stream()
+        for (var book : inputBookManagementInquiryPort.books()) {
+            final var authors = book.authors().stream()
                     .map(author -> storedAuthors.get(author.name()))
                     .collect(Collectors.toSet());
             try {
@@ -109,10 +110,9 @@ public class LoadEpubStepdefs extends MyBooksE2EBase {
         final int repackageCount = Rezipper.repackageCount();
         final int repackageFailedCount = Rezipper.repackageFailedCount();
 
-        System.out.printf("Loading took %d seconds%n", duration/ 1000);
+        System.out.printf("Loading took %d seconds%n", duration / 1000);
         System.out.printf("%d books had to be repackaged%n", repackageCount);
         if (repackageCount > 0)
             System.out.printf("for %d books repackaging failed%n", repackageFailedCount);
-
     }
 }

@@ -1,7 +1,6 @@
 package com.putoet.mybooks.books.adapter.out.persistence;
 
 import com.putoet.mybooks.books.domain.*;
-import jakarta.activation.MimeType;
 import lombok.extern.slf4j.Slf4j;
 import org.ahocorasick.trie.Emit;
 import org.ahocorasick.trie.Trie;
@@ -50,29 +49,29 @@ public final class EpubBookLoader {
     }
 
     public static Book bookForFile(String fileName) throws IOException {
-        final Tika tika = new Tika();
-        final String mimeType = tika.detect(fileName);
+        final var tika = new Tika();
+        final var mimeType = tika.detect(fileName);
 
-        try (InputStream is = new FileInputStream(fileName)) {
-            final org.apache.tika.metadata.Metadata metadata = new org.apache.tika.metadata.Metadata();
-            final Optional<String> data = loadData(tika, is, metadata);
+        try (var is = new FileInputStream(fileName)) {
+            final var metadata = new org.apache.tika.metadata.Metadata();
+            final var data = loadData(tika, is, metadata);
 
             checkForError(fileName, metadata);
 
-            final BookId bookId = extractBookId(fileName, metadata.get("dc:identifier"));
-            final String title = metadata.get("dc:title");
-            final Set<Author> authors = extractAuthors(metadata.get("dc:creator"));
-            final Set<MimeType> formats = Set.of(MimeTypes.toMimeType(mimeType));
-            final Set<String> keywords = data.isPresent() ? findKeywords(data.get()) : Set.of();
+            final var bookId = extractBookId(fileName, metadata.get("dc:identifier"));
+            final var title = metadata.get("dc:title");
+            final var authors = extractAuthors(metadata.get("dc:creator"));
+            final var formats = Set.of(MimeTypes.toMimeType(mimeType));
+            final var keywords = data.isPresent() ? findKeywords(data.get()) : Set.<String>of();
 
             return new Book(bookId, title, authors, keywords, formats);
         }
     }
 
     private static void checkForError(String fileName, Metadata metadata) {
-        for (String key : metadata.names()) {
+        for (var key : metadata.names()) {
             if (key.startsWith("X-TIKA")) {
-                final String[] names = key.split(":");
+                final var names = key.split(":");
                 if ("EXCEPTION".equalsIgnoreCase(names[1])) {
                     log.error("TIKA Exception: {}", metadata.get(key));
                     log.info("metadata={}", metadata);
@@ -112,7 +111,7 @@ public final class EpubBookLoader {
         if (identifier == null || identifier.isBlank())
             return new BookId(BookId.BookIdScheme.UUID, UUID.randomUUID().toString());
 
-        String id = identifier.toLowerCase();
+        var id = identifier.toLowerCase();
         id = id.replace("urn:", "");
         id = id.replace("uuid:", "");
         id = id.replace("isbn:", "");

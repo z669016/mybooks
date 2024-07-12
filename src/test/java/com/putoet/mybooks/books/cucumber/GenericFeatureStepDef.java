@@ -28,7 +28,7 @@ public class GenericFeatureStepDef extends MyBooksE2EBase {
 
     @And("errors contains {word}")
     public void errorsContainsName(String field) {
-        final ApiError apiError = context.response().getBody().as(ApiError.class);
+        final var apiError = context.response().getBody().as(ApiError.class);
         assertTrue(apiError.errors().containsKey(field));
     }
 }

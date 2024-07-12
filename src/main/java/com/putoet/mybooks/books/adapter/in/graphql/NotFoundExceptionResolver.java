@@ -9,17 +9,16 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class NotFoundExceptionResolver extends DataFetcherExceptionResolverAdapter {
-        @Override
-        protected GraphQLError resolveToSingleError(Throwable ex, DataFetchingEnvironment env) {
-            if (ex instanceof NotFoundException) {
-                return GraphqlErrorBuilder.newError()
-                        .errorType(ErrorType.NOT_FOUND)
-                        .message(ex.getMessage())
-                        .path(env.getExecutionStepInfo().getPath())
-                        .location(env.getField().getSourceLocation())
-                        .build();
-            } else {
-                return null;
-            }
-        }
+    @Override
+    protected GraphQLError resolveToSingleError(Throwable ex, DataFetchingEnvironment env) {
+        if (ex instanceof NotFoundException)
+            return GraphqlErrorBuilder.newError()
+                    .errorType(ErrorType.NOT_FOUND)
+                    .message(ex.getMessage())
+                    .path(env.getExecutionStepInfo().getPath())
+                    .location(env.getField().getSourceLocation())
+                    .build();
+
+        return null;
+    }
 }

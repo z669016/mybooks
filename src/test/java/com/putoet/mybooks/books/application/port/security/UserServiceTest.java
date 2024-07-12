@@ -85,7 +85,7 @@ class UserServiceTest {
 
     @Test
     void passwordEncoder() {
-        final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        final var passwordEncoder = new BCryptPasswordEncoder();
 
         printPassword(ADMIN.password(), passwordEncoder);
         printPassword(ADMIN.password(), passwordEncoder);

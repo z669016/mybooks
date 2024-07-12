@@ -34,7 +34,7 @@ class AuthorControllerTest {
 
     @Test
     void getAuthors() {
-        final Set<AuthorResponse> authors = authorController.getAuthors();
+        final var authors = authorController.getAuthors();
         assertAll(
                 () -> assertEquals(0, authors.size()),
                 () -> verify(bookManagementInquiryPort, times(1)).authors()

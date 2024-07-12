@@ -29,7 +29,7 @@ public class BookFeatureStepDef extends MyBooksE2EBase {
 
     @And("response contains details on more than {int} book")
     public void responseContainsDetailsOnMoreThanBook(int minNumberOfBooksReturned) {
-        final List<BookResponse> books = context.response()
+        final var books = context.response()
                 .body()
                 .jsonPath()
                 .getList(".", BookResponse.class);
@@ -38,8 +38,8 @@ public class BookFeatureStepDef extends MyBooksE2EBase {
 
     @Given("a temp book with title {string} was created")
     public void aTempBookWasCreated(String title) {
-        final BookRequestAuthor bookRequestAuthor = new BookRequestAuthor(null, "Author, " + title, Map.of());
-        final NewBookRequest newBookRequest = new NewBookRequest("UUID",
+        final var bookRequestAuthor = new BookRequestAuthor(null, "Author, " + title, Map.of());
+        final var newBookRequest = new NewBookRequest("UUID",
                 UUID.randomUUID().toString(),
                 title,
                 Set.of(bookRequestAuthor),
@@ -48,7 +48,7 @@ public class BookFeatureStepDef extends MyBooksE2EBase {
 
         executePost("/book", newBookRequest, true);
 
-        final BookResponse book = context.response().body().as(BookResponse.class);
+        final var book = context.response().body().as(BookResponse.class);
         if (context.get(TEMP_BOOKS, Set.class) == null)
             context.set(TEMP_BOOKS, new HashSet<BookResponse>());
         ((Set<BookResponse>) context.get(TEMP_BOOKS, Set.class)).add(book);
@@ -57,7 +57,7 @@ public class BookFeatureStepDef extends MyBooksE2EBase {
 
     @And("books contain book with title {string}")
     public void booksContainBookWithTitle(String title) {
-        final List<BookResponse> books = context.response().body().jsonPath().getList(".", BookResponse.class);
+        final var books = context.response().body().jsonPath().getList(".", BookResponse.class);
         assertTrue(books.stream().anyMatch(book -> title.equals(book.title())));
     }
 
@@ -75,9 +75,9 @@ public class BookFeatureStepDef extends MyBooksE2EBase {
 
     @When("send a get request for temp book with id")
     public void sendAGetRequestForTempBookWithId() {
-        final BookResponse book = context.response().body().as(BookResponse.class);
-        final String schema = book.schema();
-        final String id = book.id();
+        final var book = context.response().body().as(BookResponse.class);
+        final var schema = book.schema();
+        final var id = book.id();
         executeGet("/book/" + schema + "/" + id);
     }
 

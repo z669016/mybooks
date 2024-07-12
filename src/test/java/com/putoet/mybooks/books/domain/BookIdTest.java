@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class BookIdTest {
     @Test
     void constructor() {
-        final BookId bookId = new BookId();
+        final var bookId = new BookId();
 
         assertAll(
                 // error conditions
@@ -25,12 +25,12 @@ public class BookIdTest {
 
     @Test
     void isbnBookId() {
-        final String id10 = "99921-58-10-7";
-        final String id13 = "978-3-16-148410-0";
-        final BookId.BookIdScheme schema = BookId.BookIdScheme.ISBN;
+        final var id10 = "99921-58-10-7";
+        final var id13 = "978-3-16-148410-0";
+        final var schema = BookId.BookIdScheme.ISBN;
 
-        final BookId bookId10 = new BookId(schema, id10);
-        final BookId bookId13 = new BookId(schema, id13);
+        final var bookId10 = new BookId(schema, id10);
+        final var bookId13 = new BookId(schema, id13);
 
         assertAll(
                 () -> assertEquals(schema, bookId10.schema()),
@@ -45,9 +45,9 @@ public class BookIdTest {
 
     @Test
     void uriBookId() {
-        final String id = "urn:oasis:names:specification:docbook:dtd:xml:4.1.2";
-        final BookId bookId = new BookId(BookId.BookIdScheme.URI, id);
-        final BookId.BookIdScheme schema = BookId.BookIdScheme.URI;
+        final var id = "urn:oasis:names:specification:docbook:dtd:xml:4.1.2";
+        final var bookId = new BookId(BookId.BookIdScheme.URI, id);
+        final var schema = BookId.BookIdScheme.URI;
 
         assertAll(
                 () -> assertEquals(schema, bookId.schema()),
@@ -60,9 +60,9 @@ public class BookIdTest {
 
     @Test
     void urlBookId() {
-        final String id = "https://leanpub.com/wardley-maps";
-        final BookId bookId = new BookId(BookId.BookIdScheme.URL, id);
-        final BookId.BookIdScheme schema = BookId.BookIdScheme.URL;
+        final var id = "https://leanpub.com/wardley-maps";
+        final var bookId = new BookId(BookId.BookIdScheme.URL, id);
+        final var schema = BookId.BookIdScheme.URL;
 
         assertAll(
                 () -> assertEquals(schema, bookId.schema()),
@@ -75,9 +75,9 @@ public class BookIdTest {
 
     @Test
     void uuidBookId() {
-        final String id = UUID.randomUUID().toString();
-        final BookId.BookIdScheme schema = BookId.BookIdScheme.UUID;
-        final BookId bookId = new BookId(schema, id);
+        final var id = UUID.randomUUID().toString();
+        final var schema = BookId.BookIdScheme.UUID;
+        final var bookId = new BookId(schema, id);
 
         assertAll(
                 () -> assertEquals(schema, bookId.schema()),
