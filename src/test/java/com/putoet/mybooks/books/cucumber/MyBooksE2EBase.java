@@ -69,10 +69,7 @@ public class MyBooksE2EBase {
     }
 
     protected String translateParameter(String param) {
-        return switch (param) {
-            case "null" -> null;
-            default -> param;
-        };
+        return "null".equals(param) ? null : param;
     }
 
     protected RequestSpecification request(boolean includeToken) {

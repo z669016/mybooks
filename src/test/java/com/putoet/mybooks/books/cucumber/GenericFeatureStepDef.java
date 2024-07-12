@@ -5,19 +5,17 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 
-import java.io.IOException;
-
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GenericFeatureStepDef extends MyBooksE2EBase {
 
     @Given("a successful user login")
-    public void aSuccessfulUserLogin() throws IOException {
+    public void aSuccessfulUserLogin() {
         userLogin();
     }
 
     @Given("a successful admin login")
-    public void aSuccessfulAdminLogin() throws IOException {
+    public void aSuccessfulAdminLogin() {
         adminLogin();
     }
 

@@ -25,7 +25,6 @@ public @interface ObjectIDConstraint {
             ConstraintValidator.super.initialize(constraintAnnotation);
         }
 
-        @SuppressWarnings("ResultOfMethodCallIgnored")
         @Override
         public boolean isValid(String id, ConstraintValidatorContext context) {
             try {

@@ -1,12 +1,14 @@
 package com.putoet.mybooks.books.cucumber;
 
 import io.restassured.response.Response;
+import lombok.Getter;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 public class TestContext {
+    @Getter
     private final static TestContext instance;
     private static final String RESPONSE = "response";
     private static final String TOKEN = "token";
@@ -19,10 +21,6 @@ public class TestContext {
     }
 
     private TestContext() {
-    }
-
-    public static TestContext getInstance() {
-        return instance;
     }
 
     public Response response() {

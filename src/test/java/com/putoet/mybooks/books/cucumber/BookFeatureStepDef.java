@@ -54,6 +54,7 @@ public class BookFeatureStepDef extends MyBooksE2EBase {
         ((Set<BookResponse>) context.get(TEMP_BOOKS, Set.class)).add(book);
     }
 
+
     @And("books contain book with title {string}")
     public void booksContainBookWithTitle(String title) {
         final List<BookResponse> books = context.response().body().jsonPath().getList(".", BookResponse.class);

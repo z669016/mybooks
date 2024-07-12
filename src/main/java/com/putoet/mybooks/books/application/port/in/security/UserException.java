@@ -1,5 +1,8 @@
 package com.putoet.mybooks.books.application.port.in.security;
 
+import lombok.Getter;
+
+@Getter
 public class UserException extends RuntimeException {
     private final UserError userError;
 
@@ -11,9 +14,5 @@ public class UserException extends RuntimeException {
     public UserException(UserError userError, String msg) {
         super(userError.name() + " - " + msg);
         this.userError = userError;
-    }
-
-    public UserError getUserError() {
-        return userError;
     }
 }

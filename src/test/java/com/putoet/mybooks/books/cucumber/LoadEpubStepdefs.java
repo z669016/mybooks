@@ -57,7 +57,7 @@ public class LoadEpubStepdefs extends MyBooksE2EBase {
             try {
                 storedAuthors.put(author.name(), outputBookManagementUpdatePort.registerAuthor(author.name(), author.sites()));
             } catch (RuntimeException exc) {
-                logger.error("Failed to register author '" + author + "'", exc);
+                logger.error("Failed to register author '{}'", author, exc);
             }
         }
 
@@ -68,7 +68,7 @@ public class LoadEpubStepdefs extends MyBooksE2EBase {
             try {
                 storedBooks.add(outputBookManagementUpdatePort.registerBook(book.id(), book.title(), authors, book.formats(), book.keywords()));
             } catch (RuntimeException exc) {
-                logger.error("Failed to register book '" + book + "'", exc);
+                logger.error("Failed to register book '{}'", book, exc);
             }
         }
 

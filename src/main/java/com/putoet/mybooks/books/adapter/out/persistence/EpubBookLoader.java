@@ -108,7 +108,6 @@ public final class EpubBookLoader {
         return builder.build();
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     private static BookId extractBookId(String fileName, String identifier) {
         if (identifier == null || identifier.isBlank())
             return new BookId(BookId.BookIdScheme.UUID, UUID.randomUUID().toString());

@@ -19,7 +19,6 @@ public record BookId(BookIdScheme schema, String id) {
         this(BookIdScheme.valueOf(schema.trim().toUpperCase()), id);
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     public BookId {
         Objects.requireNonNull(schema, "BookId schema must not be null");
         Objects.requireNonNull(id, "BookId id must not be null");

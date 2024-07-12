@@ -34,11 +34,11 @@ public @interface BookRequestAuthorConstraint {
                 if (bookRequestAuthor.isNewRequest()) {
                     final NewAuthorRequest newAuthorRequest = bookRequestAuthor.newAuthorRequest();
                     final var result = validator.validate(newAuthorRequest);
-                    return result.size() == 0;
+                    return result.isEmpty();
                 } else if (bookRequestAuthor.isExistingRequest()) {
                     final ExistingAuthorRequest existingAuthorRequest = bookRequestAuthor.existingAuthorRequest();
                     final var result = validator.validate(existingAuthorRequest);
-                    return result.size() == 0;
+                    return result.isEmpty();
                 }
 
                 return false;
