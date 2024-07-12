@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class RezipperTest {
     @Test
     void bookForFile() {
-        final String fileName = "/Users/renevanputten/OneDrive/Documents/Books/Manning Books/Node.js in Action, Second Edition/Node.js_in_Action_S.epub";
+        final String fileName = "/Users/renevanputten/OneDrive/Books/Manning Books/Advanced Algorithms and Data Structures/Advanced_Algorithms_and_Data_Structures.epub";
         final Optional<String> epub = Rezipper.repackage(fileName);
 
         assertAll(

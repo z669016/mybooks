@@ -39,11 +39,11 @@ public final class JwtTokenUtils implements Serializable {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(SIGNING_KEY)
+        return Jwts.parser()
+                .verifyWith(SIGNING_KEY)
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
     private Boolean isTokenExpired(String token) {
@@ -59,10 +59,10 @@ public final class JwtTokenUtils implements Serializable {
     private String createToken(Map<String, Object> claims, String subject) {
         final long now = System.currentTimeMillis();
         return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(subject)
-                .setIssuedAt(new Date(now))
-                .setExpiration(new Date(now + 1000 * EXPIRES_IN))
+                .claims(claims)
+                .subject(subject)
+                .issuedAt(new Date(now))
+                .expiration(new Date(now + 1000 * EXPIRES_IN))
                 .signWith(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()))
                 .compact();
     }

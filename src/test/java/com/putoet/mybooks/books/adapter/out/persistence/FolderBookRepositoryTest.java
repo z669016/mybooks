@@ -13,7 +13,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 class FolderBookRepositoryTest {
-    private static final String LEANPUB = "/Users/renevanputten/OneDrive/Documents/Books/leanpub";
+    private static final String LEANPUB = "/Users/renevanputten/OneDrive/Books/leanpub";
     private static FolderBookRepository leanpub;
 
     @BeforeAll
@@ -51,7 +51,7 @@ class FolderBookRepositoryTest {
     @Test
     void findBooksByTitle() {
         final Set<Book> books = leanpub.findBooksByTitle("ARCHITECTURE");
-        assertEquals(2, books.size());
+        assertEquals(3, books.size());
     }
 
     @Test
