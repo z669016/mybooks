@@ -82,7 +82,7 @@ public class LoadEpubStepdefs extends MyBooksE2EBase {
 
     @Then("all authors list is not empty")
     public void allAuthorsListIsNotEmpty() {
-        final Set<Author> storedAuthors = context.get(ALL_AUTHORS, Set.class);
+        @SuppressWarnings("unchecked") final Set<Author> storedAuthors = context.get(ALL_AUTHORS, Set.class);
         System.out.printf("Loaded %d authors:%n", storedAuthors.size());
         storedAuthors.stream()
                 .sorted(Comparator.comparing(author -> author.name().toLowerCase()))
@@ -94,7 +94,7 @@ public class LoadEpubStepdefs extends MyBooksE2EBase {
 
     @And("all book list is not empty")
     public void allBookListIsNotEmpty() {
-        final Set<Book> storedBooks = context.get(ALL_BOOKS, Set.class);
+        @SuppressWarnings("unchecked") final Set<Book> storedBooks = context.get(ALL_BOOKS, Set.class);
         System.out.printf("Loaded %d books:%n", storedBooks.size());
         storedBooks.stream()
                 .sorted(Comparator.comparing(book -> book.title().toLowerCase()))

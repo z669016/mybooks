@@ -2,7 +2,7 @@ package com.putoet.mybooks.books.application.port.in;
 
 /**
  * Class ServiceException
- * ServiceException enables standardized error handling for services
+ * Exception enables standardized error handling for services
  */
 public class ServiceException extends RuntimeException {
     private final ServiceError serviceError;

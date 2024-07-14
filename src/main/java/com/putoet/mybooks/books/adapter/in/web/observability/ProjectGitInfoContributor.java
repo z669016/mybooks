@@ -41,6 +41,7 @@ public class ProjectGitInfoContributor extends GitInfoContributor {
 
             final var submap = map.computeIfAbsent(parent, k -> new HashMap<String, Object>());
             if (submap instanceof Map) {
+                //noinspection unchecked
                 return addKeyValue((Map<String, Object>) submap, key, value);
             }
         }

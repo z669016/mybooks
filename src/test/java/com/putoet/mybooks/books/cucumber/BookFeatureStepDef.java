@@ -51,6 +51,7 @@ public class BookFeatureStepDef extends MyBooksE2EBase {
         final var book = context.response().body().as(BookResponse.class);
         if (context.get(TEMP_BOOKS, Set.class) == null)
             context.set(TEMP_BOOKS, new HashSet<BookResponse>());
+        //noinspection unchecked
         ((Set<BookResponse>) context.get(TEMP_BOOKS, Set.class)).add(book);
     }
 

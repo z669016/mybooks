@@ -16,7 +16,7 @@ import java.util.Set;
 
 /**
  * Class BookUpdateService
- * BookUpdateService provides write services for the book repository
+ * Service provides write services for the book repository
  */
 @Service
 @Slf4j

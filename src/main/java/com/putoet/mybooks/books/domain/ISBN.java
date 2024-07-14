@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 /**
  * Record ISBN
- * Helper class with methods to validate (composite) ISBN numbers
+ * Helper class with methods to validate (composite) ISBNs
  * Based on gist <a href="https://gist.github.com/kymmt90/a45ae122faeb78096b2c">kymmt90/Isbn.java</a>
  * @param original String
  * @param prefix String

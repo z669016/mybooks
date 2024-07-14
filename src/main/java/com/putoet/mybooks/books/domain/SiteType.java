@@ -4,7 +4,7 @@ import java.util.Objects;
 
 /**
  * Record SiteType
- * There is a set of predefined site types available including twitter, and linkedIn.
+ * There is a set of predefined site types available including twitter, and LinkedIn.
  * @param name String
  */
 public record SiteType(String name) {
