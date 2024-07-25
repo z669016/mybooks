@@ -75,7 +75,7 @@ public class H2UserRepository implements UserPersistencePort {
         int count = template.update(sql, id);
         if (count != 1) {
             log.error("{}: {}", UserError.USER_ID_INVALID.name(), id);
-            UserError.USER_ID_INVALID.raise(id);
+            throw UserError.USER_ID_INVALID.exception(id);
         }
     }
 
@@ -89,7 +89,7 @@ public class H2UserRepository implements UserPersistencePort {
         int count = template.update(sql, id, name, password, accessRole.name());
         if (count != 1) {
             log.error("{}: {} {} '{}' {}", UserError.USER_REGISTRATION_ERROR, id, name, password, accessRole);
-            UserError.USER_REGISTRATION_ERROR.raise("User with new id " + id + ", name " + name + ", and accessRole " + accessRole);
+            throw UserError.USER_REGISTRATION_ERROR.exception("User with new id " + id + ", name " + name + ", and accessRole " + accessRole);
         }
 
         return findUserById(id);

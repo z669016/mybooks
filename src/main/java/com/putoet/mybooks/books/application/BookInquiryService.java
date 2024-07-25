@@ -30,7 +30,7 @@ public class BookInquiryService implements BookManagementInquiryPort {
         log.info("authorsByName({})", name);
 
         if (name== null || name.isBlank())
-            ServiceError.AUTHOR_NAME_REQUIRED.raise();
+            throw ServiceError.AUTHOR_NAME_REQUIRED.exception();
 
         return bookPersistenceQueryPort.findAuthorsByName(name);
     }
@@ -39,7 +39,7 @@ public class BookInquiryService implements BookManagementInquiryPort {
     public Optional<Author> authorById(AuthorId authorId) {
         log.info("authorById({})", authorId);
         if (authorId == null)
-            ServiceError.AUTHOR_ID_REQUIRED.raise();
+            throw ServiceError.AUTHOR_ID_REQUIRED.exception();
 
         return Optional.ofNullable(bookPersistenceQueryPort.findAuthorById(authorId));
     }
@@ -63,7 +63,7 @@ public class BookInquiryService implements BookManagementInquiryPort {
         log.info("booksByTitle({})", title);
 
         if (title== null || title.isBlank())
-            ServiceError.BOOK_TITLE_REQUIRED.raise();
+            throw ServiceError.BOOK_TITLE_REQUIRED.exception();
 
         return bookPersistenceQueryPort.findBooksByTitle(title);
     }
@@ -73,7 +73,7 @@ public class BookInquiryService implements BookManagementInquiryPort {
         log.info("bookById({})", bookId);
 
         if (bookId == null)
-            ServiceError.BOOK_ID_REQUIRED.raise();
+            throw ServiceError.BOOK_ID_REQUIRED.exception();
 
         return Optional.ofNullable(bookPersistenceQueryPort.findBookById(bookId));
     }
@@ -83,7 +83,7 @@ public class BookInquiryService implements BookManagementInquiryPort {
         log.info("booksByAuthorName({})", name);
 
         if (name == null || name.isBlank())
-            ServiceError.AUTHOR_NAME_REQUIRED.raise();
+            throw ServiceError.AUTHOR_NAME_REQUIRED.exception();
 
         final Set<Author> authors = authorsByName(name);
         return authors.stream()

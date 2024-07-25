@@ -93,7 +93,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
 
         if (title == null || title.isBlank()) {
             log.error(ServiceError.BOOK_TITLE_REQUIRED.name());
-            ServiceError.BOOK_TITLE_REQUIRED.raise();
+            throw ServiceError.BOOK_TITLE_REQUIRED.exception();
         }
 
         title = "%" + title.toLowerCase() + "%";
@@ -109,7 +109,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
 
         if (bookId == null) {
             log.error(ServiceError.BOOK_ID_REQUIRED.name());
-            ServiceError.BOOK_ID_REQUIRED.raise();
+            throw ServiceError.BOOK_ID_REQUIRED.exception();
         }
 
         final String sql = "select book_id_type, book_id, title from book where book_id_type = ? and book_id = ?";
@@ -213,7 +213,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
         int count = template.update(sql, id.uuid(), version, name);
         if (count != 1) {
             log.error("{}: {} {} {}", ServiceError.AUTHOR_NOT_REGISTERED, id.uuid(), version, name);
-            ServiceError.AUTHOR_NOT_REGISTERED.raise("Author with new id " + id + " and name " + name);
+            throw ServiceError.AUTHOR_NOT_REGISTERED.exception("Author with new id " + id + " and name " + name);
         }
 
         for (var type : sites.keySet()) {
@@ -234,7 +234,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
         int count = template.update(sql, newVersion, name, authorId.uuid(), version);
         if (count != 1) {
             log.error("Could not update one author, count is {}, author id is {}, version is {}", count, authorId, version);
-            ServiceError.AUTHOR_NOT_UPDATED.raise(authorId + ", " + version + ", '" + name + "'");
+            throw ServiceError.AUTHOR_NOT_UPDATED.exception(authorId + ", " + version + ", '" + name + "'");
         }
         return findAuthorById(authorId);
     }
@@ -249,7 +249,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
         int count = template.update(sql, authorId.uuid());
         if (count != 1) {
             log.error("{}: {}", ServiceError.AUTHOR_FOR_ID_NOT_FOUND.name(), authorId );
-            ServiceError.AUTHOR_FOR_ID_NOT_FOUND.raise();
+            throw ServiceError.AUTHOR_FOR_ID_NOT_FOUND.exception();
         }
     }
 
@@ -263,7 +263,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
         int count = template.update(sql, authorId.uuid(),type.name(),url.toString());
         if (count != 1) {
             log.error("{}: {} {}", ServiceError.AUTHOR_SITE_NOT_SET, authorId, type);
-            ServiceError.AUTHOR_SITE_NOT_SET.raise(authorId + " " + type);
+            throw ServiceError.AUTHOR_SITE_NOT_SET.exception(authorId + " " + type);
         }
         return findAuthorById(authorId);
     }
@@ -278,7 +278,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
         int count = template.update(sql, bookId.schema().name(), bookId.id(), title);
         if (count != 1) {
             log.error("{}: {}, {}, {}", ServiceError.BOOK_NOT_REGISTERED.name(), bookId, title, authors);
-            ServiceError.BOOK_NOT_REGISTERED.raise(bookId.toString());
+            throw ServiceError.BOOK_NOT_REGISTERED.exception(bookId.toString());
         }
 
         for (var author : authors) {
@@ -288,7 +288,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
             count = template.update(sql2, bookId.schema().name(), bookId.id(), author.id().uuid().toString());
             if (count != 1) {
                 log.error("{}: {}, {})", ServiceError.BOOK_NOT_REGISTERED.name(), bookId, author);
-                ServiceError.BOOK_NOT_REGISTERED.raise(bookId + " " + author);
+                throw ServiceError.BOOK_NOT_REGISTERED.exception(bookId + " " + author);
             }
         }
 
@@ -299,7 +299,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
             count = template.update(sql2, bookId.schema().name(), bookId.id(), format.toString());
             if (count != 1) {
                 log.error("{}: {}, {}, {})", ServiceError.BOOK_NOT_REGISTERED.name(), bookId.schema(), bookId.id(), format);
-                ServiceError.BOOK_NOT_REGISTERED.raise(bookId + " " + format);
+                throw ServiceError.BOOK_NOT_REGISTERED.exception(bookId + " " + format);
             }
         }
 
@@ -310,7 +310,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
             count = template.update(sql3, bookId.schema().name(), bookId.id(), keyword);
             if (count != 1) {
                 log.error("{}: {}, {}, {})", ServiceError.BOOK_NOT_REGISTERED.name(), bookId.schema(), bookId.id(), keyword);
-                ServiceError.BOOK_NOT_REGISTERED.raise(bookId + " " + keyword);
+                throw ServiceError.BOOK_NOT_REGISTERED.exception(bookId + " " + keyword);
             }
         }
 

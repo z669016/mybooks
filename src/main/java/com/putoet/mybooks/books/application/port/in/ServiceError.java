@@ -25,10 +25,10 @@ public enum ServiceError {
     AUTHOR_VERSION_REQUIRED;
 
 
-    public void raise() {
+    public RuntimeException exception() {
         throw new ServiceException(this);
     }
-    public void raise(String msg) {
+    public RuntimeException exception(String msg) {
         throw new ServiceException(this, msg);
     }
 }

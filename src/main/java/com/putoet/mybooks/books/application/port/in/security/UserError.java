@@ -11,10 +11,10 @@ public enum UserError {
     USER_ACCESS_ROLE_INVALID,
     USER_PASSWORD_TOO_SIMPLE;
 
-    public void raise() {
-        throw new UserException(this);
+    public RuntimeException exception() {
+        return new UserException(this);
     }
-    public void raise(String msg) {
-        throw new UserException(this, msg);
+    public RuntimeException exception(String msg) {
+        return new UserException(this, msg);
     }
 }

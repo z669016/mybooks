@@ -31,12 +31,12 @@ public class BookUpdateService implements BookManagementUpdatePort {
 
         if (name == null || name.isBlank()) {
             log.warn(ServiceError.AUTHOR_NAME_REQUIRED.name());
-            ServiceError.AUTHOR_NAME_REQUIRED.raise();
+            throw ServiceError.AUTHOR_NAME_REQUIRED.exception();
         }
 
         final Author author = bookPersistenceUpdatePort.registerAuthor(name, sites != null ? sites : Map.of());
         if (author == null)
-            ServiceError.AUTHOR_NOT_REGISTERED.raise();
+            throw ServiceError.AUTHOR_NOT_REGISTERED.exception();
 
         return author;
     }
@@ -46,7 +46,7 @@ public class BookUpdateService implements BookManagementUpdatePort {
         log.info("forgetAuthor({})", authorId);
 
         if (authorId == null)
-            ServiceError.AUTHOR_ID_REQUIRED.raise();
+            throw ServiceError.AUTHOR_ID_REQUIRED.exception();
 
         bookPersistenceUpdatePort.forgetAuthor(authorId);
     }
@@ -56,11 +56,11 @@ public class BookUpdateService implements BookManagementUpdatePort {
         log.info("updateAuthor({}, {}, {})", authorId, version, name);
 
         if (authorId == null)
-            ServiceError.AUTHOR_ID_REQUIRED.raise();
+            throw ServiceError.AUTHOR_ID_REQUIRED.exception();
         if (version == null)
-            ServiceError.AUTHOR_VERSION_REQUIRED.raise();
+            throw ServiceError.AUTHOR_VERSION_REQUIRED.exception();
         if (name == null || name.isBlank())
-            ServiceError.AUTHOR_NAME_REQUIRED.raise();
+            throw ServiceError.AUTHOR_NAME_REQUIRED.exception();
 
         return bookPersistenceUpdatePort.updateAuthor(authorId, version, name);
     }
@@ -70,15 +70,15 @@ public class BookUpdateService implements BookManagementUpdatePort {
         log.info("setAuthorSite({}, {}, {})", authorId, type, url);
 
         if (authorId == null)
-            ServiceError.AUTHOR_ID_REQUIRED.raise();
+            throw ServiceError.AUTHOR_ID_REQUIRED.exception();
         if (type == null)
-            ServiceError.AUTHOR_SITE_TYPE_REQUIRED.raise();
+            throw ServiceError.AUTHOR_SITE_TYPE_REQUIRED.exception();
         if (url == null)
-            ServiceError.AUTHOR_SITE_URL_INVALID.raise();
+            throw ServiceError.AUTHOR_SITE_URL_INVALID.exception();
 
         final Author author = bookPersistenceUpdatePort.findAuthorById(authorId);
         if (author == null)
-            ServiceError.AUTHOR_FOR_ID_NOT_FOUND.raise(authorId.toString());
+            throw ServiceError.AUTHOR_FOR_ID_NOT_FOUND.exception(authorId.toString());
 
         return bookPersistenceUpdatePort.setAuthorSite(authorId, type, url);
     }
@@ -88,13 +88,13 @@ public class BookUpdateService implements BookManagementUpdatePort {
         log.info("registerBook({}, {}, {}, {})", bookId, title, authors, formats);
 
         if (bookId == null)
-            ServiceError.BOOK_ID_REQUIRED.raise();
+            throw ServiceError.BOOK_ID_REQUIRED.exception();
         if (title == null || title.isBlank())
-            ServiceError.BOOK_TITLE_REQUIRED.raise();
+            throw ServiceError.BOOK_TITLE_REQUIRED.exception();
         if (formats == null || formats.isEmpty())
-            ServiceError.BOOK_FORMAT_REQUIRED.raise();
+            throw ServiceError.BOOK_FORMAT_REQUIRED.exception();
         if (keywords == null)
-            ServiceError.BOOK_KEYWORDS_REQUIRED.raise();
+            throw ServiceError.BOOK_KEYWORDS_REQUIRED.exception();
 
         return bookPersistenceUpdatePort.registerBook(bookId, title, authors, formats, keywords);
     }

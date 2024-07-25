@@ -39,7 +39,7 @@ public class UserService implements UserManagementPort {
         log.info("forgetUser({})", id);
 
         if (id == null || id.isBlank())
-            UserError.USER_ID_REQUIRED.raise();
+            throw UserError.USER_ID_REQUIRED.exception();
 
         userPersistencePort.forgetUser(id);
     }
@@ -47,19 +47,19 @@ public class UserService implements UserManagementPort {
     @Override
     public User registerUser(String id, String name, String password, AccessRole accessRole) {
         if (id == null || id.isBlank() || !EMAIL_PATTERN.matcher(id).matches())
-            UserError.USER_ID_INVALID.raise(id);
+            throw UserError.USER_ID_INVALID.exception(id);
 
         if (name == null || name.isBlank())
-            UserError.USER_NAME_REQUIRED.raise();
+            throw UserError.USER_NAME_REQUIRED.exception();
 
         if (password == null || password.isBlank())
-            UserError.USER_PASSWORD_REQUIRED.raise();
+            throw UserError.USER_PASSWORD_REQUIRED.exception();
 
         if (password.length() < 8)
-            UserError.USER_PASSWORD_TOO_SIMPLE.raise();
+            throw UserError.USER_PASSWORD_TOO_SIMPLE.exception();
 
         if (accessRole == null)
-            UserError.USER_ACCESS_ROLE_REQUIRED.raise();
+            throw UserError.USER_ACCESS_ROLE_REQUIRED.exception();
 
         return userPersistencePort.registerUser(id, name, passwordEncoder.encode(password), accessRole);
     }
@@ -69,7 +69,7 @@ public class UserService implements UserManagementPort {
         log.info("userById({})", id);
 
         if (id == null || id.isBlank())
-            UserError.USER_ID_REQUIRED.raise();
+            throw UserError.USER_ID_REQUIRED.exception();
 
         return Optional.ofNullable(userPersistencePort.findUserById(id));
     }
