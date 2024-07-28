@@ -1,4 +1,4 @@
-package com.putoet.mybooks.books.adapter.out.persistence.folder;
+package com.putoet.mybooks.books.adapter.out.persistence.jdbc;
 
 import com.putoet.mybooks.books.application.port.in.ServiceError;
 import com.putoet.mybooks.books.application.port.out.persistence.BookPersistenceUpdatePort;
@@ -50,7 +50,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
         final String sql = "select author_id, version, name from author";
         sqlInfo(log, sql);
 
-        return Set.copyOf(template.query(sql, this::authorMapper));
+        return Authors.ordered(template.query(sql, this::authorMapper));
     }
 
     @Override
@@ -61,7 +61,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
         final String sql = "select author_id, version, name from author where lower(name) like ?";
         sqlInfo(log, sql, name);
 
-        return Set.copyOf(template.query(sql, this::authorMapper, name));
+        return Authors.ordered(template.query(sql, this::authorMapper, name));
     }
 
     @Override
@@ -86,7 +86,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
         final String sql = "select book_id_type, book_id, title from book";
         sqlInfo(log, sql);
 
-        return Set.copyOf(template.query(sql, this::bookMapper));
+        return Books.ordered(template.query(sql, this::bookMapper));
     }
 
     @Override
@@ -102,7 +102,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
         final String sql = "select book_id_type, book_id, title from book where lower(title) like ?";
         sqlInfo(log, sql, title);
 
-        return Set.copyOf(template.query(sql, this::bookMapper, title));
+        return Books.ordered(template.query(sql, this::bookMapper, title));
     }
 
     @Override
@@ -126,7 +126,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
         final String sql = "select book_id_type, book_id, title from book where (book_id_type, book_id) in (select book_id_type, book_id from book_author where author_id = ?)";
         sqlInfo(log, sql, authorId.uuid());
 
-        return Set.copyOf(template.query(sql, this::bookMapper, authorId.uuid()));
+        return Books.ordered(template.query(sql, this::bookMapper, authorId.uuid()));
     }
 
     private Book bookMapper(ResultSet row, int rowNum) throws SQLException {

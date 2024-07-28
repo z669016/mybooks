@@ -1,7 +1,7 @@
 package com.putoet.mybooks.books.cucumber;
 
 import com.putoet.mybooks.books.adapter.out.persistence.folder.FolderBookRepository;
-import com.putoet.mybooks.books.adapter.out.persistence.folder.H2BookRepository;
+import com.putoet.mybooks.books.adapter.out.persistence.jdbc.H2BookRepository;
 import com.putoet.mybooks.books.adapter.out.persistence.folder.Rezipper;
 import com.putoet.mybooks.books.application.BookInquiryService;
 import com.putoet.mybooks.books.application.BookUpdateService;

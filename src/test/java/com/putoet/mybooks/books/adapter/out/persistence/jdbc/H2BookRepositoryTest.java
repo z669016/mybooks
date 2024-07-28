@@ -1,6 +1,5 @@
 package com.putoet.mybooks.books.adapter.out.persistence.jdbc;
 
-import com.putoet.mybooks.books.adapter.out.persistence.folder.H2BookRepository;
 import com.putoet.mybooks.books.application.port.in.ServiceException;
 import com.putoet.mybooks.books.domain.AuthorId;
 import com.putoet.mybooks.books.domain.BookId;
@@ -57,7 +56,16 @@ class H2BookRepositoryTest {
         final var authors = repository.findAuthors();
 
         assertEquals(6, authors.size());
-        authors.forEach(System.out::println);
+
+        var a = authors.stream().findFirst().orElseThrow();
+        for (var author : authors) {
+            if (a.id().equals(author.id()))
+                continue;
+
+            if (a.name().compareTo(author.name()) > 0) {
+                fail("Authors are not ordered");
+            }
+        }
     }
 
     @Test

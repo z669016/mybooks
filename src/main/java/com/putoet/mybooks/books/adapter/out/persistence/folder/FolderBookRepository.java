@@ -1,10 +1,7 @@
 package com.putoet.mybooks.books.adapter.out.persistence.folder;
 
 import com.putoet.mybooks.books.application.port.out.persistence.BookPersistenceQueryPort;
-import com.putoet.mybooks.books.domain.Author;
-import com.putoet.mybooks.books.domain.AuthorId;
-import com.putoet.mybooks.books.domain.Book;
-import com.putoet.mybooks.books.domain.BookId;
+import com.putoet.mybooks.books.domain.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -99,16 +96,18 @@ public class FolderBookRepository implements BookPersistenceQueryPort {
     public Set<Author> findAuthors() {
         log.info("findAuthors()");
 
-        return Set.copyOf(authors.values());
+        return Authors.ordered(authors.values());
     }
 
     @Override
     public Set<Author> findAuthorsByName(String name) {
         log.info("findAuthorsByName({})", name);
 
-        return authors.values().parallelStream()
-                .filter(author -> author.name().toLowerCase().contains(name.toLowerCase()))
-                .collect(Collectors.toSet());
+        return Authors.ordered(
+                authors.values().parallelStream()
+                        .filter(author -> author.name().toLowerCase().contains(name.toLowerCase()))
+                        .collect(Collectors.toSet())
+        );
     }
 
     @Override
@@ -122,16 +121,18 @@ public class FolderBookRepository implements BookPersistenceQueryPort {
     public Set<Book> findBooks() {
         log.info("findBooks()");
 
-        return Set.copyOf(books.values());
+        return Books.ordered(books.values());
     }
 
     @Override
     public Set<Book> findBooksByTitle(String title) {
         log.info("findBooksByTitle({})", title);
 
-        return books.values().parallelStream()
-                .filter(book -> book.title().toLowerCase().contains(title.toLowerCase()))
-                .collect(Collectors.toSet());
+        return Books.ordered(
+                books.values().parallelStream()
+                        .filter(book -> book.title().toLowerCase().contains(title.toLowerCase()))
+                        .collect(Collectors.toSet())
+        );
     }
 
     @Override
@@ -145,9 +146,11 @@ public class FolderBookRepository implements BookPersistenceQueryPort {
     public Set<Book> findBooksByAuthorId(AuthorId authorId) {
         log.info("findBooksByAuthorId({})", authorId);
 
-        return books.values().parallelStream()
-                .filter(book -> book.authors().stream().anyMatch(author -> author.id().equals(authorId)))
-                .collect(Collectors.toSet());
+        return Books.ordered(
+                books.values().parallelStream()
+                        .filter(book -> book.authors().stream().anyMatch(author -> author.id().equals(authorId)))
+                        .collect(Collectors.toSet())
+        );
     }
 
     @Override

@@ -31,6 +31,16 @@ class FolderBookRepositoryTest {
     void findAuthors() {
         final var authors = leanpub.findAuthors();
         assertEquals(6, authors.size());
+
+        var a = authors.stream().findFirst().orElseThrow();
+        for (var author : authors) {
+            if (a.id().equals(author.id()))
+                continue;
+
+            if (a.name().compareTo(author.name()) > 0) {
+                fail("Authors are not ordered");
+            }
+        }
     }
 
     @Test
@@ -43,6 +53,16 @@ class FolderBookRepositoryTest {
     void findBooks() {
         final var books = leanpub.findBooks();
         assertEquals(6, books.size());
+
+        var b = books.stream().findFirst().orElseThrow();
+        for (var book : books) {
+            if (b.id().equals(book.id()))
+                continue;
+
+            if (b.title().compareTo(book.title()) > 0) {
+                fail("Books are not ordered");
+            }
+        }
     }
 
     @Test

@@ -4,6 +4,7 @@ import com.putoet.mybooks.books.application.port.in.security.UserError;
 import com.putoet.mybooks.books.application.port.out.security.UserPersistencePort;
 import com.putoet.mybooks.books.domain.security.AccessRole;
 import com.putoet.mybooks.books.domain.security.User;
+import com.putoet.mybooks.books.domain.security.Users;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -13,8 +14,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static com.putoet.mybooks.books.adapter.out.persistence.jdbc.SqlUtil.sqlInfo;
 
@@ -39,7 +39,7 @@ public class H2UserRepository implements UserPersistencePort {
         final String sql = "select id, name, password, access from users";
         sqlInfo(log, sql);
 
-        return Set.copyOf(template.query(sql, this::userMapper));
+        return Users.ordered(template.query(sql, this::userMapper));
     }
 
     @Override
