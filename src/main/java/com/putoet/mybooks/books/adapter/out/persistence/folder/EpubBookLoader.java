@@ -1,4 +1,4 @@
-package com.putoet.mybooks.books.adapter.out.persistence;
+package com.putoet.mybooks.books.adapter.out.persistence.folder;
 
 import com.putoet.mybooks.books.domain.*;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +29,7 @@ public final class EpubBookLoader {
     public static final int MAX_EPUB_LOAD_SIZE = 10_000_000;
 
     private EpubBookLoader() {}
+
 
     public static Book bookForFile(String fileName, boolean repair) {
         try {

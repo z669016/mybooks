@@ -1,4 +1,4 @@
-package com.putoet.mybooks.books.adapter.out.persistence;
+package com.putoet.mybooks.books.adapter.out.persistence.jdbc;
 
 import org.slf4j.Logger;
 

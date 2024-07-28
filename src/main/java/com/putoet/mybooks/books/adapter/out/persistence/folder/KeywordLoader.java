@@ -1,4 +1,4 @@
-package com.putoet.mybooks.books.adapter.out.persistence;
+package com.putoet.mybooks.books.adapter.out.persistence.folder;
 
 import lombok.extern.slf4j.Slf4j;
 

@@ -1,4 +1,4 @@
-package com.putoet.mybooks.books.adapter.out.persistence;
+package com.putoet.mybooks.books.adapter.out.persistence.folder;
 
 import com.putoet.mybooks.books.application.port.out.persistence.BookPersistenceQueryPort;
 import com.putoet.mybooks.books.domain.Author;

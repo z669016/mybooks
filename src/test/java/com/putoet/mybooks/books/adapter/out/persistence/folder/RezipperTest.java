@@ -1,4 +1,4 @@
-package com.putoet.mybooks.books.adapter.out.persistence;
+package com.putoet.mybooks.books.adapter.out.persistence.folder;
 
 import org.junit.jupiter.api.Test;
 

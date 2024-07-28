@@ -1,4 +1,4 @@
-package com.putoet.mybooks.books.adapter.out.security;
+package com.putoet.mybooks.books.adapter.out.persistence.jdbc;
 
 import com.putoet.mybooks.books.application.port.in.security.UserError;
 import com.putoet.mybooks.books.application.port.out.security.UserPersistencePort;
@@ -16,7 +16,7 @@ import java.sql.SQLException;
 import java.util.Objects;
 import java.util.Set;
 
-import static com.putoet.mybooks.books.adapter.out.persistence.SqlUtil.sqlInfo;
+import static com.putoet.mybooks.books.adapter.out.persistence.jdbc.SqlUtil.sqlInfo;
 
 @Repository
 @Slf4j

@@ -1,4 +1,4 @@
-package com.putoet.mybooks.books.adapter.out.persistence;
+package com.putoet.mybooks.books.adapter.out.persistence.folder;
 
 import com.putoet.mybooks.books.application.port.in.ServiceError;
 import com.putoet.mybooks.books.application.port.out.persistence.BookPersistenceUpdatePort;
@@ -17,10 +17,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.putoet.mybooks.books.adapter.out.persistence.SqlUtil.sqlInfo;
+import static com.putoet.mybooks.books.adapter.out.persistence.jdbc.SqlUtil.sqlInfo;
 
 
 /**
@@ -193,7 +195,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
 
     private Site siteMapper(ResultSet row, int rowNum) throws SQLException {
         try {
-            final var type = new SiteType( row.getString("name"));
+            final var type = SiteType.of(row.getString("name"));
             final var url = new URL(row.getString("url"));
             return new Site(type, url);
         } catch (MalformedURLException exc) {
@@ -202,7 +204,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
     }
 
     @Override
-    public Author registerAuthor(String name, Map<SiteType,URL> sites) {
+    public Author registerAuthor(String name, Map<SiteType, URL> sites) {
         log.info("registerAuthor({}, {})", name, sites);
 
         final var id = AuthorId.withoutId();
@@ -248,7 +250,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
 
         int count = template.update(sql, authorId.uuid());
         if (count != 1) {
-            log.error("{}: {}", ServiceError.AUTHOR_FOR_ID_NOT_FOUND.name(), authorId );
+            log.error("{}: {}", ServiceError.AUTHOR_FOR_ID_NOT_FOUND.name(), authorId);
             throw ServiceError.AUTHOR_FOR_ID_NOT_FOUND.exception();
         }
     }
@@ -258,9 +260,9 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
         log.info("setAuthorSite({}, {}, {})", authorId, type, url);
 
         final String sql = "merge into site (author_id, name, url) values (?, ?, ?)";
-        sqlInfo(log, sql, authorId.uuid(),type.name(),url.toString());
+        sqlInfo(log, sql, authorId.uuid(), type.name(), url.toString());
 
-        int count = template.update(sql, authorId.uuid(),type.name(),url.toString());
+        int count = template.update(sql, authorId.uuid(), type.name(), url.toString());
         if (count != 1) {
             log.error("{}: {} {}", ServiceError.AUTHOR_SITE_NOT_SET, authorId, type);
             throw ServiceError.AUTHOR_SITE_NOT_SET.exception(authorId + " " + type);

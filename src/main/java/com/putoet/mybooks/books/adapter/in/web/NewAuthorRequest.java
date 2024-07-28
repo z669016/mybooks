@@ -18,7 +18,7 @@ public record NewAuthorRequest(@NotBlank String name, @SiteMapConstraint Map<Str
         try {
             final var domain = new HashMap<SiteType, URL>();
             for (String key : sites.keySet()) {
-                domain.put(new SiteType(key), new URL(sites.get(key)));
+                domain.put(SiteType.of(key), new URL(sites.get(key)));
             }
             return domain;
         } catch (MalformedURLException | RuntimeException exc) {

@@ -1,5 +1,6 @@
-package com.putoet.mybooks.books.adapter.out.persistence;
+package com.putoet.mybooks.books.adapter.out.persistence.jdbc;
 
+import com.putoet.mybooks.books.adapter.out.persistence.folder.H2BookRepository;
 import com.putoet.mybooks.books.application.port.in.ServiceException;
 import com.putoet.mybooks.books.domain.AuthorId;
 import com.putoet.mybooks.books.domain.BookId;
