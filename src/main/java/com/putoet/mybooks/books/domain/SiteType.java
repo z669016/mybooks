@@ -27,4 +27,16 @@ public record SiteType(String name) {
         if (name.isBlank())
             throw new IllegalArgumentException("Site type name must not be blank");
     }
+
+    public static SiteType of(String name) {
+        return switch (name) {
+            case GITHUB_NAME -> GITHUB;
+            case TWITTER_NAME -> TWITTER;
+            case LINKEDIN_NAME -> LINKEDIN;
+            case FACEBOOK_NAME -> FACEBOOK;
+            case HOMEPAGE_NAME -> HOMEPAGE;
+            case INSTAGRAM_NAME -> INSTAGRAM;
+            default -> new SiteType(name);
+        };
+    }
 }

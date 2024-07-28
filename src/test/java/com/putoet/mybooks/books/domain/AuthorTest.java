@@ -42,7 +42,7 @@ public class AuthorTest {
         sites.put(SiteType.LINKEDIN, linkedIn);
         sites.put(SiteType.FACEBOOK, facebook);
         sites.put(SiteType.HOMEPAGE, homePage);
-        sites.put(new SiteType(blog_name), blog);
+        sites.put(SiteType.of(blog_name), blog);
     }
 
     @Test

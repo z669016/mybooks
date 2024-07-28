@@ -35,13 +35,13 @@ class AuthorResponseTest {
     @Test
     void toDomain() throws MalformedURLException {
         final var sites = Map.of(
-                "LinkedIn", "https://au.linkedin.com/in/thombergs",
-                "GitHub", "https://github.com/thombergs"
+                SiteType.LINKEDIN_NAME, "https://au.linkedin.com/in/thombergs",
+                SiteType.GITHUB_NAME, "https://github.com/thombergs"
         );
 
         final var domain = Map.of(
-                new SiteType("LinkedIn"), new URL("https://au.linkedin.com/in/thombergs"),
-                new SiteType("GitHub"), new URL("https://github.com/thombergs")
+                SiteType.of(SiteType.LINKEDIN_NAME), new URL("https://au.linkedin.com/in/thombergs"),
+                SiteType.of(SiteType.GITHUB_NAME), new URL("https://github.com/thombergs")
         );
 
         assertEquals(domain, NewAuthorRequest.sitesWithURLs(sites));
