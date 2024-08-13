@@ -14,4 +14,4 @@
 `---'.|     `--`----'      ---`-'            \   \  /    ---`-'
   `---`                                       `----'
 Powered by :: Spring Boot ${spring-boot.version}
-Generated using :: https://patorjk.com/software/taag/#p=display&f=3D%20Diagonal&t=Putoet
+ASCII Art Generated using :: https://patorjk.com/software/taag/#p=display&f=3D%20Diagonal&t=Putoet
