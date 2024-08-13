@@ -69,7 +69,7 @@ To capture all SQL statements, including the values, I introduced ```SQLUtil``` 
 including parameter values using the class logger.
 
 The persistence implementations is unit tested using the ```@JdbcTest``` annotation from Spring, and a ```schema.sql```
-to build a default in-memory H2 database, and ```data.sql``` to load a little bit of initial test data.
+to build a default in-memory H2 database, and ```data.sql.bak.bak.bak``` to load a little bit of initial test data.
 
 ### Text parsing for keywords
 Getting keywords from books was a separate challenge, and it took a few cycles to find a reasonable approach. 
@@ -306,6 +306,22 @@ on the GraphQL interface was disabled in the security configuration.
 Replacing the use of the RestTemplate with [rest-assured](https://rest-assured.io/), was pretty easy. It also
 allowed cleanup as the rest assured framework handles https out of th e box. It also knows how to
 translate (map) responses given a class type, so no need to pass an ObjectMapper.
+
+## Recreating the database from scratch
+This feature has been implemented as a test. During testing of the feature I discovered a couple of new things as well. 
+
+When running a test annotated with ```@JdbcTest``` the test will use the ```schema.sql``` and ```data.sql``` files to 
+create an in-memory H2 database, while ignoring most of the database settings in yoor ```application.yml```. To run 
+the tests against a real database, you need to use ```@SpringBootTest``` and ```@AutoConfigureMockMvc```. 
+
+When running a test annotated with ```@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)```, 
+to prevent the real database from being replaced by the in-memory test version. This doesn't prevent the loading
+of test data from the ```data.sql```, so that should be renamed before running the test. 
+
+While playing around with this feature, I noticed duplicates in the Author-table. This was caused by the 
+```FolderBookRepository``` that created an Author for every author-name linked to any book. This was fixed, by
+removing all duplications after loading book data and before returning from the constructor (duplicate authors
+are being removed, and only the first author with a specific name is stored and linked to the books). 
 
 ## Class models
 
