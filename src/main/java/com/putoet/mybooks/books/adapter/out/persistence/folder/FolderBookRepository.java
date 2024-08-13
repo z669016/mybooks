@@ -7,10 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toMap;
@@ -44,6 +41,50 @@ public class FolderBookRepository implements BookPersistenceQueryPort {
         this.folder = folder;
         this.books = booksForFiles(files);
         this.authors = authorsForBooks(books);
+
+        deduplicateAuthors(books, authors);
+    }
+
+    private void deduplicateAuthors(Map<BookId, Book> books, Map<AuthorId, Author> authors) {
+        // Group authors by name
+        final var names = authors.values().stream()
+                .collect(Collectors.groupingBy(Author::name));
+
+        // For each book, check if the author is already in the group and if so,
+        // replace the author with the first author in the group.
+        // Use a separate list to go through, so the map can be updated along the way.
+        final var bookIds = new ArrayList<>(books.keySet());
+        for (final var id : bookIds) {
+            var book = books.get(id);
+            final var bookAuthors = book.authors();
+            for (var author : bookAuthors) {
+                final var authorGroup = names.get(author.name());
+
+                // If the author isn't the same as the first in the list, it's a duplicate
+                if (!author.id().equals(authorGroup.get(0).id())) {
+                    // create a new list of authors with the current one, replaced with the first in the group
+                    final var newAuthors = new HashSet<>(book.authors());
+                    newAuthors.remove(author);
+                    newAuthors.add(authorGroup.get(0));
+
+                    // put a new book in the map with the new authors
+                    book = new Book(book.id(), book.title(), newAuthors, book.keywords(), book.formats());
+                    books.put(book.id(), book);
+
+                    // remove the replaced author from the author map
+                    authors.remove(author.id());
+                }
+            }
+        }
+
+        for (var book : books.values()) {
+            for (var author : book.authors()) {
+                if (!authors.containsKey(author.id())) {
+                    System.out.printf("Author %s not found in authors, for book %s%n", author, book);
+                    System.out.printf("names: %s%n", names.get(author.name()));
+                }
+            }
+        }
     }
 
     public static Set<String> listEpubFiles(Path folder) {
@@ -87,6 +128,7 @@ public class FolderBookRepository implements BookPersistenceQueryPort {
     }
 
     private Map<AuthorId, Author> authorsForBooks(Map<BookId, Book> books) {
+
         return books.values().parallelStream()
                 .flatMap(book -> book.authors().stream())
                 .collect(toMap(Author::id, author -> author));
