@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 public class BookTest {
-    private static final BookId id = new BookId(BookId.BookIdScheme.ISBN, "978-1-83921-196-6");
+    private static final BookId id = new BookId(BookId.BookIdSchema.ISBN, "978-1-83921-196-6");
     private static final String title = "Get Your Hands Dirty on Clean Architecture";
     private static final Author author = mock(Author.class);
     private static final Set<Author> authors = Set.of(author);

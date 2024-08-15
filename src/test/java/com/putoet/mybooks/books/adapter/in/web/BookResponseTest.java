@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class BookResponseTest {
     private final Author author = new Author(AuthorId.withoutId(), Instant.now(), "Schrijver, Jaap de", Map.of());
     private final Set<String> formats = Set.of(MimeTypes.PDF.toString(), MimeTypes.EPUB.toString());
-    private final Book book = new Book(new BookId(BookId.BookIdScheme.ISBN, "978-1-83921-196-6"),
+    private final Book book = new Book(new BookId(BookId.BookIdSchema.ISBN, "978-1-83921-196-6"),
             "Get Your Hands Dirty on Clean Architecture",
             Set.of(author),
             Set.of("architecture", "rest"),

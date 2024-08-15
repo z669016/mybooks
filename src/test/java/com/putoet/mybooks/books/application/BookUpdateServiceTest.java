@@ -111,7 +111,7 @@ class BookUpdateServiceTest {
     @Test
     void registerBook() {
         final var author = new Author(AuthorId.withoutId(), Instant.now(), "New, name", Map.of());
-        final var bookId = new BookId(BookId.BookIdScheme.ISBN, "978-1839211966");
+        final var bookId = new BookId(BookId.BookIdSchema.ISBN, "978-1839211966");
         final var title = "Get Your Hands Dirty on Clean Architecture";
         final var authors = Set.of(author);
         final var formats = Set.of(MimeTypes.EPUB);

@@ -110,7 +110,7 @@ public final class EpubBookLoader {
 
     private static BookId extractBookId(String fileName, String identifier) {
         if (identifier == null || identifier.isBlank())
-            return new BookId(BookId.BookIdScheme.UUID, UUID.randomUUID().toString());
+            return new BookId(BookId.BookIdSchema.UUID, UUID.randomUUID().toString());
 
         var id = identifier.toLowerCase();
         id = id.replace("urn:", "");
@@ -121,28 +121,28 @@ public final class EpubBookLoader {
         id = id.replace(' ', '-');
 
         if (ISBN.isValid(id))
-            return new BookId(BookId.BookIdScheme.ISBN, id);
+            return new BookId(BookId.BookIdSchema.ISBN, id);
         try {
             new URL(id);
-            return new BookId(BookId.BookIdScheme.URL, id);
+            return new BookId(BookId.BookIdSchema.URL, id);
         } catch (MalformedURLException ignored) {
         }
 
         try {
             UUID.fromString(id);
-            return new BookId(BookId.BookIdScheme.UUID, id);
+            return new BookId(BookId.BookIdSchema.UUID, id);
         } catch (IllegalArgumentException ignored) {
         }
 
         try {
             // URI's cannot be trusted to be unique (I found) so, replace them with UUID
             new URI(id);
-            return new BookId(BookId.BookIdScheme.UUID, UUID.randomUUID().toString());
+            return new BookId(BookId.BookIdSchema.UUID, UUID.randomUUID().toString());
         } catch (URISyntaxException ignored) {
         }
 
         log.warn("Invalid book identifier '{}' for {}, generated a uuid", id, fileName);
-        return new BookId(BookId.BookIdScheme.UUID, UUID.randomUUID().toString());
+        return new BookId(BookId.BookIdSchema.UUID, UUID.randomUUID().toString());
     }
 
     private static Set<Author> extractAuthors(String authors) {

@@ -7,8 +7,8 @@ import java.net.URL;
 import java.util.Objects;
 import java.util.UUID;
 
-public record BookId(BookIdScheme schema, String id) {
-    public enum BookIdScheme {
+public record BookId(BookIdSchema schema, String id) {
+    public enum BookIdSchema {
         UUID,
         ISBN,
         URL,
@@ -16,7 +16,7 @@ public record BookId(BookIdScheme schema, String id) {
     }
 
     public BookId(String schema, String id) {
-        this(BookIdScheme.valueOf(schema.trim().toUpperCase()), id);
+        this(BookIdSchema.valueOf(schema.trim().toUpperCase()), id);
     }
 
     public BookId {
@@ -57,6 +57,6 @@ public record BookId(BookIdScheme schema, String id) {
     }
 
     public BookId() {
-        this(BookIdScheme.UUID, UUID.randomUUID().toString());
+        this(BookIdSchema.UUID, UUID.randomUUID().toString());
     }
 }

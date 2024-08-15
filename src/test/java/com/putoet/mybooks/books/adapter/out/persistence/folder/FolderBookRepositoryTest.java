@@ -74,7 +74,7 @@ class FolderBookRepositoryTest {
     @Test
     void findBookById() {
         final var id = "https://leanpub.com/wardley-maps";
-        final var bookId = new BookId(BookId.BookIdScheme.URL, id);
+        final var bookId = new BookId(BookId.BookIdSchema.URL, id);
         final var book = leanpub.findBookById(bookId);
 
         assertAll(

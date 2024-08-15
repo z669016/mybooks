@@ -15,10 +15,10 @@ public class BookIdTest {
                 // error conditions
                 () -> assertThrows(IllegalArgumentException.class, () -> new BookId("", "")),
                 () -> assertThrows(IllegalArgumentException.class, () -> new BookId("BLA", "")),
-                () -> assertThrows(NullPointerException.class, () -> new BookId(BookId.BookIdScheme.UUID, null)),
+                () -> assertThrows(NullPointerException.class, () -> new BookId(BookId.BookIdSchema.UUID, null)),
 
                 // normal expected outcome
-                () -> assertEquals(BookId.BookIdScheme.UUID, bookId.schema()),
+                () -> assertEquals(BookId.BookIdSchema.UUID, bookId.schema()),
                 () -> assertNotNull(bookId.id())
         );
     }
@@ -27,7 +27,7 @@ public class BookIdTest {
     void isbnBookId() {
         final var id10 = "99921-58-10-7";
         final var id13 = "978-3-16-148410-0";
-        final var schema = BookId.BookIdScheme.ISBN;
+        final var schema = BookId.BookIdSchema.ISBN;
 
         final var bookId10 = new BookId(schema, id10);
         final var bookId13 = new BookId(schema, id13);
@@ -46,8 +46,8 @@ public class BookIdTest {
     @Test
     void uriBookId() {
         final var id = "urn:oasis:names:specification:docbook:dtd:xml:4.1.2";
-        final var bookId = new BookId(BookId.BookIdScheme.URI, id);
-        final var schema = BookId.BookIdScheme.URI;
+        final var bookId = new BookId(BookId.BookIdSchema.URI, id);
+        final var schema = BookId.BookIdSchema.URI;
 
         assertAll(
                 () -> assertEquals(schema, bookId.schema()),
@@ -61,8 +61,8 @@ public class BookIdTest {
     @Test
     void urlBookId() {
         final var id = "https://leanpub.com/wardley-maps";
-        final var bookId = new BookId(BookId.BookIdScheme.URL, id);
-        final var schema = BookId.BookIdScheme.URL;
+        final var bookId = new BookId(BookId.BookIdSchema.URL, id);
+        final var schema = BookId.BookIdSchema.URL;
 
         assertAll(
                 () -> assertEquals(schema, bookId.schema()),
@@ -76,7 +76,7 @@ public class BookIdTest {
     @Test
     void uuidBookId() {
         final var id = UUID.randomUUID().toString();
-        final var schema = BookId.BookIdScheme.UUID;
+        final var schema = BookId.BookIdSchema.UUID;
         final var bookId = new BookId(schema, id);
 
         assertAll(

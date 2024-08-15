@@ -156,7 +156,7 @@ class BookInquiryServiceTest {
     @Test
     void bookById() {
         when(bookPersistenceQueryPort.findBookById(any())).thenReturn(null);
-        final var id = new BookId(BookId.BookIdScheme.UUID, UUID.randomUUID().toString());
+        final var id = new BookId(BookId.BookIdSchema.UUID, UUID.randomUUID().toString());
         final var book = bookManagementInquiryPort.bookById(id);
 
         assertAll(

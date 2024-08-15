@@ -7,6 +7,7 @@ import jakarta.activation.MimeType;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -32,6 +33,7 @@ import static com.putoet.mybooks.books.adapter.out.persistence.jdbc.SqlUtil.sqlI
 @Repository
 @Slf4j
 @RequiredArgsConstructor
+@Profile("jdbc")
 public class H2BookRepository implements BookPersistenceUpdatePort {
 
     private final JdbcTemplate template;
@@ -136,7 +138,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
         final var formats = findFormatsForBook(book_id_type, book_id);
         final var keywords = findKeywordsForBook(book_id_type, book_id);
 
-        return new Book(new BookId(BookId.BookIdScheme.valueOf(book_id_type), book_id)
+        return new Book(new BookId(BookId.BookIdSchema.valueOf(book_id_type), book_id)
                 , row.getString("title")
                 , authors
                 , keywords
@@ -206,9 +208,12 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
     @Override
     public Author registerAuthor(String name, Map<SiteType, URL> sites) {
         log.info("registerAuthor({}, {})", name, sites);
+        return registerAuthor(AuthorId.withoutId(), Instant.now(), name, sites);
+    }
 
-        final var id = AuthorId.withoutId();
-        final var version = Instant.now();
+    public Author registerAuthor(AuthorId id, Instant version, String name, Map<SiteType, URL> sites) {
+        log.info("registerAuthor({}, {}, {}, {})", id, version, name, sites);
+
         final String sql = "insert into author (author_id, version, name) values (?, ?, ?)";
         sqlInfo(log, sql, id.uuid(), version, name);
 
