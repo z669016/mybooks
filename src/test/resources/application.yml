@@ -1,12 +1,12 @@
 spring:
   profiles:
-    active: jdbc
+    active: jpa
   h2:
     console:
-      enabled: true
+      enabled: false
   datasource:
-    #url: jdbc:h2:mem:test_books;time zone=UTC
-    url: jdbc:h2:file:./h2db/books;time zone=UTC
+    url: jdbc:h2:mem:test_books;time zone=UTC
+    #url: jdbc:h2:file:./h2db/books;time zone=UTC
   data:
     jpa:
       repositories:
@@ -21,14 +21,16 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
         generate_statistics: true
-        format_sql: true
-    show-sql: true
+        format_sql: false
+    show-sql: false
   sql:
     init:
       mode: always
 logging:
   level:
     root: warn
+    org.springframework: warn
+    org.hibernate: warn
 server:
   port: 443
   servlet:

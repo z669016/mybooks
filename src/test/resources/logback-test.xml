@@ -4,9 +4,9 @@
 
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
     <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
-    <root level="WARN">
+    <root level="INFO">
         <appender-ref ref="CONSOLE"/>
     </root>
     <logger name="org.springframework.web" level="WARN"/>
-    <logger name="com.putoet.mybooks.books.adapter.out.persistence.folder.H2BookRepository" level="WARN"/>
+    <logger name="com.putoet.mybooks.books.adapter.out.persistence.jdbc.H2BookRepository" level="WARN"/>
 </configuration>

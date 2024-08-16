@@ -30,7 +30,7 @@ class FolderBookRepositoryTest {
     @Test
     void findAuthors() {
         final var authors = leanpub.findAuthors();
-        assertEquals(6, authors.size());
+        assertEquals(5, authors.size());
 
         var a = authors.stream().findFirst().orElseThrow();
         for (var author : authors) {

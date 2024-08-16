@@ -26,6 +26,23 @@
 		<commons-compress.version>1.26.2</commons-compress.version>
 	</properties>
 
+	<profiles>
+		<profile>
+			<id>jdbc</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<spring.profiles.active>jdbc</spring.profiles.active>
+			</properties>
+		</profile>
+		<profile>
+			<id>jpa</id>
+			<properties>
+				<spring.profiles.active>jpa</spring.profiles.active>
+			</properties>
+		</profile>
+	</profiles>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -62,10 +79,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-configuration-processor</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.datatype</groupId>
-			<artifactId>jackson-datatype-jsr310</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
