@@ -323,6 +323,19 @@ While playing around with this feature, I noticed duplicates in the Author-table
 removing all duplications after loading book data and before returning from the constructor (duplicate authors
 are being removed, and only the first author with a specific name is stored and linked to the books). 
 
+## Java Persistence API
+Adding JPA took quite some steps. By default the JPA entities are being used to create the database (```@JdbcTest```, 
+and ```@JPATest```) work with an embedded H2 database that is recreated on every run. JPA recreates the tables from the
+entity definitions (as expected), but things blow up if the entity definitions are not in sync with the database 
+schema (duh). 
+
+For properly using the composite key, after a few attempts I stuck to the advice of [Vlad Mihalcea](https://vladmihalcea.com/) from his article 
+[The best way to map a Composite Key with JPA and Hibernate](https://vladmihalcea.com/the-best-way-to-map-a-composite-primary-key-with-jpa-and-hibernate/)
+
+During the final steps I got issues on the entity hashcode. Originally the classes were annotated with ```@Data```, and
+```@ToString```, but these can cause issues. Also here, I complied with an advice from [Vlad Mihalcea](https://vladmihalcea.com/)
+[(Hopefully) the final article about equals and hashCode for JPA entities with DB-generated IDs](https://jpa-buddy.com/blog/hopefully-the-final-article-about-equals-and-hashcode-for-jpa-entities-with-db-generated-ids/)
+
 ## Class models
 
 domain:
