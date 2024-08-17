@@ -8,6 +8,7 @@ import io.cucumber.spring.CucumberContextConfiguration;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 
 import static io.restassured.RestAssured.given;
@@ -19,6 +20,8 @@ public class MyBooksE2EBase {
     private static final String URL_PREFIX = "https://localhost:443";
 
     protected final TestContext context = TestContext.getInstance();
+
+    protected final ApplicationEventPublisher applicationEventPublisher = System.err::println;
 
     public void userLogin() {
         final var login = new UserLoginRequest("putoet@outlook.com", "2password!");

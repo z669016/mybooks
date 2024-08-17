@@ -6,6 +6,7 @@ import com.putoet.mybooks.books.application.port.out.persistence.BookPersistence
 import com.putoet.mybooks.books.domain.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -20,11 +21,13 @@ import static org.mockito.Mockito.*;
 class BookUpdateServiceTest {
     private BookPersistenceUpdatePort bookPersistenceUpdatePort;
     private BookManagementUpdatePort bookManagementUpdatePort;
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @BeforeEach
     void setup() {
         bookPersistenceUpdatePort = mock(BookPersistenceUpdatePort.class);
-        bookManagementUpdatePort = new BookUpdateService(bookPersistenceUpdatePort);
+        applicationEventPublisher = mock(ApplicationEventPublisher.class);
+        bookManagementUpdatePort = new BookUpdateService(bookPersistenceUpdatePort, applicationEventPublisher);
     }
 
     @Test
@@ -84,7 +87,6 @@ class BookUpdateServiceTest {
                 () -> assertThrows(ServiceException.class, () -> bookManagementUpdatePort.updateAuthor(AuthorId.withoutId(), Instant.now(), null)),
                 () -> assertThrows(ServiceException.class, () -> bookManagementUpdatePort.updateAuthor(AuthorId.withoutId(), Instant.now(), " "))
         );
-
     }
 
     @Test

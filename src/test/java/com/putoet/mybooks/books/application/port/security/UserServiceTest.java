@@ -8,6 +8,7 @@ import com.putoet.mybooks.books.domain.security.AccessRole;
 import com.putoet.mybooks.books.domain.security.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -19,6 +20,7 @@ class UserServiceTest {
     private UserPersistencePort userPort;
     private PasswordEncoder passwordEncoder;
     private UserManagementPort userManagementPort;
+    private ApplicationEventPublisher applicationEventPublisher;
 
     private final User ADMIN = new User("z669016@gmail.com", "Z669016", "1password!", AccessRole.ADMIN);
     private final User USER = new User("putoet@outlook.com", "PUTOET", "2password!", AccessRole.USER);
@@ -27,7 +29,8 @@ class UserServiceTest {
     void setup() {
         userPort = mock(UserPersistencePort.class);
         passwordEncoder = mock(PasswordEncoder.class);
-        userManagementPort = new UserService(userPort, passwordEncoder);
+        applicationEventPublisher = mock(ApplicationEventPublisher.class);
+        userManagementPort = new UserService(userPort, passwordEncoder, applicationEventPublisher);
     }
 
     @Test
@@ -48,6 +51,7 @@ class UserServiceTest {
     void registerUser() {
         final String password = "encoded_password";
         when(passwordEncoder.encode(USER.password())).thenReturn(password);
+        when(userPort.registerUser(USER.id(), USER.name(), password, USER.accessRole())).thenReturn(USER);
         userManagementPort.registerUser(USER.id(), USER.name(), USER.password(), USER.accessRole());
 
         assertAll(

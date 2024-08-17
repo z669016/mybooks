@@ -102,6 +102,5 @@ public class UserFeatureStepDef extends MyBooksE2EBase {
     public void responseContainsDetailsOnMoreThanUser(int moreThanCountUsers) {
         final var users = context.response().body().jsonPath().getList(".", UserResponse.class);
         assertTrue(users.size() > moreThanCountUsers);
-
     }
 }

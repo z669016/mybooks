@@ -1,12 +1,17 @@
 package com.putoet.mybooks.books.application;
 
-import com.putoet.mybooks.books.application.port.in.*;
+import com.putoet.mybooks.books.application.port.in.BookManagementUpdatePort;
+import com.putoet.mybooks.books.application.port.in.ServiceError;
 import com.putoet.mybooks.books.application.port.out.persistence.BookPersistenceUpdatePort;
+import com.putoet.mybooks.books.application.security.event.AuthorCreatedSecurityEvent;
+import com.putoet.mybooks.books.application.security.event.AuthorDeletedSecurityEvent;
+import com.putoet.mybooks.books.application.security.event.BookCreatedSecurityEvent;
 import com.putoet.mybooks.books.domain.*;
 import jakarta.activation.MimeType;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.net.URL;
@@ -24,6 +29,7 @@ import java.util.Set;
 @ToString
 public class BookUpdateService implements BookManagementUpdatePort {
     private final BookPersistenceUpdatePort bookPersistenceUpdatePort;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     public Author registerAuthor(String name, Map<SiteType, URL> sites) {
@@ -38,6 +44,7 @@ public class BookUpdateService implements BookManagementUpdatePort {
         if (author == null)
             throw ServiceError.AUTHOR_NOT_REGISTERED.exception();
 
+        applicationEventPublisher.publishEvent(new AuthorCreatedSecurityEvent(this, author.id()));
         return author;
     }
 
@@ -49,6 +56,7 @@ public class BookUpdateService implements BookManagementUpdatePort {
             throw ServiceError.AUTHOR_ID_REQUIRED.exception();
 
         bookPersistenceUpdatePort.forgetAuthor(authorId);
+        applicationEventPublisher.publishEvent(new AuthorDeletedSecurityEvent(this, authorId));
     }
 
     @Override
@@ -96,6 +104,11 @@ public class BookUpdateService implements BookManagementUpdatePort {
         if (keywords == null)
             throw ServiceError.BOOK_KEYWORDS_REQUIRED.exception();
 
-        return bookPersistenceUpdatePort.registerBook(bookId, title, authors, formats, keywords);
+        final var book = bookPersistenceUpdatePort.registerBook(bookId, title, authors, formats, keywords);
+        if (book == null)
+            throw ServiceError.BOOK_NOT_REGISTERED.exception();
+
+        applicationEventPublisher.publishEvent(new BookCreatedSecurityEvent(this, book.id()));
+        return book;
     }
 }

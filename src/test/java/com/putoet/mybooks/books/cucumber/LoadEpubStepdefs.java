@@ -49,7 +49,7 @@ public class LoadEpubStepdefs extends MyBooksE2EBase {
         final var folder = new FolderBookRepository(Paths.get(context.get(ROOT_FOLDER, String.class)));
 
         final var inputBookManagementInquiryPort = new BookInquiryService(folder);
-        final var outputBookManagementUpdatePort = new BookUpdateService(database);
+        final var outputBookManagementUpdatePort = new BookUpdateService(database, applicationEventPublisher);
 
         final var storedAuthors = new HashMap<String, Author>();
         final var storedBooks = new HashSet<Book>();

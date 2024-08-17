@@ -336,6 +336,11 @@ During the final steps I got issues on the entity hashcode. Originally the class
 ```@ToString```, but these can cause issues. Also here, I complied with an advice from [Vlad Mihalcea](https://vladmihalcea.com/)
 [(Hopefully) the final article about equals and hashCode for JPA entities with DB-generated IDs](https://jpa-buddy.com/blog/hopefully-the-final-article-about-equals-and-hashcode-for-jpa-entities-with-db-generated-ids/)
 
+## Security event monitoring
+Implemented simple security event monitoring using the standard Spring ```ApplicationEventPublisher```. The 
+```SecurityEventConfiguration``` registers several listeners for the events to be audited. A custom 
+```SecurityEvent``` is used to capture the event details for model-change events (e.g. book created or author deleted).
+
 ## Class models
 
 domain:

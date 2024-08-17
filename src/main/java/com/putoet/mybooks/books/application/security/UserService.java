@@ -3,11 +3,14 @@ package com.putoet.mybooks.books.application.security;
 import com.putoet.mybooks.books.application.port.in.security.UserError;
 import com.putoet.mybooks.books.application.port.in.security.UserManagementPort;
 import com.putoet.mybooks.books.application.port.out.security.UserPersistencePort;
+import com.putoet.mybooks.books.application.security.event.UserCreatedSecurityEvent;
+import com.putoet.mybooks.books.application.security.event.UserDeletedSecurityEvent;
 import com.putoet.mybooks.books.domain.security.AccessRole;
 import com.putoet.mybooks.books.domain.security.User;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -33,6 +36,7 @@ public class UserService implements UserManagementPort {
 
     private final UserPersistencePort userPersistencePort;
     private final PasswordEncoder passwordEncoder;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     public void forgetUser(String id) {
@@ -42,6 +46,7 @@ public class UserService implements UserManagementPort {
             throw UserError.USER_ID_REQUIRED.exception();
 
         userPersistencePort.forgetUser(id);
+        applicationEventPublisher.publishEvent(new UserDeletedSecurityEvent(this, id));
     }
 
     @Override
@@ -61,7 +66,12 @@ public class UserService implements UserManagementPort {
         if (accessRole == null)
             throw UserError.USER_ACCESS_ROLE_REQUIRED.exception();
 
-        return userPersistencePort.registerUser(id, name, passwordEncoder.encode(password), accessRole);
+        final var user = userPersistencePort.registerUser(id, name, passwordEncoder.encode(password), accessRole);
+        if (user == null)
+            throw UserError.USER_REGISTRATION_ERROR.exception();
+
+        applicationEventPublisher.publishEvent(new UserCreatedSecurityEvent(this, id));
+        return user;
     }
 
     @Override
