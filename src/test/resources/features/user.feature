@@ -7,6 +7,12 @@ Feature: User login and creation
     And response authorization header contains bearer token
     And response cookie jwt is set with token
 
+  Scenario: Unsuccessful login
+    When  send a login request for user "z669016@gmail.com" with password "bla"
+    Then the client receives status code of 403
+    And response does not contain a token
+    And response cookie jwt is not set with token
+
   Scenario: Login without userid or password
     When  send a login request for user "null" with password "null"
     Then the client receives status code of 400
@@ -15,9 +21,9 @@ Feature: User login and creation
 
   Scenario: Login with unknown userid
     When  send a login request for user "bla" with password "bla"
-    Then the client receives status code of 400
-    And errors contains id
-    And errors contains password
+    Then the client receives status code of 403
+    And response does not contain a token
+    And response cookie jwt is not set with token
 
   Scenario: Create successful new user
     Given a successful admin login

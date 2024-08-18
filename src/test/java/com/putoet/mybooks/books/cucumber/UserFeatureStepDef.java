@@ -33,6 +33,15 @@ public class UserFeatureStepDef extends MyBooksE2EBase {
                 .body("token_type", equalTo(JwtRequestFilter.AUTHORIZATION_SCHEME));
     }
 
+    @And("response does not contain a token")
+    public void responseDoesNotContainAToken() {
+        context.response()
+                .then()
+                .assertThat()
+                .body("access_token", is(nullValue()))
+                .body("token_type", is(nullValue()));
+    }
+
     @And("response authorization header contains bearer token")
     public void responseAuthorizationHeaderContainsBearerToken() {
         final var response = context.response().body().as(JwtResponse.class);
@@ -56,6 +65,14 @@ public class UserFeatureStepDef extends MyBooksE2EBase {
         assertTrue(cookie[2].startsWith("Expires="));
         assertEquals("Path=/", cookie[3]);
         assertEquals("HttpOnly", cookie[4]);
+    }
+
+    @And("response cookie jwt is not set with token")
+    public void responseCookieJwtIsNotSetWithToken() {
+        final var response = context.response().body().asString();
+        final var header = context.response().header(HttpHeaders.SET_COOKIE);
+        assertNull(header);
+        assertFalse(response.contains(JwtRequestFilter.AUTHORIZATION_SCHEME));
     }
 
     @When("send a new user request for user with id {string}, name {string}, password {string} and role {string}")

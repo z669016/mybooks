@@ -32,7 +32,7 @@ public class UserController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public JwtResponse login(@RequestBody @Valid UserLoginRequest request, HttpServletResponse response) {
+    public JwtResponse login(@Valid @RequestBody UserLoginRequest request, HttpServletResponse response) {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.id(), request.password(), new ArrayList<>())
