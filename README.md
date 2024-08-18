@@ -69,7 +69,7 @@ To capture all SQL statements, including the values, I introduced ```SQLUtil``` 
 including parameter values using the class logger.
 
 The persistence implementations is unit tested using the ```@JdbcTest``` annotation from Spring, and a ```schema.sql```
-to build a default in-memory H2 database, and ```data.sql.bak.bak.bak``` to load a little bit of initial test data.
+to build a default in-memory H2 database, and ```data.sql``` to load a little bit of initial test data.
 
 ### Text parsing for keywords
 Getting keywords from books was a separate challenge, and it took a few cycles to find a reasonable approach. 
@@ -86,8 +86,8 @@ To find the keywords I first looked for a library to extract all nouns from the 
 too many keywords, I still had to filter the list. So, I checked for lists of "IT keywords", and that Google search 
 also didn't help. In the end I compiled my own list, but now I had to scan the book text for occurrences of words in 
 the list. Searching for an efficient way to scan text for a series of words in one go using ChatGPT, pointed me to  
-[Aho-CoraSick](https://en.wikipedia.org/wiki/Aho%E2%80%93Corasick_algorithm) which is available as Maven artefact.  
-Implementation was pretty straight forward as part of the ```EpubBookLoader```.  
+[Aho-CoraSick](https://en.wikipedia.org/wiki/Aho%E2%80%93Corasick_algorithm) which is available as Maven artefact. The implementation was pretty straight forward as part 
+of the ```EpubBookLoader```.  
 
 ### Parsing errors on epub books
 Now it was time to handle the problem of EPUB parsing errors, as parsing errors would lead to inaccurate keyword lists. 
@@ -96,6 +96,9 @@ I remembered having an issue with reading some of my eBooks using Adobe Digital 
 errors and then zip it all back together again. A ```Rezipper``` class, that unzipped into a temp folder, and then
 zipped it all back together was implemented as step one. The ```EpubBookLoader``` was updated to rezip an EPUB in case 
 of a parsing error after which it tried to parse the book again. Remarkably enough, this solved the issue!
+
+During parsing of EPUB documents, still parsing errors get reported, but this doesn't seem to be a big issue. Maybe, 
+some day, I'll spend some time to analyse the issue, but for now, it's good enough. 
 
 ### Services
 Services on the domain model are defined using input ports, which are interfaces implemented by service-classes. These
@@ -237,6 +240,11 @@ management:
             show-details: always
             show-components: always
 ```
+
+Added [git-commit-id-maven-plugin](https://github.com/git-commit-id/git-commit-id-maven-plugin) to generate git 
+properties data during the build into the main/resources folder. The ```ProjectGitInfoContributor``` bean implements
+```GitInfoContributor``` is picked up by the actuator and adds the Git properties to the application 
+info data (accessible through the ```/info``` endpoint).
 
 ### Using Cucumber
 It looked like a nice idea to enable BDD style end-to-end tests using Cucumber. I worked with 
@@ -397,17 +405,16 @@ domain.security:
 ```mermaid
 classDiagram
     class User {
-        +String id     
+        +String id    
+        +AccessRole role
     }
-    
-    User "1" *-- "1" AccessRole: has
 ```
 
 application:
 ```mermaid
 classDiagram
-    BookInquiryService --|> BookManagementInquiryService: implements
-    BookUpdateService --|> BookManagementUpdateService: implements
+    BookInquiryService --|> BookManagementInquiryPort: implements
+    BookUpdateService --|> BookManagementUpdatePort: implements
 
     BookPersistenceQueryPort <|-- BookPersistenceUpdatePort: extends
     
@@ -422,6 +429,28 @@ classDiagram
     UserService --|> UserManagementPort: implements
     UserService "1" -- "1" UserPersistencePort: has
     UserService "1" -- "1" PasswordEncoder: has
+    UserService -- SecurityEvent: uses
+```
+
+application.security.event:
+```mermaid
+classDiagram
+    class SecurityEvent {
+        +String name
+        +String details
+    }
+    SecurityEvent <|-- ApplicationEvent: extends
+    
+    class UserSecurityEvent {
+        +User user
+    }
+    
+    UserSecurityEvent <|-- SecurityEvent: extends
+    AuthorCreatedSecurityEvent <|-- UserSecurityEvent: extends
+    AuthorDeletedSecurityEvent <|-- UserSecurityEvent: extends
+    BookCreatedSecurityEvent <|-- UserSecurityEvent: extends
+    UserCreatedSecurityEvent <|-- UserSecurityEvent: extends
+    UserDeletedSecurityEvent <|-- UserSecurityEvent: extends
 ```
 
 adapter.in.web:
@@ -438,25 +467,47 @@ adapter.in.web.security:
 ```mermaid
 classDiagram
     UserController "1" -- "1" UserManagementPort: has
-    AuthorController "1" -- "1" AuthenticationManager: has
-
-    BookController "1" -- "1" BookManagementInquiryPort: has
-    BookController "1" -- "1" BookManagementUpdatePort: has
+    UserController "1" -- "1" AuthenticationManager: has
+    UserController "1" -- "1" UserDetailsService: has
+    UserController "1" -- "1" JwtTokenUtils: has
+    UserController -- JwtResponse: uses
 ```
 
-adapter.out.persistence:
+adapter.in.graphql:
+```mermaid
+classDiagram
+    GraphqlAuthorController "1" -- "1" BookManagementInquiryPort: has
+    GraphqlAuthorController -- GraphqlAuthorResponse: uses
+    GraphqlBookController "1" -- "1" BookManagementInquiryPort: has
+    GraphqlBookController -- GraphqlBookResponse: uses
+    GraphqlUserController "1" -- "1" UserManagementPort: has
+    GraphqlUserController -- UserResponse: uses
+```
+
+adapter.out.persistence.folder:
 ```mermaid
 classDiagram
     FolderBookRepository --|> BookPersistenceQueryPost: implements
-    FolderBookRepository -- TikaEpubBookLoader: uses
-    H2BookRepository --|> BookPersistenceUpdatePort: implements
+    FolderBookRepository -- EpubBookLoader: uses
     EpubBookLoader -- KeywordLoader: uses
     EpubBookLoader -- Rezipper: uses
 ```
 
-adapter.out.security:
+adapter.out.persistence.jdbc:
 ```mermaid
 classDiagram
+    H2BookRepository --|> BookPersistenceUpdatePort: implements
     H2UserRepository --|> UserPersistencePort: implements
 ```
 
+adapter.out.persistence.jpa:
+```mermaid
+classDiagram
+    JPABookRepository --|> BookPersistenceUpdatePort: implements
+    JPABookRepository -- AuthorJpaRepository: uses
+    AuthorJpaRepository -- AuthorEntity: uses
+    JPABookRepository -- BookJpaRepository: uses
+    BookJpaRepository -- BookEntity: uses
+    BookJpaRepository -- BookIdEntity: uses
+    JPABookRepository -- DomainMapper: uses
+```
