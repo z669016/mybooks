@@ -8,6 +8,10 @@ import com.putoet.mybooks.books.domain.Author;
 import com.putoet.mybooks.books.domain.AuthorId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -18,19 +22,19 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class AuthorControllerTest {
+
+    @Mock
     private BookManagementInquiryPort bookManagementInquiryPort;
+
+    @Mock
     private BookManagementUpdatePort bookManagementUpdatePort;
+
+    @InjectMocks
     private AuthorController authorController;
 
     private final Author author = new Author(AuthorId.withoutId(), "Schrijver, Jaap de");
-
-    @BeforeEach
-    void setup() {
-        bookManagementInquiryPort = mock(BookManagementInquiryPort.class);
-        bookManagementUpdatePort = mock(BookManagementUpdatePort.class);
-        authorController = new AuthorController(bookManagementInquiryPort, bookManagementUpdatePort);
-    }
 
     @Test
     void getAuthors() {
@@ -135,8 +139,6 @@ class AuthorControllerTest {
 
     @Test
     void postAuthorFailed() {
-        when(bookManagementUpdatePort.registerAuthor(author.name(), Map.of())).thenThrow(new ServiceException(ServiceError.AUTHOR_NOT_UPDATED));
-
         try {
             authorController.postAuthor(new NewAuthorRequest(null, null));
             fail("ResponseStatusException expected");
@@ -168,8 +170,6 @@ class AuthorControllerTest {
 
     @Test
     void putAuthorFailed() {
-        when(bookManagementUpdatePort.updateAuthor(author.id(), author.version(),author.name())).thenThrow(new ServiceException(ServiceError.AUTHOR_NOT_UPDATED));
-
         try {
             authorController.putAuthor(null, new UpdateAuthorRequest(null, null));
             fail("ResponseStatusException expected");

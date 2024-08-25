@@ -5,6 +5,10 @@ import com.putoet.mybooks.books.application.port.in.BookManagementUpdatePort;
 import com.putoet.mybooks.books.domain.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.SmartValidator;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -17,10 +21,21 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class BookControllerTest {
+
+    @Mock
     private BookManagementInquiryPort bookManagementInquiryPort;
+
+    @Mock
     private BookManagementUpdatePort bookManagementUpdatePort;
+
+    @Mock
+    private SmartValidator smartValidator;
+
+    @InjectMocks
     private BookController bookController;
+
     private final Author author = new Author(AuthorId.withoutId(), "Schrijver, Jaap de");
 
     private final Set<String> formats = Set.of(MimeTypes.PDF.toString(), MimeTypes.EPUB.toString());
@@ -30,13 +45,6 @@ class BookControllerTest {
             Set.of("architecture", "rest"),
             BookResponse.toDomain(formats)
     );
-
-    @BeforeEach
-    void setup() {
-        bookManagementInquiryPort = mock(BookManagementInquiryPort.class);
-        bookManagementUpdatePort = mock(BookManagementUpdatePort.class);
-        bookController = new BookController(bookManagementInquiryPort, bookManagementUpdatePort, mock(SmartValidator.class));
-    }
 
     @Test
     void getBooks() {

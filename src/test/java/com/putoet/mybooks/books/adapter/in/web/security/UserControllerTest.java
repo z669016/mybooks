@@ -6,6 +6,10 @@ import com.putoet.mybooks.books.domain.security.User;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.AuthenticationException;
@@ -22,6 +26,9 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+
+
+@ExtendWith(MockitoExtension.class)
 class UserControllerTest {
     private final JwtTokenUtils utils = new JwtTokenUtils();
     private final UserLoginRequest loginRequest = new UserLoginRequest("abc@xyz.com", "pwd");
@@ -43,16 +50,19 @@ class UserControllerTest {
         }
     };
 
+    @Mock
     private UserService userService;
+
+    @Mock
     private UserDetailsService userDetailService;
+
+    @Mock
     private AuthenticationManager authenticationManager;
+
     private UserController userController;
 
     @BeforeEach
     void setup() {
-        userService = mock(UserService.class);
-        userDetailService = mock(UserDetailsService.class);
-        authenticationManager = mock(AuthenticationManager.class);
         userController = new UserController(userService, authenticationManager, userDetailService, utils);
     }
 
