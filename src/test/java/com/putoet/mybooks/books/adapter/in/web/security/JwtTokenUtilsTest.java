@@ -11,7 +11,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class JwtTokenUtilsTest {
-    private static final JwtTokenUtils utils = new JwtTokenUtils();
     private final UserDetails userDetails = new UserDetails() {
         @Override
         public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -35,21 +34,21 @@ class JwtTokenUtilsTest {
 
     @BeforeEach
     void setup() {
-        token = utils.generateToken(userDetails);
+        token = JwtTokenUtils.generateToken(userDetails);
     }
 
     @Test
     void extractUsername() {
-        assertEquals(userDetails.getUsername(), utils.extractUsername(token));
+        assertEquals(userDetails.getUsername(), JwtTokenUtils.extractUsername(token));
     }
 
     @Test
     void extractExpiration() {
-        assertTrue( System.currentTimeMillis() - utils.extractExpiration(token).getTime() < 100);
+        assertTrue( System.currentTimeMillis() - JwtTokenUtils.extractExpiration(token).getTime() < 100);
     }
 
     @Test
     void validateToken() {
-        assertTrue(utils.validateToken(token, userDetails.getUsername()));
+        assertTrue(JwtTokenUtils.validateToken(token, userDetails.getUsername()));
     }
 }

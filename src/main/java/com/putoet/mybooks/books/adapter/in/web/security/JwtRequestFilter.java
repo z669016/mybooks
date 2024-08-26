@@ -29,7 +29,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     public static final String AUTHORIZATION_SCHEME = "Bearer";
 
     private final UserDetailsService userDetailsService;
-    private final JwtTokenUtils jwtTokenUtils;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -55,7 +54,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         }
 
         if (jwtToken.isPresent()) {
-            final String id = jwtTokenUtils.extractUsername(jwtToken.get());
+            final String id = JwtTokenUtils.extractUsername(jwtToken.get());
             if (id != null) {
                 if (SecurityContextHolder.getContext().getAuthentication() != null &&
                     !id.equals(SecurityContextHolder.getContext().getAuthentication().getPrincipal())) {
@@ -66,9 +65,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
                 if (SecurityContextHolder.getContext().getAuthentication() == null) {
                     final var userDetails = userDetailsService.loadUserByUsername(id);
-                    if (isActiveUser(userDetails) && jwtTokenUtils.validateToken(jwtToken.get(), userDetails.getUsername())) {
+                    if (isActiveUser(userDetails) && JwtTokenUtils.validateToken(jwtToken.get(), userDetails.getUsername())) {
                         final var authenticationToken =
-                                new UsernamePasswordAuthenticationToken(id, null, jwtTokenUtils.extractAuthorities(jwtToken.get()));
+                                new UsernamePasswordAuthenticationToken(id, null, JwtTokenUtils.extractAuthorities(jwtToken.get()));
                         authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                         log.info("Set security context to {}", authenticationToken);

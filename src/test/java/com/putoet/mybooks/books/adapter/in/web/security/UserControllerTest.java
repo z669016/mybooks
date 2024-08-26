@@ -31,7 +31,6 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserControllerTest {
-    private final JwtTokenUtils utils = new JwtTokenUtils();
     private final UserLoginRequest loginRequest = new UserLoginRequest("abc@xyz.com", "pwd");
     private final NewUserRequest request = new NewUserRequest("abc@xyz.com", "name", "pwd", "ADMIN");
     private final UserDetails userDetails = new UserDetails() {
@@ -64,7 +63,7 @@ class UserControllerTest {
 
     @BeforeEach
     void setup() {
-        userController = new UserController(userService, authenticationManager, userDetailService, utils);
+        userController = new UserController(userService, authenticationManager, userDetailService);
     }
 
     @Test

@@ -26,7 +26,6 @@ public class UserController {
     private final UserManagementPort userManagementPort;
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
-    private final JwtTokenUtils jwtTokenUtils;
 
     @PostMapping(path = "/login",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -40,7 +39,7 @@ public class UserController {
 
             final var userDetails = userDetailsService.loadUserByUsername(request.id());
             if (userDetails != null) {
-                final String jwt = jwtTokenUtils.generateToken(userDetails);
+                final String jwt = JwtTokenUtils.generateToken(userDetails);
                 response.addCookie(jwtCookie(jwt));
                 response.setHeader(JwtRequestFilter.AUTHORIZATION_KEY, JwtRequestFilter.AUTHORIZATION_SCHEME + " " + jwt);
                 return new JwtResponse(jwt, JwtTokenUtils.EXPIRES_IN);
