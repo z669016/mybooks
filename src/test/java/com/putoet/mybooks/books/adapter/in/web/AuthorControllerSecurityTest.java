@@ -8,6 +8,7 @@ import com.putoet.mybooks.books.domain.AuthorId;
 import com.putoet.mybooks.books.domain.SiteType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.jdbc.init.DataSourceScriptDatabaseInitializer;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -29,11 +30,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class AuthorControllerSecurityTest {
 
+    // Mocking the ports is necessary to prevent the Spring context from loading the actual beans.
     @MockBean
     private BookManagementInquiryPort bookManagementInquiryPort;
 
     @MockBean
     private BookManagementUpdatePort bookManagementUpdatePort;
+
+    // Mocking the DataSourceScriptDatabaseInitializer is required to prevent the database gets recreated and
+    // the data gets reloaded. This is probably a work-around and I'm probably doing something wrong elsewhere
+    @MockBean
+    private DataSourceScriptDatabaseInitializer dataSourceScriptDatabaseInitializer;
 
     @Autowired
     private MockMvc mvc;
