@@ -153,10 +153,10 @@ class UserControllerTest {
     }
 
     @Test
-    void postUser() {
+    void createUser() {
         when(userService.registerUser(request.id(), request.name(), request.password(), AccessRole.from(request.accessRole())))
                 .thenReturn(new User(request.id(), request.name(), request.password(), AccessRole.from(request.accessRole())));
-        final var user = userController.postUser(request);
+        final var user = userController.createUser(request);
 
         assertAll(
                 () -> verify(userService, times(1)).registerUser(request.id(), request.name(), request.password(), AccessRole.from(request.accessRole())),
@@ -167,10 +167,10 @@ class UserControllerTest {
     }
 
     @Test
-    void postUserFailed() {
+    void createUserFailed() {
         when(userService.registerUser(request.id(), request.name(), request.password(), AccessRole.from(request.accessRole()))).thenThrow(new IllegalStateException("ERROR"));
         try {
-            userController.postUser(request);
+            userController.createUser(request);
             fail("ResponseStatusException expected");
         } catch (ResponseStatusException exc) {
             assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());

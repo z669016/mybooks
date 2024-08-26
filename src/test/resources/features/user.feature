@@ -28,7 +28,7 @@ Feature: User login and creation
   Scenario: Create successful new user
     Given a successful admin login
     When  send a new user request for user with id "z669016@outlook.com", name "Me", password "3password@" and role "user"
-    Then the client receives status code of 200
+    Then the client receives status code of 201
     And  user has id "z669016@outlook.com"
     And  user has name "Me"
     And  user has role "USER"

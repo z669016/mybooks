@@ -71,7 +71,8 @@ public class UserController {
     @PostMapping(path = "/user",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public UserResponse postUser(@RequestBody @Valid NewUserRequest request) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserResponse createUser(@RequestBody @Valid NewUserRequest request) {
         try {
             return UserResponse.from(userManagementPort.registerUser(request.id(),
                     request.name(),
