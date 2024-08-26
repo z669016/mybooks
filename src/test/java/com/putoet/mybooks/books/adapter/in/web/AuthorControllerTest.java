@@ -130,30 +130,30 @@ class AuthorControllerTest {
     }
 
     @Test
-    void postAuthor() {
+    void createAuthor() {
         when(bookManagementUpdatePort.registerAuthor(author.name(), Map.of())).thenReturn(author);
-        authorController.postAuthor(new NewAuthorRequest(author.name(), Map.of()));
+        authorController.createAuthor(new NewAuthorRequest(author.name(), Map.of()));
         verify(bookManagementUpdatePort, times(1)).registerAuthor(author.name(), Map.of());
     }
 
     @Test
-    void postAuthorFailed() {
+    void createAuthorFailed() {
         try {
-            authorController.postAuthor(new NewAuthorRequest(null, null));
+            authorController.createAuthor(new NewAuthorRequest(null, null));
             fail("ResponseStatusException expected");
         } catch (ResponseStatusException exc) {
             assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
         }
 
         try {
-            authorController.postAuthor(new NewAuthorRequest("  ", null));
+            authorController.createAuthor(new NewAuthorRequest("  ", null));
             fail("ResponseStatusException expected");
         } catch (ResponseStatusException exc) {
             assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
         }
 
         try {
-            authorController.postAuthor(new NewAuthorRequest("name", null));
+            authorController.createAuthor(new NewAuthorRequest("name", null));
             fail("ResponseStatusException expected");
         } catch (ResponseStatusException exc) {
             assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
@@ -161,30 +161,30 @@ class AuthorControllerTest {
     }
 
     @Test
-    void putAuthor() {
+    void updateAuthor() {
         when(bookManagementUpdatePort.updateAuthor(author.id(), author.version(), author.name())).thenReturn(author);
-        authorController.putAuthor(author.id().uuid().toString(), new UpdateAuthorRequest(author.version().toString(), author.name()));
+        authorController.updateAuthor(author.id().uuid().toString(), new UpdateAuthorRequest(author.version().toString(), author.name()));
         verify(bookManagementUpdatePort, times(1)).updateAuthor(author.id(), author.version(), author.name());
     }
 
     @Test
-    void putAuthorFailed() {
+    void updateAuthorFailed() {
         try {
-            authorController.putAuthor(null, new UpdateAuthorRequest(null, null));
+            authorController.updateAuthor(null, new UpdateAuthorRequest(null, null));
             fail("ResponseStatusException expected");
         } catch (ResponseStatusException exc) {
             assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
         }
 
         try {
-            authorController.putAuthor(null, new UpdateAuthorRequest(author.version().toString(), null));
+            authorController.updateAuthor(null, new UpdateAuthorRequest(author.version().toString(), null));
             fail("ResponseStatusException expected");
         } catch (ResponseStatusException exc) {
             assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
         }
 
         try {
-            authorController.putAuthor(null, new UpdateAuthorRequest(author.version().toString(), "  "));
+            authorController.updateAuthor(null, new UpdateAuthorRequest(author.version().toString(), "  "));
             fail("ResponseStatusException expected");
         } catch (ResponseStatusException exc) {
             assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());

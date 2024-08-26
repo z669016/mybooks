@@ -56,6 +56,7 @@ public class AuthorController {
     }
 
     @DeleteMapping(path = "/author/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAuthorById(@PathVariable @ObjectIDConstraint String id) {
         try {
             bookManagementUpdatePort.forgetAuthor(AuthorId.withId(id));
@@ -69,7 +70,7 @@ public class AuthorController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @ResponseStatus(HttpStatus.CREATED)
-    public AuthorResponse postAuthor(@RequestBody @Valid NewAuthorRequest author) {
+    public AuthorResponse createAuthor(@RequestBody @Valid NewAuthorRequest author) {
         try {
             return AuthorResponse.from(bookManagementUpdatePort.registerAuthor(author.name(), author.sitesWithURLs()));
         } catch (RuntimeException exc) {
@@ -81,7 +82,7 @@ public class AuthorController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public AuthorResponse putAuthor(@PathVariable @ObjectIDConstraint String id, @Valid @RequestBody UpdateAuthorRequest author) {
+    public AuthorResponse updateAuthor(@PathVariable @ObjectIDConstraint String id, @Valid @RequestBody UpdateAuthorRequest author) {
         try {
             return AuthorResponse.from(bookManagementUpdatePort.updateAuthor(AuthorId.withId(id), author.versionAsInstant(), author.name()));
         } catch (RuntimeException exc) {

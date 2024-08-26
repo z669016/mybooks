@@ -19,7 +19,6 @@ spring:
       ddl-auto: none
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.H2Dialect
         generate_statistics: true
         format_sql: false
     show-sql: false
