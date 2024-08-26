@@ -6,7 +6,6 @@ import com.putoet.mybooks.books.application.port.in.ServiceError;
 import com.putoet.mybooks.books.application.port.in.ServiceException;
 import com.putoet.mybooks.books.domain.Author;
 import com.putoet.mybooks.books.domain.AuthorId;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -163,7 +162,7 @@ class AuthorControllerTest {
 
     @Test
     void putAuthor() {
-        when(bookManagementUpdatePort.updateAuthor(author.id(), author.version(),author.name())).thenReturn(author);
+        when(bookManagementUpdatePort.updateAuthor(author.id(), author.version(), author.name())).thenReturn(author);
         authorController.putAuthor(author.id().uuid().toString(), new UpdateAuthorRequest(author.version().toString(), author.name()));
         verify(bookManagementUpdatePort, times(1)).updateAuthor(author.id(), author.version(), author.name());
     }

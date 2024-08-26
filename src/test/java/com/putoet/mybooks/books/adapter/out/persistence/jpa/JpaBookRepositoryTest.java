@@ -22,7 +22,7 @@ public class JpaBookRepositoryTest {
     @Autowired
     private BookJpaRepository bookRepository;
 
-    private DomainMapper mapper = new DomainMapper();
+    private final DomainMapper mapper = new DomainMapper();
 
     private BookPersistenceUpdatePort repository;
 

@@ -3,7 +3,6 @@ package com.putoet.mybooks.books.adapter.in.web;
 import com.putoet.mybooks.books.application.port.in.BookManagementInquiryPort;
 import com.putoet.mybooks.books.application.port.in.BookManagementUpdatePort;
 import com.putoet.mybooks.books.domain.*;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

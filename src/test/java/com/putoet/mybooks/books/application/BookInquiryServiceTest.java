@@ -1,11 +1,16 @@
 package com.putoet.mybooks.books.application;
 
-import com.putoet.mybooks.books.application.port.in.BookManagementInquiryPort;
 import com.putoet.mybooks.books.application.port.in.ServiceException;
 import com.putoet.mybooks.books.application.port.out.persistence.BookPersistenceQueryPort;
-import com.putoet.mybooks.books.domain.*;
-import org.junit.jupiter.api.BeforeEach;
+import com.putoet.mybooks.books.domain.Author;
+import com.putoet.mybooks.books.domain.AuthorId;
+import com.putoet.mybooks.books.domain.AuthorTest;
+import com.putoet.mybooks.books.domain.BookId;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 import java.util.Set;
@@ -15,19 +20,17 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class BookInquiryServiceTest {
     private static final Author AUTHOR = AuthorTest.AUTHOR;
     private static final AuthorId AUTHOR_ID = AUTHOR.id();
     private static final String NAME = AUTHOR.name();
 
+    @Mock
     private BookPersistenceQueryPort bookPersistenceQueryPort;
-    private BookManagementInquiryPort bookManagementInquiryPort;
 
-    @BeforeEach
-    void setup() {
-        bookPersistenceQueryPort = mock(BookPersistenceQueryPort.class);
-        bookManagementInquiryPort = new BookInquiryService(bookPersistenceQueryPort);
-    }
+    @InjectMocks
+    private BookInquiryService bookManagementInquiryPort;
 
     @Test
     void authorByIdFound() {
@@ -35,8 +38,8 @@ class BookInquiryServiceTest {
 
         final var found = bookManagementInquiryPort.authorById(AUTHOR_ID);
         assertAll(
-                () -> verify(bookPersistenceQueryPort,times(1)).findAuthorById(AUTHOR_ID),
-                () -> assertEquals(Optional.of(AUTHOR),found)
+                () -> verify(bookPersistenceQueryPort, times(1)).findAuthorById(AUTHOR_ID),
+                () -> assertEquals(Optional.of(AUTHOR), found)
         );
     }
 

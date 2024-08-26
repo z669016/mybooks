@@ -1,37 +1,40 @@
 package com.putoet.mybooks.books.application.port.security;
 
 import com.putoet.mybooks.books.application.port.in.security.UserException;
-import com.putoet.mybooks.books.application.port.in.security.UserManagementPort;
 import com.putoet.mybooks.books.application.port.out.security.UserPersistencePort;
 import com.putoet.mybooks.books.application.security.UserService;
 import com.putoet.mybooks.books.domain.security.AccessRole;
 import com.putoet.mybooks.books.domain.security.User;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class UserServiceTest {
+    @Mock
     private UserPersistencePort userPort;
+
+    @Mock
     private PasswordEncoder passwordEncoder;
-    private UserManagementPort userManagementPort;
+
+    @Mock
     private ApplicationEventPublisher applicationEventPublisher;
+
+    @InjectMocks
+    private UserService userManagementPort;
 
     private final User ADMIN = new User("z669016@gmail.com", "Z669016", "1password!", AccessRole.ADMIN);
     private final User USER = new User("putoet@outlook.com", "PUTOET", "2password!", AccessRole.USER);
-
-    @BeforeEach
-    void setup() {
-        userPort = mock(UserPersistencePort.class);
-        passwordEncoder = mock(PasswordEncoder.class);
-        applicationEventPublisher = mock(ApplicationEventPublisher.class);
-        userManagementPort = new UserService(userPort, passwordEncoder, applicationEventPublisher);
-    }
 
     @Test
     void forgetUser() {

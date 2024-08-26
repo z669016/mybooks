@@ -3,20 +3,21 @@ package com.putoet.mybooks.books.domain.validation;
 import jakarta.validation.ConstraintValidatorContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
 import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
 
 public class VersionConstraintTest {
     private VersionConstraint.VersionValidator validator;
+
+    @Mock
     private ConstraintValidatorContext context;
 
     @BeforeEach
     void setup() {
         validator = new VersionConstraint.VersionValidator();
-        context = mock(ConstraintValidatorContext.class);
     }
 
     @Test

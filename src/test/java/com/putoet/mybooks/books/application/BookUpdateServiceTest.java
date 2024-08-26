@@ -1,11 +1,13 @@
 package com.putoet.mybooks.books.application;
 
-import com.putoet.mybooks.books.application.port.in.BookManagementUpdatePort;
 import com.putoet.mybooks.books.application.port.in.ServiceException;
 import com.putoet.mybooks.books.application.port.out.persistence.BookPersistenceUpdatePort;
 import com.putoet.mybooks.books.domain.*;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.net.MalformedURLException;
@@ -15,20 +17,20 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class BookUpdateServiceTest {
+
+    @Mock
     private BookPersistenceUpdatePort bookPersistenceUpdatePort;
-    private BookManagementUpdatePort bookManagementUpdatePort;
+
+    @Mock
     private ApplicationEventPublisher applicationEventPublisher;
 
-    @BeforeEach
-    void setup() {
-        bookPersistenceUpdatePort = mock(BookPersistenceUpdatePort.class);
-        applicationEventPublisher = mock(ApplicationEventPublisher.class);
-        bookManagementUpdatePort = new BookUpdateService(bookPersistenceUpdatePort, applicationEventPublisher);
-    }
+    @InjectMocks
+    private BookUpdateService bookManagementUpdatePort;
 
     @Test
     void registerAuthor() throws MalformedURLException {
@@ -49,8 +51,6 @@ class BookUpdateServiceTest {
 
     @Test
     void registerAuthorFailed() {
-        given(bookPersistenceUpdatePort.findAuthorsByName(any())).willReturn(null);
-
         assertThrows(ServiceException.class, () -> bookManagementUpdatePort.registerAuthor("name", Map.of()));
     }
 
