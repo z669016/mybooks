@@ -135,7 +135,7 @@ class BookControllerTest {
     }
 
     @Test
-    void postBook() {
+    void createBook() {
         final var firstAuthor = new BookRequestAuthor(author.id().uuid().toString(), null, null);
         final var secondAuthor = new BookRequestAuthor(null, "Author, Second", Map.of());
 
@@ -161,7 +161,7 @@ class BookControllerTest {
                 eq(book.keywords())
         )).thenReturn(book);
 
-        final var createdBook = bookController.postBook(newBookRequest);
+        final var createdBook = bookController.createBook(newBookRequest);
         assertAll(
                 () -> assertNotNull(createdBook),
                 () -> verify(bookManagementInquiryPort, times(1)).authorById(author.id()),

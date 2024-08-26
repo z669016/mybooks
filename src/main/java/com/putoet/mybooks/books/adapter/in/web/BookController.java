@@ -86,7 +86,7 @@ public class BookController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @ResponseStatus(HttpStatus.CREATED)
-    public BookResponse postBook(@RequestBody @Valid NewBookRequest book) {
+    public BookResponse createBook(@RequestBody @Valid NewBookRequest book) {
         try {
             final var bookId = new BookId(book.schema(), book.id());
             final var authors = new HashSet<Author>();
