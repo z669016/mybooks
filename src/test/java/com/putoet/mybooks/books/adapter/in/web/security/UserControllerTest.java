@@ -80,6 +80,39 @@ class UserControllerTest {
     }
 
     @Test
+    void loginDisabled() {
+        final var response = mock(HttpServletResponse.class);
+        when(userDetailService.loadUserByUsername(loginRequest.id())).thenReturn(new UserDetails() {
+            @Override
+            public Collection<? extends GrantedAuthority> getAuthorities() {
+                    return List.of();
+            }
+
+            @Override
+            public String getPassword() {
+                return "";
+            }
+
+            @Override
+            public String getUsername() {
+                return "";
+            }
+
+            @Override
+            public boolean isEnabled() {
+                return false;
+            }
+        });
+        final var result = userController.login(loginRequest, response);
+
+        assertAll(
+                () -> verify(authenticationManager, times(1)).authenticate(any()),
+                () -> verify(response, times(1)).addCookie(any()),
+                () -> assertNotNull(result.access_token())
+        );
+    }
+
+    @Test
     void loginFailed() {
         final var response = mock(HttpServletResponse.class);
         when(userDetailService.loadUserByUsername(loginRequest.id())).thenReturn(null);
@@ -88,7 +121,7 @@ class UserControllerTest {
             fail("ResponseStatusException expected");
         } catch (ResponseStatusException exc) {
             assertAll(
-                    () -> assertEquals(HttpStatus.FORBIDDEN, exc.getStatusCode()),
+                    () -> assertEquals(HttpStatus.UNAUTHORIZED, exc.getStatusCode()),
                     () -> verify(authenticationManager, times(1)).authenticate(any()),
                     () -> verify(response, times(0)).addCookie(any())
             );
@@ -97,20 +130,15 @@ class UserControllerTest {
 
     @Test
     void loginInvalidCredentials() {
-        authenticateError(new BadCredentialsException("credentials"));
-    }
-
-    @Test
-    void loginDisabled() {
-        authenticateError(new DisabledException("disabled"));
+        authenticateError(new BadCredentialsException("credentials"), HttpStatus.UNAUTHORIZED);
     }
 
     @Test
     void loginLocked() {
-        authenticateError(new LockedException("locked"));
+        authenticateError(new LockedException("locked"), HttpStatus.FORBIDDEN);
     }
 
-    private <T extends AuthenticationException> void authenticateError(T exception) {
+    private <T extends AuthenticationException> void authenticateError(T exception, HttpStatus status) {
         final var response = mock(HttpServletResponse.class);
         when(authenticationManager.authenticate(any())).thenThrow(exception);
         try {
@@ -118,7 +146,7 @@ class UserControllerTest {
             fail("ResponseStatusException expected");
         } catch (RuntimeException exc) {
             if (exc instanceof ResponseStatusException rsa) {
-                assertEquals(HttpStatus.FORBIDDEN, rsa.getStatusCode());
+                assertEquals(status, rsa.getStatusCode());
             } else {
                 fail("Expected ResponseStatusException but caught " + exc.getClass().getName());
             }

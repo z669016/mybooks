@@ -9,7 +9,7 @@ Feature: User login and creation
 
   Scenario: Unsuccessful login
     When  send a login request for user "z669016@gmail.com" with password "bla"
-    Then the client receives status code of 403
+    Then the client receives status code of 401
     And response does not contain a token
     And response cookie jwt is not set with token
 
@@ -21,7 +21,7 @@ Feature: User login and creation
 
   Scenario: Login with unknown userid
     When  send a login request for user "bla" with password "bla"
-    Then the client receives status code of 403
+    Then the client receives status code of 401
     And response does not contain a token
     And response cookie jwt is not set with token
 

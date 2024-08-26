@@ -46,7 +46,7 @@ public class UserController {
             }
 
             log.error("No user details for id {}", request.id());
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No user details for id " + request.id());
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No user details for id " + request.id());
         } catch (DisabledException exc) {
             log.error("User account was disabled for for user {}", request.id());
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, exc.getMessage());
@@ -55,7 +55,7 @@ public class UserController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, exc.getMessage());
         } catch (BadCredentialsException exc) {
             log.error("Invalid userid/password for user {}", request.id());
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, exc.getMessage());
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, exc.getMessage());
         }
     }
 
