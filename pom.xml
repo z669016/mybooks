@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.3.2</version>
+		<version>3.5.16</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 
@@ -16,14 +16,14 @@
 	<description>API on my list of ebooks</description>
 
 	<properties>
-		<guava.version>33.2.1-jre</guava.version>
-		<tika.version>2.9.2</tika.version>
+		<guava.version>33.6.0-jre</guava.version>
+		<tika.version>3.3.2</tika.version>
 		<ahocorasick.version>0.6.3</ahocorasick.version>
-		<jjwt.version>0.12.6</jjwt.version>
-		<passay.version>1.6.4</passay.version>
-		<git-commit-id-maven-plugin.version>9.0.0</git-commit-id-maven-plugin.version>
-		<cucumber-java.version>7.18.0</cucumber-java.version>
-		<commons-compress.version>1.26.2</commons-compress.version>
+		<jjwt.version>0.13.0</jjwt.version>
+		<passay.version>1.6.6</passay.version>
+		<git-commit-id-maven-plugin.version>10.0.0</git-commit-id-maven-plugin.version>
+		<cucumber-java.version>7.34.6</cucumber-java.version>
+		<commons-compress.version>1.28.0</commons-compress.version>
 	</properties>
 
 	<profiles>
