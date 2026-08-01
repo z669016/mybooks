@@ -30,7 +30,7 @@ class FolderBookRepositoryTest {
     @Test
     void findAuthors() {
         final var authors = leanpub.findAuthors();
-        assertEquals(5, authors.size());
+        assertEquals(11, authors.size());
 
         var a = authors.stream().findFirst().orElseThrow();
         for (var author : authors) {
@@ -52,7 +52,7 @@ class FolderBookRepositoryTest {
     @Test
     void findBooks() {
         final var books = leanpub.findBooks();
-        assertEquals(6, books.size());
+        assertEquals(10, books.size());
 
         var b = books.stream().findFirst().orElseThrow();
         for (var book : books) {
