@@ -7,15 +7,18 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+
 @DataJpaTest
-public class JpaBookRepositoryTest {
+class JpaBookRepositoryTest {
     @Autowired
     private AuthorJpaRepository authorRepository;
 
@@ -45,12 +48,12 @@ public class JpaBookRepositoryTest {
 
     @Test
     void test1() {
-        System.out.println(repository.findAuthors());
+        assertNotNull(repository.findAuthors());
     }
 
     @Test
     void test2() {
-        System.out.println(repository.findBooks());
+        assertNotNull(repository.findBooks());
     }
 
     @SneakyThrows

@@ -1,6 +1,5 @@
 package com.putoet.mybooks.books.adapter.in.web;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.putoet.mybooks.books.application.port.in.BookManagementInquiryPort;
 import com.putoet.mybooks.books.application.port.in.BookManagementUpdatePort;
 import com.putoet.mybooks.books.domain.Author;
@@ -9,12 +8,13 @@ import com.putoet.mybooks.books.domain.SiteType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.init.DataSourceScriptDatabaseInitializer;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.Instant;
 import java.util.Map;
@@ -31,15 +31,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AuthorControllerSecurityTest {
 
     // Mocking the ports is necessary to prevent the Spring context from loading the actual beans.
-    @MockBean
+    @MockitoBean
     private BookManagementInquiryPort bookManagementInquiryPort;
 
-    @MockBean
+    @MockitoBean
     private BookManagementUpdatePort bookManagementUpdatePort;
 
     // Mocking the DataSourceScriptDatabaseInitializer is required to prevent the database gets recreated and
     // the data gets reloaded. This is probably a work-around and I'm probably doing something wrong elsewhere
-    @MockBean
+    @MockitoBean
     private DataSourceScriptDatabaseInitializer dataSourceScriptDatabaseInitializer;
 
     @Autowired
@@ -124,7 +124,8 @@ class AuthorControllerSecurityTest {
         final var id = UUID.randomUUID().toString();
         final var version = Instant.now();
         final var author = new UpdateAuthorRequest(version.toString(), "Schrijver, Jaap");
-        when(bookManagementUpdatePort.updateAuthor(eq(AuthorId.withId(id)), eq(version), eq(author.name()))).thenReturn(new Author(AuthorId.withId(id), author.name()));
+        when(bookManagementUpdatePort.updateAuthor(AuthorId.withId(id), version, author.name()))
+                .thenReturn(new Author(AuthorId.withId(id), author.name()));
 
         mvc.perform(put("/author/" + id)
                         .contentType(MediaType.APPLICATION_JSON)

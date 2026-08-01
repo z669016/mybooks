@@ -7,7 +7,7 @@ import org.mockito.Mock;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AccessRoleConstraintTest {
+class AccessRoleConstraintTest {
     private AccessRoleConstraint.AccessRoleValidator validator;
 
     @Mock

@@ -38,8 +38,7 @@ public class ValidationExceptionHandler {
             .map(error -> error instanceof FieldError ?
                     Pair.of(((FieldError) error).getField(), error.getDefaultMessage())
                     : Pair.of("parameters", error.getDefaultMessage())
-                    )
-                .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
+            ).collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
         return new ApiError(
                 ((HttpServletRequest) request).getMethod(),
                 ((HttpServletRequest) request).getRequestURI(),

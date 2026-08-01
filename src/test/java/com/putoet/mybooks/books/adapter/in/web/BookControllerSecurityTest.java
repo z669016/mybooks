@@ -1,18 +1,18 @@
 package com.putoet.mybooks.books.adapter.in.web;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.putoet.mybooks.books.application.port.in.BookManagementInquiryPort;
 import com.putoet.mybooks.books.application.port.in.BookManagementUpdatePort;
 import com.putoet.mybooks.books.domain.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.init.DataSourceScriptDatabaseInitializer;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.Map;
 import java.util.Optional;
@@ -31,15 +31,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class BookControllerSecurityTest {
 
     // Mocking the ports is necessary to prevent the Spring context from loading the actual beans.
-    @MockBean
+    @MockitoBean
     private BookManagementInquiryPort bookManagementInquiryPort;
 
-    @MockBean
+    @MockitoBean
     private BookManagementUpdatePort bookManagementUpdatePort;
 
     // Mocking the DataSourceScriptDatabaseInitializer is required to prevent the database gets recreated and
     // the data gets reloaded. This is probably a work-around and I'm probably doing something wrong elsewhere
-    @MockBean
+    @MockitoBean
     private DataSourceScriptDatabaseInitializer dataSourceScriptDatabaseInitializer;
 
     @Autowired
@@ -112,7 +112,7 @@ class BookControllerSecurityTest {
         final var bookRequestAuthor = getBookRequestAuthor();
         final var newBookRequest = getNewBookRequest(bookRequestAuthor);
 
-        when(bookManagementInquiryPort.authorById(eq(AuthorId.withId(bookRequestAuthor.id()))))
+        when(bookManagementInquiryPort.authorById(AuthorId.withId(bookRequestAuthor.id())))
                 .thenReturn(Optional.of(new Author(AuthorId.withId(bookRequestAuthor.id()), bookRequestAuthor.name())));
         when(bookManagementUpdatePort.registerBook(eq(new BookId(newBookRequest.schema(), newBookRequest.id())), any(), any(), any(), any()))
                 .thenReturn(new Book(new BookId(newBookRequest.schema(), newBookRequest.id()), newBookRequest.title(), Set.of(), Set.of(), Set.of()));

@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -38,22 +39,17 @@ public class UserController {
             );
 
             final var userDetails = userDetailsService.loadUserByUsername(request.id());
-            if (userDetails != null) {
-                final String jwt = JwtTokenUtils.generateToken(userDetails);
-                response.addCookie(jwtCookie(jwt));
-                response.setHeader(JwtRequestFilter.AUTHORIZATION_KEY, JwtRequestFilter.AUTHORIZATION_SCHEME + " " + jwt);
-                return new JwtResponse(jwt, JwtTokenUtils.EXPIRES_IN);
-            }
-
-            log.error("No user details for id {}", request.id());
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No user details for id " + request.id());
+            final String jwt = JwtTokenUtils.generateToken(userDetails);
+            response.addCookie(jwtCookie(jwt));
+            response.setHeader(JwtRequestFilter.AUTHORIZATION_KEY, JwtRequestFilter.AUTHORIZATION_SCHEME + " " + jwt);
+            return new JwtResponse(jwt, JwtTokenUtils.EXPIRES_IN);
         } catch (DisabledException exc) {
             log.error("User account was disabled for for user {}", request.id());
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, exc.getMessage());
         } catch (LockedException exc) {
             log.error("User account was locked for user {}", request.id());
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, exc.getMessage());
-        } catch (BadCredentialsException exc) {
+        } catch (BadCredentialsException | UsernameNotFoundException exc) {
             log.error("Invalid userid/password for user {}", request.id());
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, exc.getMessage());
         }
@@ -64,6 +60,7 @@ public class UserController {
         cookie.setMaxAge(JwtTokenUtils.EXPIRES_IN); // expires in 7 days
         cookie.setHttpOnly(true);
         cookie.setPath("/"); // Global
+        cookie.setSecure(true);
         return cookie;
     }
 

@@ -1,28 +1,30 @@
 package com.putoet.mybooks.books.adapter.in.web.security;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.putoet.mybooks.books.application.security.UserService;
 import com.putoet.mybooks.books.domain.security.AccessRole;
 import com.putoet.mybooks.books.domain.security.User;
+import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.init.DataSourceScriptDatabaseInitializer;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -31,18 +33,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class UserControllerSecurityTest {
     // Mocking the services is necessary to prevent the Spring context from loading the actual beans.
-    @MockBean
+    @MockitoBean
     private UserService userService;
 
-    @MockBean
+    @MockitoBean
     private UserDetailsService userDetailService;
 
-    @MockBean
+    @MockitoBean
     private AuthenticationManager authenticationManager;
 
     // Mocking the DataSourceScriptDatabaseInitializer is required to prevent the database gets recreated and
     // the data gets reloaded. This is probably a work-around, and I'm probably doing something wrong elsewhere
-    @MockBean
+    @MockitoBean
     private DataSourceScriptDatabaseInitializer dataSourceScriptDatabaseInitializer;
 
     @Autowired
@@ -76,6 +78,7 @@ class UserControllerSecurityTest {
     private static UserDetails getUserDetails(UserLoginRequest login, String role) {
         return new UserDetails() {
             @Override
+            @NullMarked
             public Collection<? extends GrantedAuthority> getAuthorities() {
                 return List.of((GrantedAuthority) () -> role);
             }
@@ -86,6 +89,7 @@ class UserControllerSecurityTest {
             }
 
             @Override
+            @NullMarked
             public String getUsername() {
                 return login.id();
             }
@@ -95,6 +99,7 @@ class UserControllerSecurityTest {
     @Test
     void createUserUnAuthenticated() throws Exception {
         mvc.perform(post("/user")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(getNewUserRequest())))
                 .andExpect(status().isForbidden());
@@ -104,6 +109,7 @@ class UserControllerSecurityTest {
     @WithMockUser(username = "user@gmail.com", roles = "USER")
     void createUserWronglyAuthenticated() throws Exception {
         mvc.perform(post("/user")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(getNewUserRequest())))
                 .andExpect(status().isForbidden());
@@ -118,6 +124,7 @@ class UserControllerSecurityTest {
                 .thenReturn(new User(newUserRequest.id(), newUserRequest.name(), newUserRequest.password(),
                         AccessRole.valueOf(newUserRequest.accessRole())));
         mvc.perform(post("/user")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(newUserRequest)))
                 .andExpect(status().isCreated());
@@ -129,34 +136,44 @@ class UserControllerSecurityTest {
 
     @Test
     void getUsersUnAuthenticated() throws Exception {
-        mvc.perform(get("/users").contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/users")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     @WithMockUser(username = "user@gmail.com", roles = "USER")
     void getUsersWronglyAuthenticated() throws Exception {
-        mvc.perform(get("/users").contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/users")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     @WithMockUser(username = "admin@gmail.com", roles = "ADMIN")
     void getUsersAuthenticated() throws Exception {
-        mvc.perform(get("/users").contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/users")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
     @Test
     void getUserByIdUnAuthenticated() throws Exception {
-        mvc.perform(get("/user/some@gmail.com").contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/user/some@gmail.com")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     @WithMockUser(username = "user@gmail.com", roles = "USER")
     void getUserByIdWronglyAuthenticated() throws Exception {
-        mvc.perform(get("/user/some@gmail.com").contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/user/some@gmail.com")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
 
@@ -164,7 +181,9 @@ class UserControllerSecurityTest {
     @WithMockUser(username = "admin@gmail.com", roles = "ADMIN")
     void getUserByIdAuthenticated() throws Exception {
         when(userService.userById("some@gmail.com")).thenReturn(Optional.empty());
-        mvc.perform(get("/user/some@gmail.com").contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/user/some@gmail.com")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 }

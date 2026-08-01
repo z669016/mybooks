@@ -59,12 +59,13 @@ public class UserFeatureStepDef extends MyBooksE2EBase {
         assertTrue(header.startsWith(JwtRequestFilter.AUTHORIZATION_COOKIE + "="));
 
         final var cookie = header.split("; ");
-        assertEquals(5, cookie.length);
+        assertEquals(6, cookie.length);
         assertEquals(response.access_token(), cookie[0].substring(JwtRequestFilter.AUTHORIZATION_COOKIE.length() + 1));
-        assertEquals("Max-Age=3600", cookie[1]);
-        assertTrue(cookie[2].startsWith("Expires="));
+        assertEquals("Max-Age=3600", cookie[2]);
+        assertTrue(cookie[1].startsWith("Expires="));
         assertEquals("Path=/", cookie[3]);
-        assertEquals("HttpOnly", cookie[4]);
+        assertEquals("Secure", cookie[4]);
+        assertEquals("HttpOnly", cookie[5]);
     }
 
     @And("response cookie jwt is not set with token")

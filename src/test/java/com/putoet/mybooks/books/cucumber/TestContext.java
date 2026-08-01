@@ -9,7 +9,7 @@ import java.util.Set;
 
 public class TestContext {
     @Getter
-    private final static TestContext instance;
+    private static final TestContext instance;
     private static final String RESPONSE = "response";
     private static final String TOKEN = "token";
     private static final Set<String> RESERVED_NAMES = Set.of(RESPONSE, TOKEN);

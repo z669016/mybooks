@@ -15,6 +15,8 @@ public final class KeywordLoader {
     private static final String KEYWORD = "/keywords";
     public static final Set<String> KEYWORD_SET = loadKeywords(KEYWORD);
 
+    private KeywordLoader() {}
+
     private static Set<String> loadKeywords(String keyword) {
         final Path path;
         try {

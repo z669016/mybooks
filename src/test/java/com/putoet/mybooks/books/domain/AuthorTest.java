@@ -11,13 +11,13 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class AuthorTest {
-    private static final AuthorId id = AuthorId.withoutId();
-    private static final String name = "Tom Hombergs";
-    private static final String blog_name = "blog";
-    private static final Instant now = Instant.now();
-    private static final Map<SiteType, URL> sites = new HashMap<>();
+    private static final AuthorId ID = AuthorId.withoutId();
+    private static final String NAME = "Tom Hombergs";
+    private static final String BLOG_NAME = "blog";
+    private static final Instant NOW = Instant.now();
+    private static final Map<SiteType, URL> SITES = new HashMap<>();
 
-    public static final Author AUTHOR = new Author(id, now, name, sites);
+    public static final Author AUTHOR = new Author(ID, NOW, NAME, SITES);
 
     private static URL github;
     private static URL twitter;
@@ -37,29 +37,29 @@ public class AuthorTest {
         } catch (MalformedURLException ignored) {
         }
 
-        sites.put(SiteType.GITHUB, github);
-        sites.put(SiteType.TWITTER, twitter);
-        sites.put(SiteType.LINKEDIN, linkedIn);
-        sites.put(SiteType.FACEBOOK, facebook);
-        sites.put(SiteType.HOMEPAGE, homePage);
-        sites.put(SiteType.of(blog_name), blog);
+        SITES.put(SiteType.GITHUB, github);
+        SITES.put(SiteType.TWITTER, twitter);
+        SITES.put(SiteType.LINKEDIN, linkedIn);
+        SITES.put(SiteType.FACEBOOK, facebook);
+        SITES.put(SiteType.HOMEPAGE, homePage);
+        SITES.put(SiteType.of(BLOG_NAME), blog);
     }
 
     @Test
     void constructor() {
-        final var author = new Author(id, name);
+        final var author = new Author(ID, NAME);
 
         assertAll(
                 // check error conditions
                 () -> assertThrows(NullPointerException.class, () -> new Author(null, null, null, null)),
-                () -> assertThrows(NullPointerException.class, () -> new Author(id, null, null, null)),
-                () -> assertThrows(NullPointerException.class, () -> new Author(id, now, null, null)),
-                () -> assertThrows(NullPointerException.class, () -> new Author(id, now, name, null)),
-                () -> assertThrows(IllegalArgumentException.class, () -> new Author(id, now, "  ", sites)),
+                () -> assertThrows(NullPointerException.class, () -> new Author(ID, null, null, null)),
+                () -> assertThrows(NullPointerException.class, () -> new Author(ID, NOW, null, null)),
+                () -> assertThrows(NullPointerException.class, () -> new Author(ID, NOW, NAME, null)),
+                () -> assertThrows(IllegalArgumentException.class, () -> new Author(ID, NOW, "  ", SITES)),
 
                 // check constructor
-                () -> assertEquals(id, author.id()),
-                () -> assertEquals(name, author.name()),
+                () -> assertEquals(ID, author.id()),
+                () -> assertEquals(NAME, author.name()),
                 () -> assertEquals(0, author.sites().size())
         );
     }
@@ -91,6 +91,6 @@ public class AuthorTest {
 
     @Test
     void site() {
-        assertEquals(blog, AUTHOR.site(new SiteType(blog_name)).map(Site::url).orElseThrow());
+        assertEquals(blog, AUTHOR.site(new SiteType(BLOG_NAME)).map(Site::url).orElseThrow());
     }
 }

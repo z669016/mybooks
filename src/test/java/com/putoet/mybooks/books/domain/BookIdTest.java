@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class BookIdTest {
+class BookIdTest {
     @Test
     void constructor() {
         final var bookId = new BookId();

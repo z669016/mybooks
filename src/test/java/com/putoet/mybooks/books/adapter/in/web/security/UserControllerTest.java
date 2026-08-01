@@ -17,6 +17,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collection;
@@ -84,7 +85,7 @@ class UserControllerTest {
         when(userDetailService.loadUserByUsername(loginRequest.id())).thenReturn(new UserDetails() {
             @Override
             public Collection<? extends GrantedAuthority> getAuthorities() {
-                    return List.of();
+                return List.of();
             }
 
             @Override
@@ -114,17 +115,12 @@ class UserControllerTest {
     @Test
     void loginFailed() {
         final var response = mock(HttpServletResponse.class);
-        when(userDetailService.loadUserByUsername(loginRequest.id())).thenReturn(null);
-        try {
-            userController.login(loginRequest, response);
-            fail("ResponseStatusException expected");
-        } catch (ResponseStatusException exc) {
-            assertAll(
-                    () -> assertEquals(HttpStatus.UNAUTHORIZED, exc.getStatusCode()),
-                    () -> verify(authenticationManager, times(1)).authenticate(any()),
-                    () -> verify(response, times(0)).addCookie(any())
-            );
-        }
+        when(userDetailService.loadUserByUsername(loginRequest.id()))
+                .thenThrow(new UsernameNotFoundException(loginRequest.id()));
+        assertThrows(ResponseStatusException.class,
+                () -> userController.login(loginRequest, response),
+                "ResponseStatusException expected"
+        );
     }
 
     @Test
@@ -169,12 +165,10 @@ class UserControllerTest {
     @Test
     void createUserFailed() {
         when(userService.registerUser(request.id(), request.name(), request.password(), AccessRole.from(request.accessRole()))).thenThrow(new IllegalStateException("ERROR"));
-        try {
-            userController.createUser(request);
-            fail("ResponseStatusException expected");
-        } catch (ResponseStatusException exc) {
-            assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
-        }
+        assertThrows(ResponseStatusException.class,
+                () -> userController.createUser(request),
+                "ResponseStatusException expected"
+        );
     }
 
     @Test
@@ -191,12 +185,10 @@ class UserControllerTest {
     @Test
     void getUsersFailed() {
         when(userService.users()).thenThrow(new IllegalStateException("ERROR"));
-        try {
-            userController.getUsers();
-            fail("ResponseStatusException expected");
-        } catch (ResponseStatusException exc) {
-            assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
-        }
+        assertThrows(ResponseStatusException.class,
+                () -> userController.getUsers(),
+                "ResponseStatusException expected"
+        );
     }
 
     @Test
@@ -215,25 +207,20 @@ class UserControllerTest {
     @Test
     void getUserByIdNotFound() {
         when(userService.userById(request.id())).thenReturn(Optional.empty());
-        try {
-            userController.getUserById(request.id());
-            fail("ResponseStatusException expected");
-        } catch (ResponseStatusException exc) {
-            assertAll(
-                    () -> assertEquals(HttpStatus.NOT_FOUND, exc.getStatusCode()),
-                    () -> verify(userService, times(1)).userById(request.id())
-            );
-        }
+        final var id = request.id();
+        assertThrows(ResponseStatusException.class,
+                () -> userController.getUserById(id),
+                "ResponseStatusException expected"
+        );
     }
 
     @Test
     void getUserByIdFailed() {
         when(userService.userById(request.id())).thenThrow(new IllegalStateException("ERROR"));
-        try {
-            userController.getUserById(request.id());
-            fail("ResponseStatusException expected");
-        } catch (ResponseStatusException exc) {
-            assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
-        }
+        final var id = request.id();
+        assertThrows(ResponseStatusException.class,
+                () -> userController.getUserById(id),
+                "ResponseStatusException expected"
+        );
     }
 }

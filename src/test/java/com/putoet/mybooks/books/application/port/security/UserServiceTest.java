@@ -33,8 +33,8 @@ class UserServiceTest {
     @InjectMocks
     private UserService userManagementPort;
 
-    private final User ADMIN = new User("z669016@gmail.com", "Z669016", "1password!", AccessRole.ADMIN);
-    private final User USER = new User("putoet@outlook.com", "PUTOET", "2password!", AccessRole.USER);
+    private static final User ADMIN = new User("z669016@gmail.com", "Z669016", "1password!", AccessRole.ADMIN);
+    private static final User USER = new User("putoet@outlook.com", "PUTOET", "2password!", AccessRole.USER);
 
     @Test
     void forgetUser() {

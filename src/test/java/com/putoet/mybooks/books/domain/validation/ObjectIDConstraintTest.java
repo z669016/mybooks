@@ -9,7 +9,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ObjectIDConstraintTest {
+class ObjectIDConstraintTest {
     private ObjectIDConstraint.ObjectIDValidator validator;
 
     @Mock

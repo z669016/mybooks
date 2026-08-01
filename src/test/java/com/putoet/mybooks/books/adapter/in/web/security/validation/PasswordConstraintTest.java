@@ -7,7 +7,7 @@ import org.mockito.Mock;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class PasswordConstraintTest {
+class PasswordConstraintTest {
     private PasswordConstraint.MyPasswordValidator validator;
 
     @Mock

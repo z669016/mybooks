@@ -15,6 +15,8 @@ public class StandardValidations {
         }
     }
 
+    private StandardValidations() {}
+
     public static String message(Class<?> annotation) {
         return message(annotation.getName());
     }

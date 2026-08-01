@@ -7,8 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ISBNTest {
     public static final String ISBN_13_TEXT = "978-0-7645-7682-9";
     public static final String ISBN_10_TEXT = "0-7645-7682-8";
-
-    private final ISBN ISBN_13 = ISBN.withISBN(ISBN_13_TEXT);
+    private static final ISBN ISBN_13 = ISBN.withISBN(ISBN_13_TEXT);
 
     @Test
     void isValid() {

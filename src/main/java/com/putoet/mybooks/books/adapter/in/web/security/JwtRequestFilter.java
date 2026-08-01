@@ -34,49 +34,66 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
-        var jwtToken = Optional.<String>empty();
+        var jwtToken = getJwtTokenFromCookies(request);
+        if (jwtToken.isEmpty()) {
+            jwtToken = getJwtTokenFromHeader(request);
+        }
+
+        if (jwtToken.isPresent()) {
+            setSecurityContext(request, jwtToken);
+        }
+
+        filterChain.doFilter(request, response);
+    }
+
+    private static Optional<String> getJwtTokenFromCookies(HttpServletRequest request) {
         if (request.getCookies() != null) {
-            jwtToken = Arrays.stream(request.getCookies())
+            final var jwtToken = Arrays.stream(request.getCookies())
                     .filter(c -> c.getName().equals(AUTHORIZATION_COOKIE))
                     .map(Cookie::getValue)
                     .findFirst();
             if (jwtToken.isPresent())
                 log.info("Found JWT in cookie {}", AUTHORIZATION_COOKIE);
+            return jwtToken;
         }
 
-        if (jwtToken.isEmpty()) {
-            final String header = request.getHeader(AUTHORIZATION_KEY);
-            if (header != null && header.toLowerCase().startsWith(AUTHORIZATION_SCHEME.toLowerCase() + " ")) {
-                jwtToken = Optional.of(request.getHeader(AUTHORIZATION_KEY).substring(AUTHORIZATION_SCHEME.length() + 1));
-            }
+        return Optional.empty();
+    }
+
+    private static Optional<String> getJwtTokenFromHeader(HttpServletRequest request) {
+        final var header = request.getHeader(AUTHORIZATION_KEY);
+        if (header != null && header.toLowerCase().startsWith(AUTHORIZATION_SCHEME.toLowerCase() + " ")) {
+            final var jwtToken = Optional.of(request.getHeader(AUTHORIZATION_KEY).substring(AUTHORIZATION_SCHEME.length() + 1));
+
             if (jwtToken.isPresent())
                 log.info("Found JWT in header {} with scheme {}", AUTHORIZATION_KEY, AUTHORIZATION_SCHEME);
+            return jwtToken;
         }
 
-        if (jwtToken.isPresent()) {
-            final String id = JwtTokenUtils.extractUsername(jwtToken.get());
-            if (id != null) {
-                if (SecurityContextHolder.getContext().getAuthentication() != null &&
-                    !id.equals(SecurityContextHolder.getContext().getAuthentication().getPrincipal())) {
+        return Optional.empty();
+    }
 
-                    log.info("Reset security context for user {} to user {}", SecurityContextHolder.getContext().getAuthentication().getPrincipal(), id);
-                    SecurityContextHolder.getContext().setAuthentication(null);
-                }
+    private void setSecurityContext(HttpServletRequest request, Optional<String> jwtToken) {
+        final String id = JwtTokenUtils.extractUsername(jwtToken.get());
+        if (id != null) {
+            if (SecurityContextHolder.getContext().getAuthentication() != null &&
+                !id.equals(SecurityContextHolder.getContext().getAuthentication().getPrincipal())) {
 
-                if (SecurityContextHolder.getContext().getAuthentication() == null) {
-                    final var userDetails = userDetailsService.loadUserByUsername(id);
-                    if (isActiveUser(userDetails) && JwtTokenUtils.validateToken(jwtToken.get(), userDetails.getUsername())) {
-                        final var authenticationToken =
-                                new UsernamePasswordAuthenticationToken(id, null, JwtTokenUtils.extractAuthorities(jwtToken.get()));
-                        authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                        log.info("Set security context to {}", authenticationToken);
-                    }
+                log.info("Reset security context for user {} to user {}", SecurityContextHolder.getContext().getAuthentication().getPrincipal(), id);
+                SecurityContextHolder.getContext().setAuthentication(null);
+            }
+
+            if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                final var userDetails = userDetailsService.loadUserByUsername(id);
+                if (isActiveUser(userDetails) && JwtTokenUtils.validateToken(jwtToken.get(), userDetails.getUsername())) {
+                    final var authenticationToken =
+                            new UsernamePasswordAuthenticationToken(id, null, JwtTokenUtils.extractAuthorities(jwtToken.get()));
+                    authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                    log.info("Set security context to {}", authenticationToken);
                 }
             }
         }
-
-        filterChain.doFilter(request, response);
     }
 
     private boolean isActiveUser(UserDetails userDetails) {
