@@ -1,6 +1,6 @@
 package com.putoet.mybooks.books.application.security.event;
 
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
 
 public class UserCreatedSecurityEvent extends UserSecurityEvent {
     public static final String NAME = "USER_CREATED";

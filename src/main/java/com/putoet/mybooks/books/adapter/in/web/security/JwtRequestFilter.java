@@ -5,9 +5,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,17 +21,22 @@ import java.util.Arrays;
 import java.util.Optional;
 
 @Component
-@RequiredArgsConstructor
-@Slf4j
 public class JwtRequestFilter extends OncePerRequestFilter {
+    public static final Logger log = LoggerFactory.getLogger(JwtRequestFilter.class);
+
     public static final String AUTHORIZATION_COOKIE = "jwt";
     public static final String AUTHORIZATION_KEY = "Authorization";
     public static final String AUTHORIZATION_SCHEME = "Bearer";
 
     private final UserDetailsService userDetailsService;
 
+    public JwtRequestFilter(UserDetailsService userDetailsService) {
+        log.info("JwtRequestFilter({})", userDetailsService);
+        this.userDetailsService = userDetailsService;
+    }
+
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
         var jwtToken = getJwtTokenFromCookies(request);
@@ -40,6 +45,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         }
 
         if (jwtToken.isPresent()) {
+            log.debug("JwtToken: {}", jwtToken.get());
             setSecurityContext(request, jwtToken);
         }
 

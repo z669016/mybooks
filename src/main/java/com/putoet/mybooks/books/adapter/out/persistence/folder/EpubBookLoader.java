@@ -1,12 +1,13 @@
 package com.putoet.mybooks.books.adapter.out.persistence.folder;
 
 import com.putoet.mybooks.books.domain.*;
-import lombok.extern.slf4j.Slf4j;
 import org.ahocorasick.trie.Emit;
 import org.ahocorasick.trie.Trie;
 import org.apache.tika.Tika;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -24,12 +25,11 @@ import java.util.stream.Collectors;
  * Loads data from an EPUB file using Apache Tika and returns a Book entity. In case book data cannot be properly
  * extracted, the epub file could be 'repackaged' (unzipped and zipped again) which can do miracles ;-)
  */
-@Slf4j
 public final class EpubBookLoader {
+    public static final Logger log  = LoggerFactory.getLogger(EpubBookLoader.class);
     public static final int MAX_EPUB_LOAD_SIZE = 10_000_000;
 
     private EpubBookLoader() {}
-
 
     public static Book bookForFile(String fileName, boolean repair) {
         try {

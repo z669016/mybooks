@@ -1,10 +1,11 @@
 package com.putoet.mybooks.books.application.port.in.security;
 
-import lombok.Getter;
-
-@Getter
 public class UserException extends RuntimeException {
     private final UserError userError;
+
+    UserError getUserError() {
+        return userError;
+    }
 
     public UserException(UserError userError) {
         super(userError.name());

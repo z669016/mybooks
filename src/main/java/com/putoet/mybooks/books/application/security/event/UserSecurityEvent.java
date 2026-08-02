@@ -1,6 +1,6 @@
 package com.putoet.mybooks.books.application.security.event;
 
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.Instant;

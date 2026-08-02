@@ -16,6 +16,8 @@
 	<description>API on my list of ebooks</description>
 
 	<properties>
+		<maven.compiler.source>25</maven.compiler.source>
+		<maven.compiler.target>25</maven.compiler.target>
 		<guava.version>33.6.0-jre</guava.version>
 		<tika.version>3.3.2</tika.version>
 		<ahocorasick.version>0.6.3</ahocorasick.version>
@@ -108,10 +110,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-configuration-processor</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>

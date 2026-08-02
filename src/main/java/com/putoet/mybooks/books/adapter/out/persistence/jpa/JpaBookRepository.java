@@ -4,8 +4,8 @@ import com.putoet.mybooks.books.application.port.in.ServiceError;
 import com.putoet.mybooks.books.application.port.out.persistence.BookPersistenceUpdatePort;
 import com.putoet.mybooks.books.domain.*;
 import jakarta.activation.MimeType;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -15,13 +15,20 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-@Slf4j
-@AllArgsConstructor
 @Profile("jpa")
 public class JpaBookRepository implements BookPersistenceUpdatePort {
+    public static final Logger log = LoggerFactory.getLogger(JpaBookRepository.class);
+
     private final DomainMapper mapper;
     private final AuthorJpaRepository authorRepository;
     private final BookJpaRepository bookRepository;
+
+    public JpaBookRepository(DomainMapper mapper, AuthorJpaRepository authorRepository,  BookJpaRepository bookRepository) {
+        this.mapper = mapper;
+        this.authorRepository = authorRepository;
+        this.bookRepository = bookRepository;
+        log.info("JpaBookRepository({},{},{})", mapper, authorRepository, bookRepository);
+    }
 
     @Override
     public Author registerAuthor(String name, Map<SiteType, URL> sites) {

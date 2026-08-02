@@ -1,18 +1,10 @@
 package com.putoet.mybooks.books.adapter.out.persistence.jpa;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.Objects;
 import java.util.Set;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-@Setter
 @Entity
 @Table(name = "book")
 public class BookEntity {
@@ -29,7 +21,6 @@ public class BookEntity {
     })
     @Column(name = "format")
     private Set<String> formats;
-
 
     @ManyToMany
     @JoinTable(name = "book_author", joinColumns = {
@@ -49,15 +40,66 @@ public class BookEntity {
     @Column(name = "keyword")
     private Set<String> keywords;
 
+    public BookEntity() {
+    }
+
+    public BookEntity(BookIdEntity bookId, String title, Set<String> formats, Set<AuthorEntity> authors, Set<String> keywords) {
+        this.bookId = bookId;
+        this.title = title;
+        this.formats = formats;
+        this.authors = authors;
+        this.keywords = keywords;
+    }
+
+    public BookIdEntity getBookId() {
+        return bookId;
+    }
+
+    public void setBookId(BookIdEntity bookId) {
+        this.bookId = bookId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public Set<String> getFormats() {
+        return formats;
+    }
+
+    public void setFormats(Set<String> formats) {
+        this.formats = formats;
+    }
+
+    public Set<AuthorEntity> getAuthors() {
+        return authors;
+    }
+
+    public void setAuthors(Set<AuthorEntity> authors) {
+        this.authors = authors;
+    }
+
+    public Set<String> getKeywords() {
+        return keywords;
+    }
+
+    public void setKeywords(Set<String> keywords) {
+        this.keywords = keywords;
+    }
+
     @Override
     public String toString() {
         return "BookEntity{" +
-                "bookId=" + bookId +
-                ", title='" + title + '\'' +
-                ", formats=" + formats +
-                ", authors=" + authors +
-                ", keywords=" + keywords +
-                '}';
+               "bookId=" + bookId +
+               ", title='" + title + '\'' +
+               ", formats=" + formats +
+               ", authors=" + authors +
+               ", keywords=" + keywords +
+               '}';
     }
 
     @Override

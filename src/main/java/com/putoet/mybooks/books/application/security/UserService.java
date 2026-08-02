@@ -7,9 +7,9 @@ import com.putoet.mybooks.books.application.security.event.UserCreatedSecurityEv
 import com.putoet.mybooks.books.application.security.event.UserDeletedSecurityEvent;
 import com.putoet.mybooks.books.domain.security.AccessRole;
 import com.putoet.mybooks.books.domain.security.User;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NullMarked;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.GrantedAuthority;
@@ -27,16 +27,22 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 @Service
-@RequiredArgsConstructor
-@Slf4j
-@ToString
 public class UserService implements UserManagementPort {
+    public static final Logger log =  LoggerFactory.getLogger(UserService.class);
+
     // Regular Expression by RFC 5322 for Email Validation
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$");
 
     private final UserPersistencePort userPersistencePort;
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher applicationEventPublisher;
+
+    public UserService(UserPersistencePort userPersistencePort,  PasswordEncoder passwordEncoder, ApplicationEventPublisher applicationEventPublisher) {
+        this.userPersistencePort = userPersistencePort;
+        this.passwordEncoder = passwordEncoder;
+        this.applicationEventPublisher = applicationEventPublisher;
+        log.info("UserService({},{},{})",  userPersistencePort, passwordEncoder, applicationEventPublisher);
+    }
 
     @Override
     public void forgetUser(String id) {
@@ -92,7 +98,7 @@ public class UserService implements UserManagementPort {
     }
 
     @Bean
-    public UserDetailsService userDetailsService(UserPersistencePort userPort) {
+    public @NullMarked UserDetailsService userDetailsService(UserPersistencePort userPort) {
         return id -> {
             final var user = userPort.findUserById(id);
             if (user == null)
@@ -114,5 +120,14 @@ public class UserService implements UserManagementPort {
                 }
             };
         };
+    }
+
+    @Override
+    public String toString() {
+        return "UserService{" +
+               "userPersistencePort=" + userPersistencePort +
+               ", passwordEncoder=" + passwordEncoder +
+               ", applicationEventPublisher=" + applicationEventPublisher +
+               '}';
     }
 }

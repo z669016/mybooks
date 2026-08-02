@@ -21,7 +21,7 @@ public class SecurityEventConfiguration {
         final var name = "SUCCESSFUL_USER_LOGIN";
         return event -> {
             Authentication authentication = event.getAuthentication();
-            final var user = authentication != null ? authentication.getName() : "unknown";
+            final var user = authentication.getName();
             final var timestamp = Instant.ofEpochMilli(event.getTimestamp());
             System.err.printf("%s: event %s, details %s%n", timestamp, name, user);
         };
@@ -32,7 +32,7 @@ public class SecurityEventConfiguration {
         return event -> {
             final var name = "FAILED_USER_LOGIN (" + event.getClass().getSimpleName() + ")";
             Authentication authentication = event.getAuthentication();
-            final var user = authentication != null ? authentication.getName() : "unknown";
+            final var user = authentication.getName();
             final var timestamp = Instant.ofEpochMilli(event.getTimestamp());
             System.err.printf("%s: event %s, details %s%n", timestamp, name, user);
         };

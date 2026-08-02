@@ -4,9 +4,8 @@ import com.putoet.mybooks.books.application.port.in.ServiceError;
 import com.putoet.mybooks.books.application.port.out.persistence.BookPersistenceUpdatePort;
 import com.putoet.mybooks.books.domain.*;
 import jakarta.activation.MimeType;
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -31,18 +30,23 @@ import static com.putoet.mybooks.books.adapter.out.persistence.jdbc.SqlUtil.sqlI
  * A read/write repository for book and author data, connected to an H4 database using a Spring JdbcTemplate
  */
 @Repository
-@Slf4j
-@RequiredArgsConstructor
 @Profile("jdbc")
 public class H2BookRepository implements BookPersistenceUpdatePort {
+    public static final Logger log = LoggerFactory.getLogger(H2BookRepository.class);
 
     private final JdbcTemplate template;
 
-    @SneakyThrows
+    public H2BookRepository(JdbcTemplate template) {
+        this.template = template;
+    }
+
     @Override
     public String toString() {
-        return String.format("%s(%s)", this.getClass().getName(),
-                Objects.requireNonNull(template.getDataSource()).getConnection().getMetaData().getURL());
+        try(var connection = Objects.requireNonNull(template.getDataSource()).getConnection()) {
+            return String.format("%s(%s)", this.getClass().getName(), connection.getMetaData().getURL());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

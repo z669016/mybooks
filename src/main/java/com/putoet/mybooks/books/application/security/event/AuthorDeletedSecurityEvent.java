@@ -1,7 +1,7 @@
 package com.putoet.mybooks.books.application.security.event;
 
 import com.putoet.mybooks.books.domain.AuthorId;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
 
 public class AuthorDeletedSecurityEvent extends UserSecurityEvent {
     public static final String NAME = "AUTHOR_DELETED";

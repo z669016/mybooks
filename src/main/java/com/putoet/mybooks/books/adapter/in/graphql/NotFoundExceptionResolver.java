@@ -3,15 +3,16 @@ package com.putoet.mybooks.books.adapter.in.graphql;
 import graphql.GraphQLError;
 import graphql.GraphqlErrorBuilder;
 import graphql.schema.DataFetchingEnvironment;
-import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.graphql.execution.DataFetcherExceptionResolverAdapter;
 import org.springframework.graphql.execution.ErrorType;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 @Component
-@Slf4j
 public class NotFoundExceptionResolver extends DataFetcherExceptionResolverAdapter {
+    public static final Logger log = LoggerFactory.getLogger(NotFoundExceptionResolver.class);
 
     @Override
     protected GraphQLError resolveToSingleError(@NonNull Throwable ex, @NonNull DataFetchingEnvironment env) {

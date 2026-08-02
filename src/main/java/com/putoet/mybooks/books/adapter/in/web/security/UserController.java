@@ -6,8 +6,8 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,12 +21,19 @@ import java.util.ArrayList;
 import java.util.Set;
 
 @RestController
-@Slf4j
-@RequiredArgsConstructor
 public class UserController {
+    public static final Logger log = LoggerFactory.getLogger(UserController.class);
+
     private final UserManagementPort userManagementPort;
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
+
+    public UserController(UserManagementPort userManagementPort, AuthenticationManager authenticationManager, UserDetailsService userDetailsService) {
+        this.userManagementPort = userManagementPort;
+        this.authenticationManager = authenticationManager;
+        this.userDetailsService = userDetailsService;
+        log.info("UserController({})", userManagementPort);
+    }
 
     @PostMapping(path = "/login",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -42,7 +49,10 @@ public class UserController {
             final String jwt = JwtTokenUtils.generateToken(userDetails);
             response.addCookie(jwtCookie(jwt));
             response.setHeader(JwtRequestFilter.AUTHORIZATION_KEY, JwtRequestFilter.AUTHORIZATION_SCHEME + " " + jwt);
-            return new JwtResponse(jwt, JwtTokenUtils.EXPIRES_IN);
+            final var jwtResponse = new JwtResponse(jwt, JwtTokenUtils.EXPIRES_IN);
+
+            log.debug("login({}) -> {}", request.id(), jwtResponse);
+            return jwtResponse;
         } catch (DisabledException exc) {
             log.error("User account was disabled for for user {}", request.id());
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, exc.getMessage());
@@ -71,11 +81,13 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponse createUser(@RequestBody @Valid NewUserRequest request) {
         try {
-            return UserResponse.from(userManagementPort.registerUser(request.id(),
+            final var response = UserResponse.from(userManagementPort.registerUser(request.id(),
                     request.name(),
                     request.password(),
                     AccessRole.from(request.accessRole()))
             );
+            log.debug("createUser({}, {}) -> {}", request.name(), request.accessRole(), response);
+            return response;
         } catch (RuntimeException exc) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
         }
@@ -85,7 +97,9 @@ public class UserController {
     @GetMapping(path = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
     public Set<UserResponse> getUsers() {
         try {
-            return UserResponse.from(userManagementPort.users());
+            final var users = UserResponse.from(userManagementPort.users());
+            log.debug("getUsers() -> {}", users);
+            return users;
         } catch (RuntimeException exc) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
         }
@@ -96,8 +110,10 @@ public class UserController {
     public UserResponse getUserById(@PathVariable(name = "id") @Email String id) {
         try {
             final var user = userManagementPort.userById(id);
-            if (user.isPresent())
+            if (user.isPresent()) {
+                log.debug("getUserById({}) -> {}", id, user);
                 return UserResponse.from(user.get());
+            }
         } catch (RuntimeException exc) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
         }

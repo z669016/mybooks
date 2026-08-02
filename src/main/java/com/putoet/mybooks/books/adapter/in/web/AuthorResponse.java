@@ -1,11 +1,12 @@
 package com.putoet.mybooks.books.adapter.in.web;
 
-import com.drew.lang.annotations.NotNull;
 import com.putoet.mybooks.books.domain.Author;
 import com.putoet.mybooks.books.domain.SiteType;
 import com.putoet.mybooks.books.domain.validation.ObjectIDConstraint;
 import com.putoet.mybooks.books.domain.validation.SiteMapConstraint;
 import com.putoet.mybooks.books.domain.validation.VersionConstraint;
+
+import org.jspecify.annotations.NonNull;
 
 import java.net.URL;
 import java.util.Collection;
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
 public record AuthorResponse(
         @ObjectIDConstraint String id,
         @VersionConstraint String version,
-        @NotNull String name,
+        @NonNull String name,
         @SiteMapConstraint Map<String, String> sites
 ) {
     public static Set<AuthorResponse> from(Collection<Author> domain) {

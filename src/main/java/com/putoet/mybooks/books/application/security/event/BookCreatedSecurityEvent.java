@@ -1,7 +1,7 @@
 package com.putoet.mybooks.books.application.security.event;
 
 import com.putoet.mybooks.books.domain.BookId;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
 
 public class BookCreatedSecurityEvent extends UserSecurityEvent {
     public static final String NAME = "BOOK_CREATED";

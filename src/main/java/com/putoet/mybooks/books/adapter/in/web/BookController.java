@@ -7,8 +7,8 @@ import com.putoet.mybooks.books.domain.AuthorId;
 import com.putoet.mybooks.books.domain.BookId;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -19,21 +19,33 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Validated
 @RestController
-@RequiredArgsConstructor
-@Slf4j
 public class BookController {
+    public static final Logger log = LoggerFactory.getLogger(BookController.class);
+
     private final BookManagementInquiryPort bookManagementInquiryPort;
     private final BookManagementUpdatePort bookManagementUpdatePort;
     private final SmartValidator validator;
 
+    public BookController(BookManagementInquiryPort bookManagementInquiryPort,
+                          BookManagementUpdatePort bookManagementUpdatePort,
+                          SmartValidator validator) {
+        this.bookManagementInquiryPort = bookManagementInquiryPort;
+        this.bookManagementUpdatePort = bookManagementUpdatePort;
+        this.validator = validator;
+        log.info("BookController({},{},{})", bookManagementInquiryPort, bookManagementUpdatePort, validator);
+    }
+
     @GetMapping(path = "/books", produces = MediaType.APPLICATION_JSON_VALUE)
     public Set<BookResponse> getBooks() {
         try {
-            return BookResponse.from(bookManagementInquiryPort.books());
+            final var books = BookResponse.from(bookManagementInquiryPort.books());
+            log.debug("getBooks() -> {}", books);
+            return books;
         } catch (RuntimeException exc) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
         }
@@ -42,7 +54,9 @@ public class BookController {
     @GetMapping(path = "/books/author/{name}", produces = MediaType.APPLICATION_JSON_VALUE)
     public Set<BookResponse> getBooksByAuthorName(@PathVariable @NotBlank String name) {
         try {
-            return BookResponse.from(bookManagementInquiryPort.booksByAuthorName(name));
+            final var books = BookResponse.from(bookManagementInquiryPort.booksByAuthorName(name));
+            log.debug("getBooksByAuthorName({}) -> {}", name, books);
+            return books;
         } catch (RuntimeException exc) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
         }
@@ -51,7 +65,9 @@ public class BookController {
     @GetMapping(path = "/books/{title}", produces = MediaType.APPLICATION_JSON_VALUE)
     public Set<BookResponse> getBooksByTitle(@PathVariable @NotBlank String title) {
         try {
-            return BookResponse.from(bookManagementInquiryPort.booksByTitle(title));
+            final var books = BookResponse.from(bookManagementInquiryPort.booksByTitle(title));
+            log.debug("getBooksByTitle({}) -> {}", title, books);
+            return books;
         } catch (RuntimeException exc) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
         }
@@ -72,8 +88,10 @@ public class BookController {
         try {
             final var bookId = new BookId(schema, id);
             final var book = bookManagementInquiryPort.bookById(bookId);
-            if (book.isPresent())
+            if (book.isPresent()) {
+                log.debug("getBookById({}) -> {}", bookId, book.get());
                 return BookResponse.from(book.get());
+            }
         } catch (RuntimeException exc) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
         }
@@ -86,15 +104,15 @@ public class BookController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @ResponseStatus(HttpStatus.CREATED)
-    public BookResponse createBook(@RequestBody @Valid NewBookRequest book) {
+    public BookResponse createBook(@RequestBody @Valid NewBookRequest request) {
         try {
-            final var bookId = new BookId(book.schema(), book.id());
+            final var bookId = new BookId(request.schema(), request.id());
             final var authors = new HashSet<Author>();
-            for (BookRequestAuthor author : book.authors()) {
+            for (BookRequestAuthor author : request.authors()) {
                 if (author.isNewRequest()) {
                     final var newAuthorRequest = author.newAuthorRequest();
                     authors.add(bookManagementUpdatePort.registerAuthor(newAuthorRequest.name(), NewAuthorRequest.sitesWithURLs(newAuthorRequest.sites())));
-                } else if (author.isExistingRequest()){
+                } else if (author.isExistingRequest()) {
                     final var existingAuthorRequest = author.existingAuthorRequest();
                     authors.add(bookManagementInquiryPort.authorById(AuthorId.withId(existingAuthorRequest.id()))
                             .orElseThrow(() -> new IllegalArgumentException("author with id " + existingAuthorRequest.id() + " not found for book with id " + bookId))
@@ -102,13 +120,15 @@ public class BookController {
                 }
             }
 
-            return BookResponse.from(bookManagementUpdatePort.registerBook(
+            final var book =  BookResponse.from(bookManagementUpdatePort.registerBook(
                     bookId,
-                    book.title(),
+                    request.title(),
                     authors,
-                    book.formatsAsMimeTypeList(),
-                    book.keywords()
+                    request.formatsAsMimeTypeList(),
+                    request.keywords()
             ));
+            log.debug("createBook({}) -> {}", request, book);
+            return book;
         } catch (RuntimeException exc) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
         }

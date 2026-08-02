@@ -3,9 +3,8 @@ package com.putoet.mybooks.books.application;
 import com.putoet.mybooks.books.application.port.in.*;
 import com.putoet.mybooks.books.application.port.out.persistence.BookPersistenceQueryPort;
 import com.putoet.mybooks.books.domain.*;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -18,12 +17,14 @@ import java.util.stream.Collectors;
  * in enables several nice features, like a simple approach to load a database from EPUB books on a file system.
  */
 @Service
-@Slf4j
-@RequiredArgsConstructor
-@ToString
 public class BookInquiryService implements BookManagementInquiryPort {
+    public static final Logger log = LoggerFactory.getLogger(BookInquiryService.class);
 
     private final BookPersistenceQueryPort bookPersistenceQueryPort;
+
+    public BookInquiryService(BookPersistenceQueryPort bookPersistenceQueryPort) {
+        this.bookPersistenceQueryPort = bookPersistenceQueryPort;
+    }
 
     @Override
     public Set<Author> authorsByName(String name) {
@@ -104,5 +105,12 @@ public class BookInquiryService implements BookManagementInquiryPort {
                 SiteType.INSTAGRAM_NAME,
                 "Other"
                 );
+    }
+
+    @Override
+    public String toString() {
+        return "BookInquiryService{" +
+               "bookPersistenceQueryPort=" + bookPersistenceQueryPort +
+               '}';
     }
 }

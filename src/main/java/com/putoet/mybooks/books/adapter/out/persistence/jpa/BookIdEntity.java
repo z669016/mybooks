@@ -2,18 +2,10 @@ package com.putoet.mybooks.books.adapter.out.persistence.jpa;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.Objects;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-@Setter
 @Embeddable
 public class BookIdEntity implements Serializable {
     @Column(name = "book_id_type", updatable = false, nullable = false)
@@ -21,6 +13,29 @@ public class BookIdEntity implements Serializable {
 
     @Column(name = "book_id", updatable = false, nullable = false)
     private String id;
+
+    public BookIdEntity() {}
+
+    public BookIdEntity(String idType, String id) {
+        this.idType = idType;
+        this.id = id;
+    }
+
+    public String getIdType() {
+        return idType;
+    }
+
+    public void setIdType(String idType) {
+        this.idType = idType;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     @Override
     public String toString() {

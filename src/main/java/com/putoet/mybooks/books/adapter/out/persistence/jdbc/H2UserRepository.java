@@ -5,9 +5,8 @@ import com.putoet.mybooks.books.application.port.out.security.UserPersistencePor
 import com.putoet.mybooks.books.domain.security.AccessRole;
 import com.putoet.mybooks.books.domain.security.User;
 import com.putoet.mybooks.books.domain.security.Users;
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -19,17 +18,22 @@ import java.util.*;
 import static com.putoet.mybooks.books.adapter.out.persistence.jdbc.SqlUtil.sqlInfo;
 
 @Repository
-@Slf4j
-@RequiredArgsConstructor
 public class H2UserRepository implements UserPersistencePort {
+    public static final Logger log = LoggerFactory.getLogger(H2UserRepository.class);
 
     private final JdbcTemplate template;
 
-    @SneakyThrows
+    public H2UserRepository(JdbcTemplate template) {
+        this.template = template;
+    }
+
     @Override
     public String toString() {
-        return String.format("%s(%s)", this.getClass().getName(),
-                Objects.requireNonNull(template.getDataSource()).getConnection().getMetaData().getURL());
+        try(var connection = Objects.requireNonNull(template.getDataSource()).getConnection()) {
+            return String.format("%s(%s)", this.getClass().getName(), connection.getMetaData().getURL());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

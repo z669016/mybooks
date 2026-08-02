@@ -2,7 +2,8 @@ package com.putoet.mybooks.books.adapter.out.persistence.folder;
 
 import com.putoet.mybooks.books.application.port.out.persistence.BookPersistenceQueryPort;
 import com.putoet.mybooks.books.domain.*;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,8 +27,9 @@ import static java.util.stream.Collectors.toMap;
  * been collected, the list is processed (again as parallel stream) to load all data from the books.
  * </p>
  */
-@Slf4j
 public class FolderBookRepository implements BookPersistenceQueryPort {
+    public static final Logger log = LoggerFactory.getLogger(FolderBookRepository.class);
+
     private final Path folder;
     private final Map<AuthorId, Author> authors;
     private final Map<BookId, Book> books;

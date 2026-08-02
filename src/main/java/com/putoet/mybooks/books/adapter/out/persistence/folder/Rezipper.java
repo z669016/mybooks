@@ -1,6 +1,7 @@
 package com.putoet.mybooks.books.adapter.out.persistence.folder;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,8 +23,9 @@ import java.util.zip.ZipOutputStream;
  * name of the (temporary) rezipped file when successful.
  * Source code was reused from samples of Bealdung for unzipping and zipping files.
  */
-@Slf4j
 public final class Rezipper {
+    public static final Logger log = LoggerFactory.getLogger(Rezipper.class);
+
     private static final int BUFFER_SIZE = 4 * 1024;
     private static final AtomicInteger repackageCount = new AtomicInteger();
     private static final AtomicInteger repackageFailedCount = new AtomicInteger();

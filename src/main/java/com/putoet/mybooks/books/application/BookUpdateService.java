@@ -8,9 +8,8 @@ import com.putoet.mybooks.books.application.security.event.AuthorDeletedSecurity
 import com.putoet.mybooks.books.application.security.event.BookCreatedSecurityEvent;
 import com.putoet.mybooks.books.domain.*;
 import jakarta.activation.MimeType;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -24,12 +23,17 @@ import java.util.Set;
  * Service provides write services for the book repository
  */
 @Service
-@Slf4j
-@RequiredArgsConstructor
-@ToString
 public class BookUpdateService implements BookManagementUpdatePort {
+    public static final Logger log = LoggerFactory.getLogger(BookUpdateService.class);
+
     private final BookPersistenceUpdatePort bookPersistenceUpdatePort;
     private final ApplicationEventPublisher applicationEventPublisher;
+
+    public BookUpdateService(BookPersistenceUpdatePort bookPersistenceUpdatePort, ApplicationEventPublisher applicationEventPublisher) {
+        this.bookPersistenceUpdatePort = bookPersistenceUpdatePort;
+        this.applicationEventPublisher = applicationEventPublisher;
+        log.info("BookUpdateService({},{})", bookPersistenceUpdatePort, applicationEventPublisher);
+    }
 
     @Override
     public Author registerAuthor(String name, Map<SiteType, URL> sites) {

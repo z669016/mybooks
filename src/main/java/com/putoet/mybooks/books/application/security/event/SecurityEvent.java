@@ -1,8 +1,8 @@
 package com.putoet.mybooks.books.application.security.event;
 
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.context.ApplicationEvent;
-import org.springframework.lang.NonNull;
 
 import java.time.Instant;
 

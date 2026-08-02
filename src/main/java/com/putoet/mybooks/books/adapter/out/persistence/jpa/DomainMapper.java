@@ -2,7 +2,8 @@ package com.putoet.mybooks.books.adapter.out.persistence.jpa;
 
 import com.putoet.mybooks.books.domain.*;
 import jakarta.activation.MimeType;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.net.MalformedURLException;
@@ -12,9 +13,10 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 public class DomainMapper {
+    public static final Logger log  = LoggerFactory.getLogger(DomainMapper.class);
+
     Author toDomain(AuthorEntity entity) {
         final var sites = new HashMap<SiteType, URL>();
         for (var entry : entity.getSites().entrySet()) {
