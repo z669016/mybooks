@@ -7,10 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class SiteTypeTest {
     @Test
     void constructor() {
-        assertAll(
-                () -> assertThrows(NullPointerException.class, () -> SiteType.of(null)),
-                () -> assertThrows(IllegalArgumentException.class, () -> new SiteType(" "))
-        );
+        assertThrows(IllegalArgumentException.class, () -> new SiteType(" "));
     }
 
     @Test

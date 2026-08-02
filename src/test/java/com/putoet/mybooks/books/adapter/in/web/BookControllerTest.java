@@ -57,15 +57,11 @@ class BookControllerTest {
     @Test
     void getBooksFailed() {
         when(bookManagementInquiryPort.books()).thenThrow(new RuntimeException("FAIL"));
-        try {
-            bookController.getBooks();
-            fail("ResponseStatusException expected");
-        } catch (ResponseStatusException exc) {
-            assertAll(
-                    () -> verify(bookManagementInquiryPort, times(1)).books(),
-                    () -> assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode())
-            );
-        }
+        final var exc = assertThrows(ResponseStatusException.class, () -> bookController.getBooks());
+        assertAll(
+                () -> verify(bookManagementInquiryPort, times(1)).books(),
+                () -> assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode())
+        );
     }
 
     @Test
@@ -77,15 +73,11 @@ class BookControllerTest {
     @Test
     void getBooksByAuthorNameFailed() {
         when(bookManagementInquiryPort.booksByAuthorName(author.name())).thenThrow(new RuntimeException("FAIL"));
-        try {
-            bookController.getBooksByAuthorName(author.name());
-            fail("ResponseStatusException expected");
-        } catch (ResponseStatusException exc) {
-            assertAll(
-                    () -> verify(bookManagementInquiryPort, times(1)).booksByAuthorName(author.name()),
-                    () -> assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode())
-            );
-        }
+        final var exc = assertThrows(ResponseStatusException.class, () -> bookController.getBooksByAuthorName(author.name()));
+        assertAll(
+                () -> verify(bookManagementInquiryPort, times(1)).booksByAuthorName(author.name()),
+                () -> assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode())
+        );
     }
 
     @Test
@@ -97,15 +89,11 @@ class BookControllerTest {
     @Test
     void getBooksByTitleFailed() {
         when(bookManagementInquiryPort.booksByTitle(book.title())).thenThrow(new RuntimeException("FAIL"));
-        try {
-            bookController.getBooksByTitle(book.title());
-            fail("ResponseStatusException expected");
-        } catch (ResponseStatusException exc) {
-            assertAll(
-                    () -> verify(bookManagementInquiryPort, times(1)).booksByTitle(book.title()),
-                    () -> assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode())
-            );
-        }
+        final var exc = assertThrows(ResponseStatusException.class, () -> bookController.getBooksByTitle(book.title()));
+        assertAll(
+                () -> verify(bookManagementInquiryPort, times(1)).booksByTitle(book.title()),
+                () -> assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode())
+        );
     }
 
     @Test
@@ -116,22 +104,16 @@ class BookControllerTest {
     }
 
     @Test
-    void getBookByIdFailed() throws MethodArgumentNotValidException {
-        try {
-            bookController.getBookById("BLA", "123");
-        } catch (ResponseStatusException exc) {
-            assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
-        }
+    void getBookByIdFailed() {
+        final var exc = assertThrows(ResponseStatusException.class, () -> bookController.getBookById("BLA", "123"));
+        assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
     }
 
     @Test
-    void getBookByIdNotFound() throws MethodArgumentNotValidException {
+    void getBookByIdNotFound() {
         when(bookManagementInquiryPort.bookById(book.id())).thenReturn(Optional.empty());
-        try {
-            bookController.getBookById(book.id().schema().name(), book.id().id());
-        } catch (ResponseStatusException exc) {
-            assertEquals(HttpStatus.NOT_FOUND, exc.getStatusCode());
-        }
+        final var exc = assertThrows(ResponseStatusException.class, () -> bookController.getBookById(book.id().schema().name(), book.id().id()));
+        assertEquals(HttpStatus.NOT_FOUND, exc.getStatusCode());
     }
 
     @Test

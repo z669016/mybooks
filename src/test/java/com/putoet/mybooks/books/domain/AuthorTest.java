@@ -35,6 +35,7 @@ public class AuthorTest {
             homePage = new URL("https://facebook.com/reflectoring");
             blog = new URL("https://www.freecodecamp.org/news/author/thombergs/");
         } catch (MalformedURLException ignored) {
+            // not used
         }
 
         SITES.put(SiteType.GITHUB, github);

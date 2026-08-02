@@ -4,6 +4,7 @@ import com.putoet.mybooks.books.application.security.UserService;
 import com.putoet.mybooks.books.domain.security.AccessRole;
 import com.putoet.mybooks.books.domain.security.User;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,6 +36,7 @@ class UserControllerTest {
     private final NewUserRequest request = new NewUserRequest("abc@xyz.com", "name", "pwd", "ADMIN");
     private final UserDetails userDetails = new UserDetails() {
         @Override
+        @NullMarked
         public Collection<? extends GrantedAuthority> getAuthorities() {
             return List.of((GrantedAuthority) () -> "ADMIN");
         }
@@ -45,6 +47,7 @@ class UserControllerTest {
         }
 
         @Override
+        @NullMarked
         public String getUsername() {
             return request.id();
         }
@@ -84,6 +87,7 @@ class UserControllerTest {
         final var response = mock(HttpServletResponse.class);
         when(userDetailService.loadUserByUsername(loginRequest.id())).thenReturn(new UserDetails() {
             @Override
+            @NullMarked
             public Collection<? extends GrantedAuthority> getAuthorities() {
                 return List.of();
             }
@@ -94,6 +98,7 @@ class UserControllerTest {
             }
 
             @Override
+            @NullMarked
             public String getUsername() {
                 return "";
             }

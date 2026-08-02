@@ -47,15 +47,11 @@ class AuthorControllerTest {
     @Test
     void getAuthorsFailed() {
         when(bookManagementInquiryPort.authors()).thenThrow(new RuntimeException("FAIL"));
-        try {
-            authorController.getAuthors();
-            fail("ResponseStatusException expected");
-        } catch (ResponseStatusException exc) {
-            assertAll(
-                    () -> verify(bookManagementInquiryPort, times(1)).authors(),
-                    () -> assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode())
+        final var exc = assertThrows(ResponseStatusException.class, () -> authorController.getAuthors());
+        assertAll(
+                () -> verify(bookManagementInquiryPort, times(1)).authors(),
+                () -> assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode())
             );
-        }
     }
 
     @Test
@@ -68,23 +64,15 @@ class AuthorControllerTest {
     @Test
     void getAuthorByIdFailed() {
         when(bookManagementInquiryPort.authorById(author.id())).thenThrow(new RuntimeException("FAIL"));
-        try {
-            authorController.getAuthorById(author.id().uuid().toString());
-            fail("ResponseStatusException expected");
-        } catch (ResponseStatusException exc) {
-            assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
-        }
+        final var exc = assertThrows(ResponseStatusException.class, () -> authorController.getAuthorById(author.id().uuid().toString()));
+        assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
     }
 
     @Test
     void getAuthorByIdNotFound() {
         when(bookManagementInquiryPort.authorById(author.id())).thenReturn(Optional.empty());
-        try {
-            authorController.getAuthorById(author.id().uuid().toString());
-            fail("ResponseStatusException expected");
-        } catch (ResponseStatusException exc) {
-            assertEquals(HttpStatus.NOT_FOUND, exc.getStatusCode());
-        }
+        final var exc = assertThrows(ResponseStatusException.class, () -> authorController.getAuthorById(author.id().uuid().toString()));
+        assertEquals(HttpStatus.NOT_FOUND, exc.getStatusCode());
     }
 
     @Test
@@ -97,12 +85,8 @@ class AuthorControllerTest {
     @Test
     void getAuthorByNameFailed() {
         when(bookManagementInquiryPort.authorsByName(author.name())).thenThrow(new RuntimeException("FAIL"));
-        try {
-            authorController.getAuthorsByName(author.name());
-            fail("ResponseStatusException expected");
-        } catch (ResponseStatusException exc) {
-            assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
-        }
+        final var exc = assertThrows(ResponseStatusException.class, () -> authorController.getAuthorsByName(author.name()));
+        assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
     }
 
     @Test
@@ -114,19 +98,11 @@ class AuthorControllerTest {
     @Test
     void deleteAuthorByIdFailed() {
         doThrow(new ServiceException(ServiceError.AUTHOR_NOT_UPDATED)).when(bookManagementUpdatePort).forgetAuthor(author.id());
-        try {
-            authorController.deleteAuthorById(null);
-            fail("ResponseStatusException expected");
-        } catch (ResponseStatusException exc) {
-            assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
-        }
+        var exc = assertThrows(ResponseStatusException.class, () -> authorController.deleteAuthorById(null));
+        assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
 
-        try {
-            authorController.deleteAuthorById(author.id().uuid().toString());
-            fail("ResponseStatusException expected");
-        } catch (ResponseStatusException exc) {
-            assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
-        }
+        exc = assertThrows(ResponseStatusException.class, () -> authorController.deleteAuthorById(author.id().uuid().toString()));
+        assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
     }
 
     @Test
@@ -138,26 +114,14 @@ class AuthorControllerTest {
 
     @Test
     void createAuthorFailed() {
-        try {
-            authorController.createAuthor(new NewAuthorRequest(null, null));
-            fail("ResponseStatusException expected");
-        } catch (ResponseStatusException exc) {
-            assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
-        }
+        var exc = assertThrows(ResponseStatusException.class, () -> authorController.createAuthor(new NewAuthorRequest(null, null)));
+        assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
 
-        try {
-            authorController.createAuthor(new NewAuthorRequest("  ", null));
-            fail("ResponseStatusException expected");
-        } catch (ResponseStatusException exc) {
-            assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
-        }
+        exc = assertThrows(ResponseStatusException.class, () -> authorController.createAuthor(new NewAuthorRequest("  ", null)));
+        assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
 
-        try {
-            authorController.createAuthor(new NewAuthorRequest("name", null));
-            fail("ResponseStatusException expected");
-        } catch (ResponseStatusException exc) {
-            assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
-        }
+        exc = assertThrows(ResponseStatusException.class, () -> authorController.createAuthor(new NewAuthorRequest("name", null)));
+        assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
     }
 
     @Test
@@ -169,25 +133,13 @@ class AuthorControllerTest {
 
     @Test
     void updateAuthorFailed() {
-        try {
-            authorController.updateAuthor(null, new UpdateAuthorRequest(null, null));
-            fail("ResponseStatusException expected");
-        } catch (ResponseStatusException exc) {
-            assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
-        }
+        var exc = assertThrows(ResponseStatusException.class, () -> authorController.updateAuthor(null, new UpdateAuthorRequest(null, null)));
+        assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
 
-        try {
-            authorController.updateAuthor(null, new UpdateAuthorRequest(author.version().toString(), null));
-            fail("ResponseStatusException expected");
-        } catch (ResponseStatusException exc) {
-            assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
-        }
+        exc = assertThrows(ResponseStatusException.class, () -> authorController.updateAuthor(null, new UpdateAuthorRequest(author.version().toString(), null)));
+        assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
 
-        try {
-            authorController.updateAuthor(null, new UpdateAuthorRequest(author.version().toString(), "  "));
-            fail("ResponseStatusException expected");
-        } catch (ResponseStatusException exc) {
-            assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
-        }
+        exc = assertThrows(ResponseStatusException.class, () -> authorController.updateAuthor(null, new UpdateAuthorRequest(author.version().toString(), "  ")));
+        assertEquals(HttpStatus.BAD_REQUEST, exc.getStatusCode());
     }
 }

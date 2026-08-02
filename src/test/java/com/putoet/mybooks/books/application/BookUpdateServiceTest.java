@@ -26,6 +26,9 @@ class BookUpdateServiceTest {
     @Mock
     private BookPersistenceUpdatePort bookPersistenceUpdatePort;
 
+    // The ApplicationEventPublisher needs to be in the context, therefor a mock
+    // is created without being referenced in the code. Tests will fail when this
+    // property is removed.
     @Mock
     private ApplicationEventPublisher applicationEventPublisher;
 

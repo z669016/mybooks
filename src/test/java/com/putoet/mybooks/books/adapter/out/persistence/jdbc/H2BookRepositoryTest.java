@@ -48,7 +48,6 @@ class H2BookRepositoryTest {
         final var authors = repository.findAuthorsByName("tom");
 
         assertEquals(1, authors.size());
-        System.out.println(authors.stream().findFirst().orElseThrow());
     }
 
     @Test

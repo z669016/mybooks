@@ -1,5 +1,6 @@
 package com.putoet.mybooks.books.adapter.in.web.security;
 
+import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.core.GrantedAuthority;
@@ -13,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class JwtTokenUtilsTest {
     private final UserDetails userDetails = new UserDetails() {
         @Override
+        @NullMarked
         public Collection<? extends GrantedAuthority> getAuthorities() {
             return List.of((GrantedAuthority) () -> "REQUESTER",
                     (GrantedAuthority) () -> "APPROVER"
@@ -25,6 +27,7 @@ class JwtTokenUtilsTest {
         }
 
         @Override
+        @NullMarked
         public String getUsername() {
             return "username";
         }

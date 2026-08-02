@@ -83,12 +83,7 @@ public class LoadEpubStepdefs extends MyBooksE2EBase {
     @Then("all authors list is not empty")
     public void allAuthorsListIsNotEmpty() {
         @SuppressWarnings("unchecked") final Set<Author> storedAuthors = context.get(ALL_AUTHORS, Set.class);
-        System.out.printf("Loaded %d authors:%n", storedAuthors.size());
-        storedAuthors.stream()
-                .sorted(Comparator.comparing(author -> author.name().toLowerCase()))
-                .map(Author::name)
-                .forEach(System.out::println);
-        System.out.println();
+
         assertFalse(storedAuthors.isEmpty());
     }
 

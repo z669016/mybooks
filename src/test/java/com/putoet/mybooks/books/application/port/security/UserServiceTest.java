@@ -14,8 +14,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -27,8 +26,11 @@ class UserServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    // The ApplicationEventPublisher needs to be in the context, therefor a mock
+    // is created without being referenced in the code. Tests will fail when this
+    // property is removed.
     @Mock
-    private ApplicationEventPublisher applicationEventPublisher;
+    private ApplicationEventPublisher publisher;
 
     @InjectMocks
     private UserService userManagementPort;
@@ -92,21 +94,22 @@ class UserServiceTest {
 
     @Test
     void passwordEncoder() {
-        final var passwordEncoder = new BCryptPasswordEncoder();
+        final var encoder = new BCryptPasswordEncoder();
 
-        printPassword(ADMIN.password(), passwordEncoder);
-        printPassword(ADMIN.password(), passwordEncoder);
-        printPassword(ADMIN.password(), passwordEncoder);
-        printPassword(ADMIN.password(), passwordEncoder);
-        printPassword(USER.password(), passwordEncoder);
-        printPassword(USER.password(), passwordEncoder);
-        printPassword(USER.password(), passwordEncoder);
-        printPassword(USER.password(), passwordEncoder);
+        assertTrue(printPassword(ADMIN.password(), encoder));
+        assertTrue(printPassword(ADMIN.password(), encoder));
+        assertTrue(printPassword(ADMIN.password(), encoder));
+        assertTrue(printPassword(ADMIN.password(), encoder));
+        assertTrue(printPassword(USER.password(), encoder));
+        assertTrue(printPassword(USER.password(), encoder));
+        assertTrue(printPassword(USER.password(), encoder));
+        assertTrue(printPassword(USER.password(), encoder));
     }
 
-    private void printPassword(String password, PasswordEncoder passwordEncoder) {
+    private boolean printPassword(String password, PasswordEncoder passwordEncoder) {
         final String encoded = passwordEncoder.encode(password);
         final boolean matches = passwordEncoder.matches(password, encoded);
         System.out.printf("'%s' encoded is '%s', matches = %b%n", password, encoded, matches);
+        return matches;
     }
 }
