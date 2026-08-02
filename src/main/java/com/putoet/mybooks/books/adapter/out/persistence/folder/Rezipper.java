@@ -110,12 +110,12 @@ public final class Rezipper {
                     }
 
                     // write file content
-                    final var fos = new FileOutputStream(newFile);
-                    int len;
-                    while ((len = zis.read(buffer)) > 0) {
-                        fos.write(buffer, 0, len);
+                    try (final var fos = new FileOutputStream(newFile)) {
+                        int len;
+                        while ((len = zis.read(buffer)) > 0) {
+                            fos.write(buffer, 0, len);
+                        }
                     }
-                    fos.close();
                 }
                 zipEntry = zis.getNextEntry();
             }
