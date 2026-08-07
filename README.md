@@ -7,7 +7,7 @@ the years. This started with using [EPUBLIB](http://www.siegmann.nl/epublib) to 
 with the EPUB format. 
 
 Although technically quite straight forward, in practice much harder. Formatting of the fields in the for instance 
-the ```content.opf``` (a standard XML file with meta-data) proofed not so standard. Formatting of the ```identity```
+the ```content.opf``` (a standard XML file with metadata) proofed not so standard. Formatting of the ```identity```
 XML element data differs, and so is information on authors (especially when there are more) as part of the 
 ```contributer``` XML element. 
 
@@ -29,6 +29,14 @@ are the best, but because it required less learning as I'd used them in the past
 I need to be fair, and give credits to [Bealdung](https://www.baeldung.com/). Everytime I needed to explore something
 new (at least new to me), most of the time I found myself ending up there for great answers, explanations, and samples.
 
+Recently upgraded to Spring boot 4 and Spring 7. Except from mandatory changes to POM and code, no new features 
+introduced yes. On my wishlist:
+- More functional style programming, e.g. using vavr library
+- Introduce API versioning (Spring boot 4)
+- Add open telemetry
+- Turn into multi-module maven project with the core separated from the adapters
+- use batch updates when storing keywords, book authors, etc.
+
 ### Domain model
 The domain model started simple: a BOOK has an identity (an ISBN-number of course), some attributes, a set of KEYWORDS, 
 one or more FORMATS, one or more AUTHOR, and each author uses some websites for additional publicity and blogs.
@@ -49,7 +57,7 @@ been used as domain classes (immutable), and null-checks are performed on object
 ensured to be unmodifiable. 
 
 Initially a ```MimeTypes``` class was used as a wrapper around a ```Set<MimeType>``` but this didn't add any value, so 
-it was removed in favour of a more consist implementation.
+it was removed in favor of a more consist implementation.
 
 The domain model is unit tested using hard-coded test data.
 
@@ -57,8 +65,8 @@ The domain model is unit tested using hard-coded test data.
 Storing book data into a persistence system, required output ports to be defined (interfaces to persist or retrieve
 persisted data from the persistent store). I decided to implement the output port using two interfaces, one for 
 retrieval-only (```BookPersistanceQueryPort```) and one for writing (```BookPersistanceUpdatePort```). This allowed me 
-to write an implementation of the retrieval-only port directly talking to the filesystem  without implementing update 
-methods as part of the implementation , while the combination of retrieval-only and writing port could be implemented 
+to write an implementation of the retrieval-only port directly talking to the filesystem without implementing update 
+methods as part of the implementation, while the combination of retrieval-only and writing port could be implemented 
 on an SQL database (H2).
 
 This approach enabled me to write a simple program that retrieves all books from a ```BookPersistanceQueryPort``` 
@@ -78,7 +86,7 @@ First I tried to get the book text using the EPUBLIB, but that proofed quite dif
 failed parsing. Looking for another library I ran into [Apache Tika](https://tika.apache.org/), and a nice book
 [Tika in Action](https://www.manning.com/books/tika-in-action). This meant a rewrite of the ```EpubBookLoader``` to use 
 Tika, but impact was limited. Tika provides a```parseToString(InputStream stream, Metadata metadata, int maxLength)``` 
-that gives you meta-data and content in one go. After having switched to Apache Tika, I  noticed some books still 
+that gives you metadata and content in one go. After having switched to Apache Tika, I  noticed some books still 
 caused parsing errors. For now, I ignored this issue (this has ot be solved later).
 
 To find the keywords I first looked for a library to extract all nouns from the text. I started with 
@@ -86,8 +94,8 @@ To find the keywords I first looked for a library to extract all nouns from the 
 too many keywords, I still had to filter the list. So, I checked for lists of "IT keywords", and that Google search 
 also didn't help. In the end I compiled my own list, but now I had to scan the book text for occurrences of words in 
 the list. Searching for an efficient way to scan text for a series of words in one go using ChatGPT, pointed me to  
-[Aho-CoraSick](https://en.wikipedia.org/wiki/Aho%E2%80%93Corasick_algorithm) which is available as Maven artefact. The implementation was pretty straight forward as part 
-of the ```EpubBookLoader```.  
+[Aho-CoraSick](https://en.wikipedia.org/wiki/Aho%E2%80%93Corasick_algorithm) which is available as Maven artifact. The 
+implementation was pretty straight forward as part of the ```EpubBookLoader```.  
 
 ### Parsing errors on epub books
 Now it was time to handle the problem of EPUB parsing errors, as parsing errors would lead to inaccurate keyword lists. 
@@ -98,7 +106,7 @@ zipped it all back together was implemented as step one. The ```EpubBookLoader``
 of a parsing error after which it tried to parse the book again. Remarkably enough, this solved the issue!
 
 During parsing of EPUB documents, still parsing errors get reported, but this doesn't seem to be a big issue. Maybe, 
-some day, I'll spend some time to analyse the issue, but for now, it's good enough. 
+some day, I'll spend some time to analyze the issue, but for now, it's good enough. 
 
 ### Services
 Services on the domain model are defined using input ports, which are interfaces implemented by service-classes. These
@@ -307,19 +315,19 @@ types have been added (```GraphqlAuthorResponse``` and ```GraphqlBookResponse```
 For proper response on not-found situations (e.g. book with id not found), the ```NotFoundException``` was
 introduced and linked into the framework using the ```NotFoundExceptionResolver```.
 
-In order to test using Graphiql (required additional setting in the ```application.yml```), security
+In order to test using GraphQL (required additional setting in the ```application.yml```), security
 on the GraphQL interface was disabled in the security configuration.
 
 ## RestAssured
 Replacing the use of the RestTemplate with [rest-assured](https://rest-assured.io/), was pretty easy. It also
-allowed cleanup as the rest assured framework handles https out of th e box. It also knows how to
+allowed cleanup as the rest assured framework handles https out of the box. It also knows how to
 translate (map) responses given a class type, so no need to pass an ObjectMapper.
 
 ## Recreating the database from scratch
 This feature has been implemented as a test. During testing of the feature I discovered a couple of new things as well. 
 
 When running a test annotated with ```@JdbcTest``` the test will use the ```schema.sql``` and ```data.sql``` files to 
-create an in-memory H2 database, while ignoring most of the database settings in yoor ```application.yml```. To run 
+create an in-memory H2 database, while ignoring most of the database settings in your ```application.yml```. To run 
 the tests against a real database, you need to use ```@SpringBootTest``` and ```@AutoConfigureMockMvc```. 
 
 When running a test annotated with ```@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)```, 
@@ -332,7 +340,7 @@ removing all duplications after loading book data and before returning from the 
 are being removed, and only the first author with a specific name is stored and linked to the books). 
 
 ## Java Persistence API
-Adding JPA took quite some steps. By default the JPA entities are being used to create the database (```@JdbcTest```, 
+Adding JPA took quite some steps. By default, the JPA entities are being used to create the database (```@JdbcTest```, 
 and ```@JPATest```) work with an embedded H2 database that is recreated on every run. JPA recreates the tables from the
 entity definitions (as expected), but things blow up if the entity definitions are not in sync with the database 
 schema (duh). 
@@ -341,7 +349,7 @@ For properly using the composite key, after a few attempts I stuck to the advice
 [The best way to map a Composite Key with JPA and Hibernate](https://vladmihalcea.com/the-best-way-to-map-a-composite-primary-key-with-jpa-and-hibernate/)
 
 During the final steps I got issues on the entity hashcode. Originally the classes were annotated with ```@Data```, and
-```@ToString```, but these can cause issues. Also here, I complied with an advice from [Vlad Mihalcea](https://vladmihalcea.com/)
+```@ToString```, but these can cause issues. Here too, I followed advice from [Vlad Mihalcea](https://vladmihalcea.com/)
 [(Hopefully) the final article about equals and hashCode for JPA entities with DB-generated IDs](https://jpa-buddy.com/blog/hopefully-the-final-article-about-equals-and-hashcode-for-jpa-entities-with-db-generated-ids/)
 
 ## Security event monitoring
