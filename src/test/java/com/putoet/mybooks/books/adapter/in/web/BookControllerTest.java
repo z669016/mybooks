@@ -30,7 +30,7 @@ class BookControllerTest {
     private BookManagementUpdatePort bookManagementUpdatePort;
 
     @Mock
-    private SmartValidator smartValidator;
+    private SmartValidator smartValidator; // not referenced but is required to exist
 
     @InjectMocks
     private BookController bookController;

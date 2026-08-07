@@ -24,14 +24,14 @@ public class GraphqlAuthorController {
     @QueryMapping
     public Collection<GraphqlAuthorResponse> authors() {
         final var authors = bookManagementInquiryPort.authors();
-        log.debug("authors: {}", authors);
+        log.info("authors: {}", authors);
         return GraphqlAuthorResponse.from(authors);
     }
 
     @QueryMapping
     public GraphqlAuthorResponse authorById(@Argument String id) {
         final var author = bookManagementInquiryPort.authorById(AuthorId.withId(id));
-        log.debug("author: {}", author);
+        log.info("author by id: {}", author);
         return author.map(GraphqlAuthorResponse::from).orElseThrow(() -> new NotFoundException(id));
     }
 

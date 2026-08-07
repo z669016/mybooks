@@ -145,7 +145,7 @@ public class FolderBookRepository implements BookPersistenceQueryPort {
 
     @Override
     public Set<Author> findAuthorsByName(String name) {
-        log.info("findAuthorsByName({})", name);
+        log.info("findAuthorsByName('{}')", name);
 
         return Authors.ordered(
                 authors.values().parallelStream()
@@ -156,7 +156,7 @@ public class FolderBookRepository implements BookPersistenceQueryPort {
 
     @Override
     public Author findAuthorById(AuthorId authorId) {
-        log.info("findAuthorById({})", authorId);
+        log.info("findAuthorById('{}')", authorId);
 
         return authors.get(authorId);
     }
@@ -170,7 +170,7 @@ public class FolderBookRepository implements BookPersistenceQueryPort {
 
     @Override
     public Set<Book> findBooksByTitle(String title) {
-        log.info("findBooksByTitle({})", title);
+        log.info("findBooksByTitle('{}')", title);
 
         return Books.ordered(
                 books.values().parallelStream()
@@ -181,14 +181,14 @@ public class FolderBookRepository implements BookPersistenceQueryPort {
 
     @Override
     public Book findBookById(BookId bookId) {
-        log.info("findBookById({})", bookId);
+        log.info("findBookById('{}')", bookId);
 
         return books.get(bookId);
     }
 
     @Override
     public Set<Book> findBooksByAuthorId(AuthorId authorId) {
-        log.info("findBooksByAuthorId({})", authorId);
+        log.info("findBooksByAuthorId('{}')", authorId);
 
         return Books.ordered(
                 books.values().parallelStream()

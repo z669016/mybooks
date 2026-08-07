@@ -7,6 +7,6 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-interface AuthorJpaRepository extends JpaRepository<AuthorEntity, UUID> {
+public interface AuthorJpaRepository extends JpaRepository<AuthorEntity, UUID> {
     List<AuthorEntity> findAuthorEntityByNameContainsIgnoreCase(String name);
 }

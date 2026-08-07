@@ -48,7 +48,7 @@ public class H2UserRepository implements UserPersistencePort {
 
     @Override
     public User findUserById(String id) {
-        log.info("findUserById({})", id);
+        log.info("findUserById('{}')", id);
 
         try {
             final String sql = "select id, name, password, access from users where id = ?";
@@ -70,30 +70,32 @@ public class H2UserRepository implements UserPersistencePort {
     }
 
     @Override
-    public void forgetUser(String id) {
-        log.info("forgetUser({})", id);
+    public void forgetUser(String userId) {
+        log.info("forgetUser('{}')", userId);
 
         final String sql = "delete from users where id = ?";
-        sqlInfo(log, sql, id);
+        sqlInfo(log, sql, userId);
 
-        int count = template.update(sql, id);
+        int count = template.update(sql, userId);
         if (count != 1) {
-            log.error("{}: {}", UserError.USER_ID_INVALID.name(), id);
-            throw UserError.USER_ID_INVALID.exception(id);
+            final var details = "user id '" + userId + "'";
+            log.error("Could not delete user (count is {}): {}", count, details);
+            throw UserError.USER_ID_INVALID.exception(details);
         }
     }
 
     @Override
     public User registerUser(String id, String name, String password, AccessRole accessRole) {
-        log.info("registerUser({}, {}, {}, {})", id, name, password, accessRole);
+        log.info("registerUser('{}', '{}', '{}', '{}')", id, name, password, accessRole);
 
         final String sql = "insert into users (id, name, password, access) values (?, ?, ?, ?)";
         sqlInfo(log, sql, id, name, password, accessRole);
 
         int count = template.update(sql, id, name, password, accessRole.name());
         if (count != 1) {
-            log.error("{}: {} {} '{}' {}", UserError.USER_REGISTRATION_ERROR, id, name, password, accessRole);
-            throw UserError.USER_REGISTRATION_ERROR.exception("User with new id " + id + ", name " + name + ", and accessRole " + accessRole);
+            final var details = "user id '" + id + "', name '" + name + "', password '" + "*".repeat(password.length()) + "' + user role '" + accessRole.name() + "'";
+            log.error("Could not insert user (count is {}): {}", count, details);
+            throw UserError.USER_REGISTRATION_ERROR.exception(details);
         }
 
         return findUserById(id);

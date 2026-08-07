@@ -6,6 +6,7 @@ public class SqlUtil {
     private SqlUtil() {}
 
     public static void sqlInfo(Logger log, String sql, Object ... parameters) {
-        log.info(sql.replace("?", "'{}'") + ";", parameters);
+        final var message = sql.replace("?", "'{}'") + ";";
+        log.info(message, parameters);
     }
 }

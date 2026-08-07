@@ -32,14 +32,14 @@ public class GraphqlBookController {
     @QueryMapping
     public Collection<GraphqlBookResponse> booksByTitle(@Argument String title) {
         final var books = bookManagementInquiryPort.booksByTitle(title);
-        log.debug("books: {}", books);
+        log.debug("books by title '{}': {}", title, books);
         return GraphqlBookResponse.from(books);
     }
 
     @QueryMapping
     public Collection<GraphqlBookResponse> booksByAuthorName(@Argument String name) {
         final var books = bookManagementInquiryPort.booksByAuthorName(name);
-        log.debug("books: {}", books);
+        log.debug("books by author name '{}': {}", name, books);
         return GraphqlBookResponse.from(books);
     }
 
@@ -47,7 +47,7 @@ public class GraphqlBookController {
     public GraphqlBookResponse bookById(@Argument String schema, @Argument String id) {
         final var bookId = new BookId(schema, id);
         final var book = bookManagementInquiryPort.bookById(bookId);
-        log.debug("book: {}", book);
+        log.debug("book by id '{}': {}", id, book);
         return book.map(GraphqlBookResponse::from).orElseThrow(() -> new NotFoundException(bookId.toString()));
     }
 }

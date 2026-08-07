@@ -46,7 +46,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         if (jwtToken.isPresent()) {
             log.debug("JwtToken: {}", jwtToken.get());
-            setSecurityContext(request, jwtToken);
+            setSecurityContext(request, jwtToken.get());
         }
 
         filterChain.doFilter(request, response);
@@ -71,16 +71,15 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         if (header != null && header.toLowerCase().startsWith(AUTHORIZATION_SCHEME.toLowerCase() + " ")) {
             final var jwtToken = Optional.of(request.getHeader(AUTHORIZATION_KEY).substring(AUTHORIZATION_SCHEME.length() + 1));
 
-            if (jwtToken.isPresent())
-                log.info("Found JWT in header {} with scheme {}", AUTHORIZATION_KEY, AUTHORIZATION_SCHEME);
+            log.info("Found JWT in header {} with scheme {}", AUTHORIZATION_KEY, AUTHORIZATION_SCHEME);
             return jwtToken;
         }
 
         return Optional.empty();
     }
 
-    private void setSecurityContext(HttpServletRequest request, Optional<String> jwtToken) {
-        final String id = JwtTokenUtils.extractUsername(jwtToken.get());
+    private void setSecurityContext(HttpServletRequest request, String jwtToken) {
+        final String id = JwtTokenUtils.extractUsername(jwtToken);
         if (id != null) {
             if (SecurityContextHolder.getContext().getAuthentication() != null &&
                 !id.equals(SecurityContextHolder.getContext().getAuthentication().getPrincipal())) {
@@ -91,9 +90,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
             if (SecurityContextHolder.getContext().getAuthentication() == null) {
                 final var userDetails = userDetailsService.loadUserByUsername(id);
-                if (isActiveUser(userDetails) && JwtTokenUtils.validateToken(jwtToken.get(), userDetails.getUsername())) {
+                if (isActiveUser(userDetails) && JwtTokenUtils.validateToken(jwtToken, userDetails.getUsername())) {
                     final var authenticationToken =
-                            new UsernamePasswordAuthenticationToken(id, null, JwtTokenUtils.extractAuthorities(jwtToken.get()));
+                            new UsernamePasswordAuthenticationToken(id, null, JwtTokenUtils.extractAuthorities(jwtToken));
                     authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                     log.info("Set security context to {}", authenticationToken);
