@@ -11,7 +11,9 @@ import org.springframework.stereotype.Service;
 
 import java.net.URL;
 import java.time.Instant;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,25 +25,30 @@ public class JpaBookRepository implements BookPersistenceUpdatePort {
     private final AuthorJpaRepository authorRepository;
     private final BookJpaRepository bookRepository;
 
-    public JpaBookRepository(DomainMapper mapper, AuthorJpaRepository authorRepository,  BookJpaRepository bookRepository) {
+    public JpaBookRepository(DomainMapper mapper, AuthorJpaRepository authorRepository, BookJpaRepository bookRepository) {
         this.mapper = mapper;
         this.authorRepository = authorRepository;
         this.bookRepository = bookRepository;
-        log.info("JpaBookRepository({},{},{})", mapper, authorRepository, bookRepository);
+        log.debug("JpaBookRepository('{}','{}','{}')", mapper, authorRepository, bookRepository);
     }
 
     @Override
     public Author registerAuthor(String name, Map<SiteType, URL> sites) {
+        log.debug("registerAuthor('{}','{}')", name, sites);
         final var author = new AuthorEntity();
         author.setAuthorId(UUID.randomUUID());
         author.setName(name);
         author.setVersion(Instant.now());
         author.setSites(sites.entrySet().stream().collect(Collectors.toMap(e -> e.getKey().name(), e -> e.getValue().toString())));
-        return mapper.toDomain(authorRepository.save(author));
+
+        final var result = mapper.toDomain(authorRepository.save(author));
+        log.debug("register author returns: {}", result);
+        return result;
     }
 
     @Override
     public Author updateAuthor(AuthorId authorId, Instant version, String name) {
+        log.debug("updateAuthor('{}','{}','{}')", authorId, version, name);
         final var author = authorRepository.findById(authorId.uuid());
 
         if (author.isEmpty() || author.get().getVersion().compareTo(version) != 0)
@@ -49,27 +56,41 @@ public class JpaBookRepository implements BookPersistenceUpdatePort {
 
         author.get().setName(name);
         author.get().setVersion(Instant.now());
-        return mapper.toDomain(authorRepository.save(author.get()));
+
+        final var result = mapper.toDomain(authorRepository.save(author.get()));
+        log.debug("update author returns: {}", result);
+        return result;
     }
 
     @Override
     public void forgetAuthor(AuthorId authorId) {
+        log.debug("forgetAuthor('{}')", authorId);
+
         authorRepository.deleteById(authorId.uuid());
     }
 
     @Override
     public Author setAuthorSite(AuthorId id, SiteType type, URL url) {
+        log.debug("setAuthorSite('{}','{}','{}')", id, type, url);
+
         final var author = authorRepository.findById(id.uuid());
-        if (author.isEmpty())
+        if (author.isEmpty()) {
+            log.debug("setAuthorSite returns: null");
             return null;
+        }
 
         final var authorEntity = author.get();
         authorEntity.getSites().put(type.name(), url.toString());
-        return mapper.toDomain(authorRepository.save(authorEntity));
+        final var result = mapper.toDomain(authorRepository.save(authorEntity));
+        log.debug("setAuthorSite returns: {}", result);
+
+        return result;
     }
 
     @Override
     public Book registerBook(BookId bookId, String title, Set<Author> authors, Set<MimeType> formats, Set<String> keywords) {
+        log.debug("registerBook('{}','{}','{}','{}','{}')", bookId, title, authors, formats, keywords);
+
         final BookEntity book = new BookEntity();
         book.setBookId(new BookIdEntity(bookId.schema().name(), bookId.id()));
         book.setTitle(title);
@@ -78,19 +99,32 @@ public class JpaBookRepository implements BookPersistenceUpdatePort {
         book.setKeywords(keywords);
 
         final var newBook = bookRepository.save(book);
-        return mapper.toDomain(newBook);
+        final var result = mapper.toDomain(newBook);
+        log.debug("registerBook returns: {}", result);
+
+        return result;
     }
 
     @Override
     public Set<Author> findAuthors() {
+        log.debug("findAuthors()");
+
         final var authors = authorRepository.findAll();
-        return Authors.ordered(authors.stream().map(mapper::toDomain).collect(Collectors.toSet()));
+        final var result = Authors.ordered(authors.stream().map(mapper::toDomain).collect(Collectors.toSet()));
+        log.debug("findAuthors returns: {}", result);
+
+        return result;
     }
 
     @Override
     public Set<Author> findAuthorsByName(String name) {
+        log.debug("findAuthorsByName('{}')", name);
+
         final var authors = authorRepository.findAuthorEntityByNameContainsIgnoreCase(name);
-        return Authors.ordered(authors.stream().map(mapper::toDomain).collect(Collectors.toSet()));
+        final var result = Authors.ordered(authors.stream().map(mapper::toDomain).collect(Collectors.toSet()));
+        log.debug("find authors by name returns: {}", result);
+
+        return result;
     }
 
     @Override
@@ -101,31 +135,51 @@ public class JpaBookRepository implements BookPersistenceUpdatePort {
 
     @Override
     public Set<Book> findBooks() {
-        return bookRepository.findAll().stream()
+        log.debug("findBooks()");
+
+        final var books = bookRepository.findAll().stream()
                 .map(mapper::toDomain)
                 .collect(Collectors.toSet());
+        log.debug("find books returns: {}", books);
+
+        return books;
     }
 
     @Override
     public Set<Book> findBooksByTitle(String title) {
-        return bookRepository.findBookEntityByTitleContainsIgnoreCase(title).stream()
+        log.debug("findBooksByTitle('{}')", title);
+
+        final var books = bookRepository.findBookEntityByTitleContainsIgnoreCase(title).stream()
                 .map(mapper::toDomain)
                 .collect(Collectors.toSet());
+        log.debug("find books by title returns: {}", books);
+
+        return books;
     }
 
     @Override
     public Book findBookById(BookId bookId) {
-        return bookRepository.findById(new BookIdEntity(bookId.schema().name(), bookId.id()))
+        log.debug("findBookById('{}')", bookId);
+
+        final var book = bookRepository.findById(new BookIdEntity(bookId.schema().name(), bookId.id()))
                 .map(mapper::toDomain)
                 .orElse(null);
+        log.debug("find book by id returns: {}", book);
+
+        return book;
     }
 
     @Override
     public Set<Book> findBooksByAuthorId(AuthorId authorId) {
+        log.debug("findBooksByAuthorId('{}')", authorId);
+
         final var author = authorRepository.findById(authorId.uuid());
-        return author.map(authorEntity -> bookRepository.findBookEntityByAuthorsContains(authorEntity).stream()
-                .map(mapper::toDomain)
-                .collect(Collectors.toSet()))
+        final var result = author.map(authorEntity -> bookRepository.findBookEntityByAuthorsContains(authorEntity).stream()
+                        .map(mapper::toDomain)
+                        .collect(Collectors.toSet()))
                 .orElseGet(Set::of);
+
+        log.debug("find books by author id returns: {}", result);
+        return result;
     }
 }
