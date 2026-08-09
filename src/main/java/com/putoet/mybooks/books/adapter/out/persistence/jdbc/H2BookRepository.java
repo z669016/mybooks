@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 
 import static com.putoet.mybooks.books.adapter.out.persistence.jdbc.SqlUtil.sqlInfo;
 
-
 /**
  * Class H2BookRepository
  * A read/write repository for book and author data, connected to an H4 database using a Spring JdbcTemplate
@@ -37,12 +36,13 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
     private final JdbcTemplate template;
 
     public H2BookRepository(JdbcTemplate template) {
+        log.debug("H2BookRepository('{}')", template);
         this.template = template;
     }
 
     @Override
     public String toString() {
-        try(var connection = Objects.requireNonNull(template.getDataSource()).getConnection()) {
+        try (var connection = Objects.requireNonNull(template.getDataSource()).getConnection()) {
             return String.format("%s(%s)", this.getClass().getName(), connection.getMetaData().getURL());
         } catch (SQLException e) {
             throw new RuntimeException(e);
