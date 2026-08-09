@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URL;
 import java.time.Instant;
@@ -23,6 +24,7 @@ import java.util.Set;
  * Service provides write services for the book repository
  */
 @Service
+@Transactional
 public class BookUpdateService implements BookManagementUpdatePort {
     public static final Logger log = LoggerFactory.getLogger(BookUpdateService.class);
 

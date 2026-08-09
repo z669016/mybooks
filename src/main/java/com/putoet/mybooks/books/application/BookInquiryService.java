@@ -6,6 +6,7 @@ import com.putoet.mybooks.books.domain.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.Set;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
  * in enables several nice features, like a simple approach to load a database from EPUB books on a file system.
  */
 @Service
+@Transactional
 public class BookInquiryService implements BookManagementInquiryPort {
     public static final Logger log = LoggerFactory.getLogger(BookInquiryService.class);
 
