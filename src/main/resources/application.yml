@@ -1,21 +1,29 @@
 spring:
+  profiles:
+    active: jdbc
+
   h2:
     console:
       enabled: 'true'
+
   datasource:
     url: jdbc:h2:file:./h2db/books;time zone=UTC
+
   data:
     jpa:
       repositories:
         bootstrap-mode: default
+
   mvc:
     log-request-details: 'true'
+
   jpa:
     properties:
       hibernate:
         generate_statistics: 'true'
         format_sql: 'true'
     show-sql: 'true'
+
   graphql:
     graphiql:
       enabled: true
@@ -23,7 +31,10 @@ spring:
 
 logging:
   level:
-    root: info
+    root: warn
+    org.springframework: warn
+    org.hibernate: warn
+    com.putoet: debug
 
 server:
   port: 443
