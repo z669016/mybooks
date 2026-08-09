@@ -26,77 +26,92 @@ public class BookInquiryService implements BookManagementInquiryPort {
 
     public BookInquiryService(BookPersistenceQueryPort bookPersistenceQueryPort) {
         this.bookPersistenceQueryPort = bookPersistenceQueryPort;
+        log.debug("BookInquiryService('{}", bookPersistenceQueryPort);
     }
 
     @Override
     public Set<Author> authorsByName(String name) {
-        log.info("authorsByName({})", name);
+        log.debug("authorsByName('{}')", name);
 
         if (name== null || name.isBlank())
             throw ServiceError.AUTHOR_NAME_REQUIRED.exception();
 
-        return bookPersistenceQueryPort.findAuthorsByName(name);
+        final var authors = bookPersistenceQueryPort.findAuthorsByName(name);
+        log.debug("authors by name returns: {}", authors);
+        return authors;
     }
 
     @Override
     public Optional<Author> authorById(AuthorId authorId) {
-        log.info("authorById({})", authorId);
+        log.debug("authorById('{}')", authorId);
         if (authorId == null)
             throw ServiceError.AUTHOR_ID_REQUIRED.exception();
 
-        return Optional.ofNullable(bookPersistenceQueryPort.findAuthorById(authorId));
+        final var author = Optional.ofNullable(bookPersistenceQueryPort.findAuthorById(authorId));
+        log.debug("author by id returns: {}", author);
+        return author;
     }
 
     @Override
     public Set<Author> authors() {
-        log.info("authors()");
+        log.debug("authors()");
 
-        return bookPersistenceQueryPort.findAuthors();
+        final var authors = bookPersistenceQueryPort.findAuthors();
+        log.debug("authors returns: {}", authors);
+        return authors;
     }
 
     @Override
     public Set<Book> books() {
-        log.info("books()");
+        log.debug("books()");
 
-        return bookPersistenceQueryPort.findBooks();
+        final var books = bookPersistenceQueryPort.findBooks();
+        log.debug("books returns: {}", books);
+        return books;
     }
 
     @Override
     public Set<Book> booksByTitle(String title) {
-        log.info("booksByTitle({})", title);
+        log.debug("booksByTitle('{}')", title);
 
         if (title== null || title.isBlank())
             throw ServiceError.BOOK_TITLE_REQUIRED.exception();
 
-        return bookPersistenceQueryPort.findBooksByTitle(title);
+        final var books = bookPersistenceQueryPort.findBooksByTitle(title);
+        log.debug("books by title returns: {}", books);
+        return books;
     }
 
     @Override
     public Optional<Book> bookById(BookId bookId) {
-        log.info("bookById({})", bookId);
+        log.debug("bookById('{}')", bookId);
 
         if (bookId == null)
             throw ServiceError.BOOK_ID_REQUIRED.exception();
 
-        return Optional.ofNullable(bookPersistenceQueryPort.findBookById(bookId));
+        final var book = Optional.ofNullable(bookPersistenceQueryPort.findBookById(bookId));
+        log.debug("book by id returns: {}", book);
+        return book;
     }
 
     @Override
     public Set<Book> booksByAuthorName(String name) {
-        log.info("booksByAuthorName({})", name);
+        log.debug("booksByAuthorName('{}')", name);
 
         if (name == null || name.isBlank())
             throw ServiceError.AUTHOR_NAME_REQUIRED.exception();
 
         final Set<Author> authors = authorsByName(name);
-        return authors.stream()
+        final var books = authors.stream()
                 .flatMap(author -> bookPersistenceQueryPort.findBooksByAuthorId(author.id()).stream())
                 .collect(Collectors.toSet());
+        log.debug("books by author name returns: {}", books);
+        return books;
     }
 
     @Override
     public Set<String> authorSiteTypes() {
-        log.info("authorSiteTypes()");
+        log.debug("authorSiteTypes()");
 
         return Set.of(
                 SiteType.HOMEPAGE_NAME,

@@ -8,5 +8,8 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.validation.annotation.Validated;
 
 @Validated
-public record NewUserRequest(@Email @NotNull String id, @NotBlank String name, @PasswordConstraint String password, @AccessRoleConstraint String accessRole) {
+public record NewUserRequest(@Email @NotNull String id,
+                             @NotBlank String name,
+                             @PasswordConstraint String password,
+                             @AccessRoleConstraint String accessRole) {
 }

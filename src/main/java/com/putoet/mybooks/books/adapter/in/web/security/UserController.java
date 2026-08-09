@@ -32,7 +32,7 @@ public class UserController {
         this.userManagementPort = userManagementPort;
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
-        log.info("UserController({})", userManagementPort);
+        log.debug("UserController('{}','{}','{}')", userManagementPort, authenticationManager, userDetailsService);
     }
 
     @PostMapping(path = "/login",
@@ -40,6 +40,7 @@ public class UserController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public JwtResponse login(@Valid @RequestBody UserLoginRequest request, HttpServletResponse response) {
+        log.debug("login('{}', '***')", request.id());
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.id(), request.password(), new ArrayList<>())
@@ -51,7 +52,7 @@ public class UserController {
             response.setHeader(JwtRequestFilter.AUTHORIZATION_KEY, JwtRequestFilter.AUTHORIZATION_SCHEME + " " + jwt);
             final var jwtResponse = new JwtResponse(jwt, JwtTokenUtils.EXPIRES_IN);
 
-            log.debug("login({}) -> {}", request.id(), jwtResponse);
+            log.debug("login returns: {}", jwtResponse);
             return jwtResponse;
         } catch (DisabledException exc) {
             log.error("User account was disabled for for user {}", request.id());
@@ -80,13 +81,15 @@ public class UserController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponse createUser(@RequestBody @Valid NewUserRequest request) {
+        log.debug("createUser('{}', '{}', '***', '{}')", request.id(), request.name(), request.accessRole());
+
         try {
             final var response = UserResponse.from(userManagementPort.registerUser(request.id(),
                     request.name(),
                     request.password(),
                     AccessRole.from(request.accessRole()))
             );
-            log.debug("createUser({}, {}) -> {}", request.name(), request.accessRole(), response);
+            log.debug("create user returns: {}", response);
             return response;
         } catch (RuntimeException exc) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
@@ -96,9 +99,10 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(path = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
     public Set<UserResponse> getUsers() {
+        log.debug("getUsers()");
         try {
             final var users = UserResponse.from(userManagementPort.users());
-            log.debug("getUsers() -> {}", users);
+            log.debug("get users returns: {}", users);
             return users;
         } catch (RuntimeException exc) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
@@ -108,10 +112,11 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(path = "/user/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public UserResponse getUserById(@PathVariable(name = "id") @Email String id) {
+        log.debug("getUserById('{}')", id);
         try {
             final var user = userManagementPort.userById(id);
             if (user.isPresent()) {
-                log.debug("getUserById({}) -> {}", id, user);
+                log.debug("get user by id returns:{}", user);
                 return UserResponse.from(user.get());
             }
         } catch (RuntimeException exc) {

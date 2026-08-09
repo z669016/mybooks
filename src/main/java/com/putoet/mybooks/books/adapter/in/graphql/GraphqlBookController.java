@@ -17,37 +17,41 @@ public class GraphqlBookController {
     private final BookManagementInquiryPort bookManagementInquiryPort;
 
     public GraphqlBookController(final BookManagementInquiryPort bookManagementInquiryPort) {
-        log.info("GraphqlBookController({})", bookManagementInquiryPort);
+        log.debug("GraphqlBookController('{}')", bookManagementInquiryPort);
 
         this.bookManagementInquiryPort = bookManagementInquiryPort;
     }
 
     @QueryMapping
     public Collection<GraphqlBookResponse> books() {
+        log.debug("books()");
         final var books = bookManagementInquiryPort.books();
-        log.debug("books: {}", books);
+        log.debug("books returns: {}", books);
         return GraphqlBookResponse.from(books);
     }
 
     @QueryMapping
     public Collection<GraphqlBookResponse> booksByTitle(@Argument String title) {
+        log.debug("booksByTitle('{}')", title);
         final var books = bookManagementInquiryPort.booksByTitle(title);
-        log.debug("books by title '{}': {}", title, books);
+        log.debug("books by title returns: {}", books);
         return GraphqlBookResponse.from(books);
     }
 
     @QueryMapping
     public Collection<GraphqlBookResponse> booksByAuthorName(@Argument String name) {
+        log.debug("booksByAuthorName('{}')", name);
         final var books = bookManagementInquiryPort.booksByAuthorName(name);
-        log.debug("books by author name '{}': {}", name, books);
+        log.debug("books by author name returns: {}", books);
         return GraphqlBookResponse.from(books);
     }
 
     @QueryMapping
     public GraphqlBookResponse bookById(@Argument String schema, @Argument String id) {
+        log.debug("bookById('{}', '{}')", schema, id);
         final var bookId = new BookId(schema, id);
         final var book = bookManagementInquiryPort.bookById(bookId);
-        log.debug("book by id '{}': {}", id, book);
+        log.debug("book by id returns: {}", book);
         return book.map(GraphqlBookResponse::from).orElseThrow(() -> new NotFoundException(bookId.toString()));
     }
 }

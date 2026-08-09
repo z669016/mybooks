@@ -27,13 +27,15 @@ public class AuthorController {
     public AuthorController(BookManagementInquiryPort bookManagementInquiryPort,  BookManagementUpdatePort bookManagementUpdatePort) {
         this.bookManagementInquiryPort = bookManagementInquiryPort;
         this.bookManagementUpdatePort = bookManagementUpdatePort;
+        log.debug("AuthorController('{}', '{}')", bookManagementInquiryPort, bookManagementUpdatePort);
     }
 
     @GetMapping(path = "/authors", produces = MediaType.APPLICATION_JSON_VALUE)
     public Set<AuthorResponse> getAuthors() {
+        log.debug("getAuthors()");
         try {
             final var authors = AuthorResponse.from(bookManagementInquiryPort.authors());
-            log.debug("getAuthors -> {}", authors);
+            log.debug("get authors returns: {}", authors);
             return authors;
         } catch (RuntimeException exc) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
@@ -42,10 +44,11 @@ public class AuthorController {
 
     @GetMapping(path = "/author/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public AuthorResponse getAuthorById(@PathVariable @ObjectIDConstraint String id) {
+        log.debug("getAuthorById('{}')", id);
         try {
             final var author = bookManagementInquiryPort.authorById(AuthorId.withId(id));
             if (author.isPresent()) {
-                log.debug("getAuthorById -> {}", author.get());
+                log.debug("get author by id returns: {}", author.get());
                 return AuthorResponse.from(author.get());
             }
         } catch (RuntimeException exc) {
@@ -57,9 +60,10 @@ public class AuthorController {
 
     @GetMapping(path = "/authors/{name}", produces = MediaType.APPLICATION_JSON_VALUE)
     public Set<AuthorResponse> getAuthorsByName(@PathVariable @NotBlank String name) {
+        log.debug("getAuthorsByName('{}')", name);
         try {
             final var author = AuthorResponse.from(bookManagementInquiryPort.authorsByName(name));
-            log.debug("getAuthorsByName({}) -> {}", name, author);
+            log.debug("get authors by name returns: {}", author);
             return author;
         } catch (RuntimeException exc) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
@@ -69,8 +73,8 @@ public class AuthorController {
     @DeleteMapping(path = "/author/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAuthorById(@PathVariable @ObjectIDConstraint String id) {
+        log.debug("deleteAuthorById('{}')", id);
         try {
-            log.debug("deleteAuthorById({})", id);
             bookManagementUpdatePort.forgetAuthor(AuthorId.withId(id));
         } catch (RuntimeException exc) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
@@ -83,9 +87,10 @@ public class AuthorController {
     )
     @ResponseStatus(HttpStatus.CREATED)
     public AuthorResponse createAuthor(@RequestBody @Valid NewAuthorRequest request) {
+        log.debug("createAuthor('{}')", request);
         try {
             final var author = AuthorResponse.from(bookManagementUpdatePort.registerAuthor(request.name(), request.sitesWithURLs()));
-            log.debug("createAuthor({},{}) -> {})", request.name(), request.sitesWithURLs(), author);
+            log.debug("create author returns: {})", author);
             return author;
         } catch (RuntimeException exc) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());
@@ -97,9 +102,10 @@ public class AuthorController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public AuthorResponse updateAuthor(@PathVariable @ObjectIDConstraint String id, @Valid @RequestBody UpdateAuthorRequest request) {
+        log.debug("updateAuthor('{}', '{}')", id, request);
         try {
             final var author = AuthorResponse.from(bookManagementUpdatePort.updateAuthor(AuthorId.withId(id), request.versionAsInstant(), request.name()));
-            log.debug("updateAuthor({}) -> {}", request, author);
+            log.debug("update author returns: {}", author);
             return author;
         } catch (RuntimeException exc) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exc.getMessage());

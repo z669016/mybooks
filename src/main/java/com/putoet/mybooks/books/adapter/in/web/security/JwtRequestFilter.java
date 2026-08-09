@@ -31,7 +31,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
 
     public JwtRequestFilter(UserDetailsService userDetailsService) {
-        log.info("JwtRequestFilter({})", userDetailsService);
+        log.debug("JwtRequestFilter('{}')", userDetailsService);
         this.userDetailsService = userDetailsService;
     }
 
@@ -39,6 +39,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
+        log.debug("doFilterInternal('{}', '{}', '{}')", request, response, filterChain);
         var jwtToken = getJwtTokenFromCookies(request);
         if (jwtToken.isEmpty()) {
             jwtToken = getJwtTokenFromHeader(request);
@@ -59,7 +60,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                     .map(Cookie::getValue)
                     .findFirst();
             if (jwtToken.isPresent())
-                log.info("Found JWT in cookie {}", AUTHORIZATION_COOKIE);
+                log.debug("Found JWT in cookie {}", AUTHORIZATION_COOKIE);
             return jwtToken;
         }
 
@@ -71,7 +72,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         if (header != null && header.toLowerCase().startsWith(AUTHORIZATION_SCHEME.toLowerCase() + " ")) {
             final var jwtToken = Optional.of(request.getHeader(AUTHORIZATION_KEY).substring(AUTHORIZATION_SCHEME.length() + 1));
 
-            log.info("Found JWT in header {} with scheme {}", AUTHORIZATION_KEY, AUTHORIZATION_SCHEME);
+            log.debug("Found JWT in header {} with scheme {}", AUTHORIZATION_KEY, AUTHORIZATION_SCHEME);
             return jwtToken;
         }
 
@@ -84,7 +85,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             if (SecurityContextHolder.getContext().getAuthentication() != null &&
                 !id.equals(SecurityContextHolder.getContext().getAuthentication().getPrincipal())) {
 
-                log.info("Reset security context for user {} to user {}", SecurityContextHolder.getContext().getAuthentication().getPrincipal(), id);
+                log.debug("Reset security context for user {} to user {}", SecurityContextHolder.getContext().getAuthentication().getPrincipal(), id);
                 SecurityContextHolder.getContext().setAuthentication(null);
             }
 
@@ -95,7 +96,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                             new UsernamePasswordAuthenticationToken(id, null, JwtTokenUtils.extractAuthorities(jwtToken));
                     authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                    log.info("Set security context to {}", authenticationToken);
+                    log.debug("Set security context to {}", authenticationToken);
                 }
             }
         }

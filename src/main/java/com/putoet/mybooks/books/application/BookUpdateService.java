@@ -34,12 +34,12 @@ public class BookUpdateService implements BookManagementUpdatePort {
     public BookUpdateService(BookPersistenceUpdatePort bookPersistenceUpdatePort, ApplicationEventPublisher applicationEventPublisher) {
         this.bookPersistenceUpdatePort = bookPersistenceUpdatePort;
         this.applicationEventPublisher = applicationEventPublisher;
-        log.info("BookUpdateService({},{})", bookPersistenceUpdatePort, applicationEventPublisher);
+        log.debug("BookUpdateService({},{})", bookPersistenceUpdatePort, applicationEventPublisher);
     }
 
     @Override
     public Author registerAuthor(String name, Map<SiteType, URL> sites) {
-        log.info("registerAuthor({}, {})", name, sites);
+        log.debug("registerAuthor('{}', '{}')", name, sites);
 
         if (name == null || name.isBlank()) {
             log.warn(ServiceError.AUTHOR_NAME_REQUIRED.name());
@@ -51,12 +51,13 @@ public class BookUpdateService implements BookManagementUpdatePort {
             throw ServiceError.AUTHOR_NOT_REGISTERED.exception();
 
         applicationEventPublisher.publishEvent(new AuthorCreatedSecurityEvent(this, author.id()));
+        log.debug("register author returns: {}", author);
         return author;
     }
 
     @Override
     public void forgetAuthor(AuthorId authorId) {
-        log.info("forgetAuthor({})", authorId);
+        log.debug("forgetAuthor('{}')", authorId);
 
         if (authorId == null)
             throw ServiceError.AUTHOR_ID_REQUIRED.exception();
@@ -67,7 +68,7 @@ public class BookUpdateService implements BookManagementUpdatePort {
 
     @Override
     public Author updateAuthor(AuthorId authorId, Instant version, String name) {
-        log.info("updateAuthor({}, {}, {})", authorId, version, name);
+        log.debug("updateAuthor('{}', '{}', '{}')", authorId, version, name);
 
         if (authorId == null)
             throw ServiceError.AUTHOR_ID_REQUIRED.exception();
@@ -76,12 +77,14 @@ public class BookUpdateService implements BookManagementUpdatePort {
         if (name == null || name.isBlank())
             throw ServiceError.AUTHOR_NAME_REQUIRED.exception();
 
-        return bookPersistenceUpdatePort.updateAuthor(authorId, version, name);
+        final var author = bookPersistenceUpdatePort.updateAuthor(authorId, version, name);
+        log.debug("update author returns: {}", author);
+        return author;
     }
 
     @Override
     public Author setAuthorSite(AuthorId authorId, SiteType type, URL url) {
-        log.info("setAuthorSite({}, {}, {})", authorId, type, url);
+        log.debug("setAuthorSite('{}', '{}', '{}')", authorId, type, url);
 
         if (authorId == null)
             throw ServiceError.AUTHOR_ID_REQUIRED.exception();
@@ -94,12 +97,14 @@ public class BookUpdateService implements BookManagementUpdatePort {
         if (author == null)
             throw ServiceError.AUTHOR_FOR_ID_NOT_FOUND.exception(authorId.toString());
 
-        return bookPersistenceUpdatePort.setAuthorSite(authorId, type, url);
+        final var result = bookPersistenceUpdatePort.setAuthorSite(authorId, type, url);
+        log.debug("set authorSite returns: {}", result);;
+        return result;
     }
 
     @Override
     public Book registerBook(BookId bookId, String title, Set<Author> authors, Set<MimeType> formats, Set<String> keywords) {
-        log.info("registerBook({}, {}, {}, {})", bookId, title, authors, formats);
+        log.debug("registerBook('{}', '{}', '{}', '{}')", bookId, title, authors, formats);
 
         if (bookId == null)
             throw ServiceError.BOOK_ID_REQUIRED.exception();
@@ -115,6 +120,7 @@ public class BookUpdateService implements BookManagementUpdatePort {
             throw ServiceError.BOOK_NOT_REGISTERED.exception();
 
         applicationEventPublisher.publishEvent(new BookCreatedSecurityEvent(this, book.id()));
+        log.debug("register book returns: {}", book);
         return book;
     }
 }

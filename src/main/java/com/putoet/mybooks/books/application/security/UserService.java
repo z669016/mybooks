@@ -41,12 +41,12 @@ public class UserService implements UserManagementPort {
         this.userPersistencePort = userPersistencePort;
         this.passwordEncoder = passwordEncoder;
         this.applicationEventPublisher = applicationEventPublisher;
-        log.info("UserService({},{},{})",  userPersistencePort, passwordEncoder, applicationEventPublisher);
+        log.debug("UserService({},{},{})",  userPersistencePort, passwordEncoder, applicationEventPublisher);
     }
 
     @Override
     public void forgetUser(String id) {
-        log.info("forgetUser({})", id);
+        log.debug("forgetUser({})", id);
 
         if (id == null || id.isBlank())
             throw UserError.USER_ID_REQUIRED.exception();
@@ -57,6 +57,8 @@ public class UserService implements UserManagementPort {
 
     @Override
     public User registerUser(String id, String name, String password, AccessRole accessRole) {
+        log.debug("registerUser('{}', '{}', '***', '{}')", id, name, accessRole);
+
         if (id == null || id.isBlank() || !EMAIL_PATTERN.matcher(id).matches())
             throw UserError.USER_ID_INVALID.exception(id);
 
@@ -76,25 +78,30 @@ public class UserService implements UserManagementPort {
         if (user == null)
             throw UserError.USER_REGISTRATION_ERROR.exception();
 
+        log.debug("register user returns: {}", user);
         applicationEventPublisher.publishEvent(new UserCreatedSecurityEvent(this, id));
         return user;
     }
 
     @Override
     public Optional<User> userById(String id) {
-        log.info("userById({})", id);
+        log.debug("userById({})", id);
 
         if (id == null || id.isBlank())
             throw UserError.USER_ID_REQUIRED.exception();
 
-        return Optional.ofNullable(userPersistencePort.findUserById(id));
+        final var user = Optional.ofNullable(userPersistencePort.findUserById(id));
+        log.debug("userById returns: {}", user);
+        return user;
     }
 
     @Override
     public Set<User> users() {
-        log.info("users()");
+        log.debug("users()");
 
-        return userPersistencePort.findUsers();
+        final var users = userPersistencePort.findUsers();
+        log.debug("users returns: {}", users);
+        return users;
     }
 
     @Bean

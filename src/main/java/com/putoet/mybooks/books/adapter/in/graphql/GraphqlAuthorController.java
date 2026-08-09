@@ -17,28 +17,31 @@ public class GraphqlAuthorController {
     private final BookManagementInquiryPort bookManagementInquiryPort;
 
     public GraphqlAuthorController(BookManagementInquiryPort bookManagementInquiryPort) {
-        log.info("GraphqlAuthorController({})", bookManagementInquiryPort);
+        log.debug("GraphqlAuthorController('{}')", bookManagementInquiryPort);
         this.bookManagementInquiryPort = bookManagementInquiryPort;
     }
 
     @QueryMapping
     public Collection<GraphqlAuthorResponse> authors() {
+        log.debug("authors()");
         final var authors = bookManagementInquiryPort.authors();
-        log.info("authors: {}", authors);
+        log.debug("authors returns: {}", authors);
         return GraphqlAuthorResponse.from(authors);
     }
 
     @QueryMapping
     public GraphqlAuthorResponse authorById(@Argument String id) {
+        log.debug("authorById('{}')", id);
         final var author = bookManagementInquiryPort.authorById(AuthorId.withId(id));
-        log.info("author by id: {}", author);
+        log.debug("author by id returns: {}", author);
         return author.map(GraphqlAuthorResponse::from).orElseThrow(() -> new NotFoundException(id));
     }
 
     @QueryMapping
     public Collection<GraphqlAuthorResponse> authorsByName(@Argument String name) {
+        log.debug("authorsByName('{}')", name);
         final var authors = bookManagementInquiryPort.authorsByName(name);
-        log.debug("authors: {}", authors);
+        log.debug("authors by name returns: {}", authors);
         return GraphqlAuthorResponse.from(authors);
     }
 }

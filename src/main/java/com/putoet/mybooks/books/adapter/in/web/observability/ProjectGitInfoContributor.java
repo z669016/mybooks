@@ -16,7 +16,7 @@ public class ProjectGitInfoContributor extends GitInfoContributor {
 
     public ProjectGitInfoContributor(GitProperties properties) {
         super(properties);
-        log.info("ProjectGitInfoContributor({})", properties);
+        log.debug("ProjectGitInfoContributor('{}')", properties);
     }
 
     @Override

@@ -17,21 +17,23 @@ public class GraphqlUserController {
     private final UserManagementPort userManagementPort;
 
     public GraphqlUserController(final UserManagementPort userManagementPort) {
-        log.info("GraphqlUserController({})", userManagementPort);
+        log.debug("GraphqlUserController('{}')", userManagementPort);
         this.userManagementPort = userManagementPort;
     }
 
     @QueryMapping
     public Set<UserResponse> users() {
+        log.debug("users()");
         final var users = userManagementPort.users();
-        log.debug("users: {}", users);
+        log.debug("users returns: {}", users);
         return UserResponse.from(users);
     }
 
     @QueryMapping
     public UserResponse userById(@Argument String id) {
+        log.debug("userById('{}')", id);
         final var user = userManagementPort.userById(id);
-        log.debug("user: {}", user);
+        log.debug("user by id returns: {}", user);
         return user.map(UserResponse::from).orElseThrow(() -> new NotFoundException(id));
     }
 }
