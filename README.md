@@ -120,12 +120,15 @@ interfaces.
 
 The ```BookInquiryService``` implements the ```BookManagementInqueryPort``` and ```BookUpdateService``` implements 
 the ```BookManagementUpdatePort``` . These components can retrieve and update book data when wired to a 
-```BookPersistenceInqueryPort``` and ```BookPersistenceUpdatePort``` implementation. The services do some trace logging 
-at info level, parameter checking, and use the output port implementation to fulfill the service request.
+```BookPersistenceInqueryPort``` and ```BookPersistenceUpdatePort``` implementation. The services do parameter checking,
+and use the output port implementation to fulfill the service request.
 
 The services are unit tested using mocks for the output ports. So the unit tests only validate if the expected calls are 
 being made to the persistence interfaces, and not if the ports return the proper information (that's the responsibility 
 of the unit tests of the output port implementations themselves).
+
+The service implementations have the `@Transactional` annotation, whihch means they form the boundary of any 
+transactional persistent change.
 
 ### Web adapters for REST endpoints
 And now finally, the step to link everything to the world-wide-web. I started with the ```AuthorController```, as it 
@@ -171,6 +174,12 @@ set on the ```SecurityContext```. This security context is what is used by the r
 in the```SecurityConfig```.
 
 All in all, an interesting journey :-)
+
+### Logging
+Logging is implemented using `Logback`. All major classes and methods have debug logging, on the constructor, on public 
+method calls including input parameters, and method result.
+
+Logging is configured in the `application.yml` file (not the `logback.xml` file). 
 
 ### SSL
 Enabling SSL was quite simple, the process is described at 
