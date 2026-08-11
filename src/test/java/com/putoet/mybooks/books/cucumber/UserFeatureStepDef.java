@@ -21,7 +21,7 @@ public class UserFeatureStepDef extends MyBooksE2EBase {
         password = translateParameter(password);
 
         final var login = new UserLoginRequest(id, password);
-        executePost("/login", login, false);
+        executePost("/api/v1.0/login", login, false);
     }
 
     @And("response contains a token")
@@ -84,7 +84,7 @@ public class UserFeatureStepDef extends MyBooksE2EBase {
         role = translateParameter(role);
 
         final var newUserRequest = new NewUserRequest(id, name, password, role);
-        executePost("/user", newUserRequest, true);
+        executePost("/api/v1.0/user", newUserRequest, true);
     }
 
     @And("user has id {string}")
@@ -113,7 +113,7 @@ public class UserFeatureStepDef extends MyBooksE2EBase {
 
     @When("send a get request for users")
     public void sendAGetRequestForUsers() {
-        executeGet("/users");
+        executeGet("/api/v1.0/users");
     }
 
     @And("response contains details on more than {int} user")

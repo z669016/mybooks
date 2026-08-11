@@ -63,7 +63,7 @@ class UserControllerSecurityTest {
         final UserDetails userDetails = getUserDetails(login, "USER");
 
         when(userDetailService.loadUserByUsername(login.id())).thenReturn(userDetails);
-        mvc.perform(post("/login")
+        mvc.perform(post("/api/v1.0/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(login)))
                 .andExpect(status().isOk());
@@ -98,7 +98,7 @@ class UserControllerSecurityTest {
 
     @Test
     void createUserUnAuthenticated() throws Exception {
-        mvc.perform(post("/user")
+        mvc.perform(post("/api/v1.0/user")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(getNewUserRequest())))
@@ -108,7 +108,7 @@ class UserControllerSecurityTest {
     @Test
     @WithMockUser(username = "user@gmail.com", roles = "USER")
     void createUserWronglyAuthenticated() throws Exception {
-        mvc.perform(post("/user")
+        mvc.perform(post("/api/v1.0/user")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(getNewUserRequest())))
@@ -123,7 +123,7 @@ class UserControllerSecurityTest {
                 AccessRole.valueOf(newUserRequest.accessRole())))
                 .thenReturn(new User(newUserRequest.id(), newUserRequest.name(), newUserRequest.password(),
                         AccessRole.valueOf(newUserRequest.accessRole())));
-        mvc.perform(post("/user")
+        mvc.perform(post("/api/v1.0/user")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(newUserRequest)))
@@ -136,7 +136,7 @@ class UserControllerSecurityTest {
 
     @Test
     void getUsersUnAuthenticated() throws Exception {
-        mvc.perform(get("/users")
+        mvc.perform(get("/api/v1.0/users")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
@@ -145,7 +145,7 @@ class UserControllerSecurityTest {
     @Test
     @WithMockUser(username = "user@gmail.com", roles = "USER")
     void getUsersWronglyAuthenticated() throws Exception {
-        mvc.perform(get("/users")
+        mvc.perform(get("/api/v1.0/users")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
@@ -154,7 +154,7 @@ class UserControllerSecurityTest {
     @Test
     @WithMockUser(username = "admin@gmail.com", roles = "ADMIN")
     void getUsersAuthenticated() throws Exception {
-        mvc.perform(get("/users")
+        mvc.perform(get("/api/v1.0/users")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -162,7 +162,7 @@ class UserControllerSecurityTest {
 
     @Test
     void getUserByIdUnAuthenticated() throws Exception {
-        mvc.perform(get("/user/some@gmail.com")
+        mvc.perform(get("/api/v1.0/user/some@gmail.com")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
@@ -171,7 +171,7 @@ class UserControllerSecurityTest {
     @Test
     @WithMockUser(username = "user@gmail.com", roles = "USER")
     void getUserByIdWronglyAuthenticated() throws Exception {
-        mvc.perform(get("/user/some@gmail.com")
+        mvc.perform(get("/api/v1.0/user/some@gmail.com")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
@@ -181,7 +181,7 @@ class UserControllerSecurityTest {
     @WithMockUser(username = "admin@gmail.com", roles = "ADMIN")
     void getUserByIdAuthenticated() throws Exception {
         when(userService.userById("some@gmail.com")).thenReturn(Optional.empty());
-        mvc.perform(get("/user/some@gmail.com")
+        mvc.perform(get("/api/v1.0/user/some@gmail.com")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());

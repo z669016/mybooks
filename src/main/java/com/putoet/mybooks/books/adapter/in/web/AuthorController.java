@@ -24,13 +24,17 @@ public class AuthorController {
     private final BookManagementInquiryPort bookManagementInquiryPort;
     private final BookManagementUpdatePort bookManagementUpdatePort;
 
-    public AuthorController(BookManagementInquiryPort bookManagementInquiryPort,  BookManagementUpdatePort bookManagementUpdatePort) {
+    public AuthorController(BookManagementInquiryPort bookManagementInquiryPort, BookManagementUpdatePort bookManagementUpdatePort) {
         this.bookManagementInquiryPort = bookManagementInquiryPort;
         this.bookManagementUpdatePort = bookManagementUpdatePort;
         log.debug("AuthorController('{}', '{}')", bookManagementInquiryPort, bookManagementUpdatePort);
     }
 
-    @GetMapping(path = "/authors", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(
+            path = "/api/v{version}/authors",
+            version = "1.0",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public Set<AuthorResponse> getAuthors() {
         log.debug("getAuthors()");
         try {
@@ -42,7 +46,11 @@ public class AuthorController {
         }
     }
 
-    @GetMapping(path = "/author/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(
+            path = "/api/v{version}/author/{id}",
+            version = "1.0",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public AuthorResponse getAuthorById(@PathVariable @ObjectIDConstraint String id) {
         log.debug("getAuthorById('{}')", id);
         try {
@@ -58,7 +66,11 @@ public class AuthorController {
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Author with id " + id + " not found.");
     }
 
-    @GetMapping(path = "/authors/{name}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(
+            path = "/api/v{version}/authors/{name}",
+            version = "1.0",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public Set<AuthorResponse> getAuthorsByName(@PathVariable @NotBlank String name) {
         log.debug("getAuthorsByName('{}')", name);
         try {
@@ -70,7 +82,10 @@ public class AuthorController {
         }
     }
 
-    @DeleteMapping(path = "/author/{id}")
+    @DeleteMapping(
+            path = "/api/v{version}/author/{id}",
+            version = "1.0"
+    )
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAuthorById(@PathVariable @ObjectIDConstraint String id) {
         log.debug("deleteAuthorById('{}')", id);
@@ -81,7 +96,9 @@ public class AuthorController {
         }
     }
 
-    @PostMapping(path = "/author",
+    @PostMapping(
+            path = "/api/v{version}/author",
+            version = "1.0",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
@@ -97,7 +114,9 @@ public class AuthorController {
         }
     }
 
-    @PutMapping(path = "/author/{id}",
+    @PutMapping(
+            path = "/api/v{version}/author/{id}",
+            version = "1.0",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )

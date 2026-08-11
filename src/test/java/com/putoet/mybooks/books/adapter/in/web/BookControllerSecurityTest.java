@@ -51,33 +51,33 @@ class BookControllerSecurityTest {
     @Test
     @WithMockUser(username = "user", roles = "USER")
     void getBooksAuthenticated() throws Exception {
-        mvc.perform(get("/books").contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/api/v1.0/books").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
     @Test
     void getBooksUnAuthenticated() throws Exception {
-        mvc.perform(get("/books").contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/api/v1.0/books").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     @WithMockUser(username = "user", roles = "USER")
     void getBooksByAuthorNameAuthenticated() throws Exception {
-        mvc.perform(get("/books/author/name").contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/api/v1.0/books/author/name").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
     @Test
     void getBooksByAuthorNameUnAuthenticated() throws Exception {
-        mvc.perform(get("/books/author/name").contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/api/v1.0/books/author/name").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     @WithMockUser(username = "user", roles = "USER")
     void getBooksByTitleAuthenticated() throws Exception {
-        mvc.perform(get("/books/title").contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/api/v1.0/books/title").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
@@ -93,7 +93,7 @@ class BookControllerSecurityTest {
         final var schema = BookId.BookIdSchema.UUID.toString();
         final var id = UUID.randomUUID().toString();
 
-        mvc.perform(get("/book/" + schema + "/" + id).contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/api/v1.0/book/" + schema + "/" + id).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 
@@ -102,7 +102,7 @@ class BookControllerSecurityTest {
         final var schema = BookId.BookIdSchema.UUID.toString();
         final var id = UUID.randomUUID().toString();
 
-        mvc.perform(get("/book/" + schema + "/" + id).contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/api/v1.0/book/" + schema + "/" + id).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
 
@@ -116,7 +116,7 @@ class BookControllerSecurityTest {
                 .thenReturn(Optional.of(new Author(AuthorId.withId(bookRequestAuthor.id()), bookRequestAuthor.name())));
         when(bookManagementUpdatePort.registerBook(eq(new BookId(newBookRequest.schema(), newBookRequest.id())), any(), any(), any(), any()))
                 .thenReturn(new Book(new BookId(newBookRequest.schema(), newBookRequest.id()), newBookRequest.title(), Set.of(), Set.of(), Set.of()));
-        mvc.perform(post("/book")
+        mvc.perform(post("/api/v1.0/book")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(newBookRequest)))
                 .andExpect(status().isCreated());
@@ -127,7 +127,7 @@ class BookControllerSecurityTest {
         final var bookRequestAuthor = getBookRequestAuthor();
         final var newBookRequest = getNewBookRequest(bookRequestAuthor);
 
-        mvc.perform(post("/book")
+        mvc.perform(post("/api/v1.0/book")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(newBookRequest)))
                 .andExpect(status().isForbidden());

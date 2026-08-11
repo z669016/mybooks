@@ -25,7 +25,7 @@ public class MyBooksE2EBase {
 
     public void userLogin() {
         final var login = new UserLoginRequest("putoet@outlook.com", "2password!");
-        executePost("/login", login, false);
+        executePost("/api/v1.0/login", login, false);
         context.response().then().statusCode(HttpStatus.OK.value());
 
         final var jwtResponse = context.response().body().as(JwtResponse.class);
@@ -35,7 +35,7 @@ public class MyBooksE2EBase {
 
     public void adminLogin() {
         final var login = new UserLoginRequest("z669016@gmail.com", "1password!");
-        executePost("/login", login, false);
+        executePost("/api/v1.0/login", login, false);
         context.response().then().statusCode(HttpStatus.OK.value());
 
         final var jwtResponse = context.response().body().as(JwtResponse.class);

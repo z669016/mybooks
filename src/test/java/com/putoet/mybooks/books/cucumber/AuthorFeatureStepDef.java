@@ -29,7 +29,7 @@ public class AuthorFeatureStepDef extends MyBooksE2EBase {
 
     @When("send a get request for authors")
     public void sendAGetRequestForAuthors() {
-        executeGet("/authors");
+        executeGet("/api/v1.0/authors");
     }
 
     @And("response contains details on more than {int} authors")
@@ -43,7 +43,7 @@ public class AuthorFeatureStepDef extends MyBooksE2EBase {
 
     @When("send a get request for author with id {word}")
     public void sendAGetRequestForAuthorWithId(String uuid) {
-        executeGet("/author/" + uuid);
+        executeGet("/api/v1.0/author/" + uuid);
     }
 
     @And("author has id {word}")
@@ -66,7 +66,7 @@ public class AuthorFeatureStepDef extends MyBooksE2EBase {
     public void sentAPostRequestForANewAuthorWithNameAndSites(String name, DataTable table) {
         final var sites = table.asMap();
         final var request = new NewAuthorRequest(name, sites);
-        executePost("/author", request);
+        executePost("/api/v1.0/author", request);
     }
 
     @And("author has sites")
@@ -85,7 +85,7 @@ public class AuthorFeatureStepDef extends MyBooksE2EBase {
                 .header(JwtRequestFilter.AUTHORIZATION_KEY, JwtRequestFilter.AUTHORIZATION_SCHEME + " " + context.token())
                 .body(newAuthorRequest)
                 .when()
-                .post("https://localhost:443/author");
+                .post("https://localhost:443/api/v1.0/author");
         context.set(TEMP_AUTHOR, response.body().as(AuthorResponse.class));
     }
 
@@ -93,6 +93,6 @@ public class AuthorFeatureStepDef extends MyBooksE2EBase {
     public void sentAPutRequestForTempAuthorWithNewName(String name) {
         final var tempAuthor = context.get(TEMP_AUTHOR, AuthorResponse.class);
         final var update = new UpdateAuthorRequest(tempAuthor.version(), name);
-        executePut("/author/" + tempAuthor.id(), update);
+        executePut("/api/v1.0/author/" + tempAuthor.id(), update);
     }
 }

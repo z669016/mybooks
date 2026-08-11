@@ -17,6 +17,9 @@ spring:
 
   mvc:
     log-request-details: true
+    apiversion:
+      use:
+        path-segment: 1
 
   jpa:
     defer-datasource-initialization: true
@@ -27,6 +30,7 @@ spring:
         generate_statistics: true
         format_sql: false
     show-sql: false
+
   sql:
     init:
       mode: always

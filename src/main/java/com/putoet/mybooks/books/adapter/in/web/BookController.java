@@ -40,7 +40,11 @@ public class BookController {
         log.debug("BookController('{}','{}','{}')", bookManagementInquiryPort, bookManagementUpdatePort, validator);
     }
 
-    @GetMapping(path = "/books", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(
+            path = "/api/v{version}/books",
+            version = "1.0",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public Set<BookResponse> getBooks() {
         log.debug("getBooks()");
         try {
@@ -52,7 +56,11 @@ public class BookController {
         }
     }
 
-    @GetMapping(path = "/books/author/{name}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(
+            path = "/api/v{version}/books/author/{name}",
+            version = "1.0",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public Set<BookResponse> getBooksByAuthorName(@PathVariable @NotBlank String name) {
         log.debug("getBooksByAuthorName('{}')", name);
         try {
@@ -64,7 +72,11 @@ public class BookController {
         }
     }
 
-    @GetMapping(path = "/books/{title}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(
+            path = "/api/v{version}/books/{title}",
+            version = "1.0",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public Set<BookResponse> getBooksByTitle(@PathVariable @NotBlank String title) {
         log.debug("getBooksByTitle('{}')", title);
         try {
@@ -76,7 +88,11 @@ public class BookController {
         }
     }
 
-    @GetMapping(path = "/book/{schema}/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(
+            path = "/api/v{version}/book/{schema}/{id}",
+            version = "1.0",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public BookResponse getBookById(@PathVariable String schema, @PathVariable String id) throws MethodArgumentNotValidException {
         log.debug("getBookById('{}', '{}')", schema, id);
         try {
@@ -103,7 +119,9 @@ public class BookController {
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "book with schema " + schema + " and id " + id + " not found");
     }
 
-    @PostMapping(path = "/book",
+    @PostMapping(
+            path = "/api/v{version}/book",
+            version = "1.0",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )

@@ -16,6 +16,9 @@ spring:
 
   mvc:
     log-request-details: 'true'
+    apiversion:
+      use:
+        path-segment: 1
 
   jpa:
     properties:

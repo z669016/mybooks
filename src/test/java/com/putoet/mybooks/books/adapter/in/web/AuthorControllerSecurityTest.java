@@ -51,52 +51,52 @@ class AuthorControllerSecurityTest {
     @WithMockUser(username = "user", roles = "USER")
     @Test
     void getAuthorsAuthenticated() throws Exception {
-        mvc.perform(get("/authors").contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/api/v1.0/authors").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
     @Test
     void getAuthorsUnAuthenticated() throws Exception {
-        mvc.perform(get("/authors").contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/api/v1.0/authors").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
 
     @WithMockUser(username = "user", roles = "USER")
     @Test
     void getAuthorByIdAuthenticated() throws Exception {
-        mvc.perform(get("/author/" + UUID.randomUUID()).contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/api/v1.0/author/" + UUID.randomUUID()).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     void getAuthorByIdUnAuthenticated() throws Exception {
-        mvc.perform(get("/author/123456").contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/api/v1.0/author/123456").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
 
     @WithMockUser(username = "user", roles = "USER")
     @Test
     void getAuthorsByNameAuthenticated() throws Exception {
-        mvc.perform(get("/authors/XYZ").contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/api/v1.0/authors/XYZ").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
     @Test
     void getAuthorsByNameUnAuthenticated() throws Exception {
-        mvc.perform(get("/authors/XYZ").contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/api/v1.0/authors/XYZ").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
 
     @WithMockUser(username = "user", roles = "USER")
     @Test
     void deleteAuthorByIdAuthenticated() throws Exception {
-        mvc.perform(delete("/author/" + UUID.randomUUID()))
+        mvc.perform(delete("/api/v1.0/author/" + UUID.randomUUID()))
                 .andExpect(status().isNoContent());
     }
 
     @Test
     void deleteAuthorByIdUnAuthenticated() throws Exception {
-        mvc.perform(delete("/author/123456").contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(delete("/api/v1.0/author/123456").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
 
@@ -106,7 +106,7 @@ class AuthorControllerSecurityTest {
         final var author = new NewAuthorRequest("Schrijver, Jaap", Map.of(SiteType.HOMEPAGE_NAME, "https://goole.com"));
         when(bookManagementUpdatePort.registerAuthor(eq(author.name()), any())).thenReturn(new Author(AuthorId.withoutId(), author.name()));
 
-        mvc.perform(post("/author")
+        mvc.perform(post("/api/v1.0/author")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(author)))
                 .andExpect(status().isCreated());
@@ -114,7 +114,7 @@ class AuthorControllerSecurityTest {
 
     @Test
     void createAuthorUnAuthenticated() throws Exception {
-        mvc.perform(post("/author").contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(post("/api/v1.0/author").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
 
@@ -127,7 +127,7 @@ class AuthorControllerSecurityTest {
         when(bookManagementUpdatePort.updateAuthor(AuthorId.withId(id), version, author.name()))
                 .thenReturn(new Author(AuthorId.withId(id), author.name()));
 
-        mvc.perform(put("/author/" + id)
+        mvc.perform(put("/api/v1.0/author/" + id)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(author)))
                 .andExpect(status().isOk());
@@ -137,7 +137,7 @@ class AuthorControllerSecurityTest {
     void updateAuthorUnAuthenticated() throws Exception {
         final var author = new UpdateAuthorRequest(Instant.now().toString(), "Schrijver, Jaap");
 
-        mvc.perform(put("/author/" + UUID.randomUUID())
+        mvc.perform(put("/api/v1.0/author/" + UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(author)))
                 .andExpect(status().isForbidden());

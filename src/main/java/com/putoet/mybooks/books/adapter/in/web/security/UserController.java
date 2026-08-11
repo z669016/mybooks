@@ -35,7 +35,9 @@ public class UserController {
         log.debug("UserController('{}','{}','{}')", userManagementPort, authenticationManager, userDetailsService);
     }
 
-    @PostMapping(path = "/login",
+    @PostMapping(
+            path = "/api/v{version}/login",
+            version = "1.0",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
@@ -76,9 +78,12 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping(path = "/user",
+    @PostMapping(
+            path = "/api/v{version}/user",
+            version = "1.0",
             consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponse createUser(@RequestBody @Valid NewUserRequest request) {
         log.debug("createUser('{}', '{}', '***', '{}')", request.id(), request.name(), request.accessRole());
@@ -97,7 +102,11 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping(path = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(
+            path = "/api/v{version}/users",
+            version = "1.0",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public Set<UserResponse> getUsers() {
         log.debug("getUsers()");
         try {
@@ -110,7 +119,11 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping(path = "/user/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(
+            path = "/api/v{version}/user/{id}",
+            version = "1.0",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public UserResponse getUserById(@PathVariable(name = "id") @Email String id) {
         log.debug("getUserById('{}')", id);
         try {
