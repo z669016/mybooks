@@ -22,7 +22,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.putoet.mybooks.books.adapter.out.persistence.jdbc.SqlUtil.sqlInfo;
+import static com.putoet.mybooks.books.adapter.out.persistence.jdbc.SqlUtil.debugLogSql;
 
 /**
  * Class H2BookRepository
@@ -49,12 +49,23 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
         }
     }
 
+    public void forgetAllAuthors() {
+        log.debug("forgetAllAuthors()");
+        template.update("delete from author");
+    }
+
+    public void forgetAllBooks() {
+        log.debug("forgetAllBooks()");
+        template.update("delete from book");
+    }
+
+
     @Override
     public Set<Author> findAuthors() {
         log.debug("findAuthors()");
 
         final String sql = "select author_id, version, name from author";
-        sqlInfo(log, sql);
+        debugLogSql(log, sql);
 
         final var authors = Authors.ordered(template.query(sql, this::authorMapper));
         log.debug("find authors returns: {}", authors);
@@ -67,7 +78,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
         name = "%" + name.toLowerCase() + "%";
 
         final String sql = "select author_id, version, name from author where lower(name) like ?";
-        sqlInfo(log, sql, name);
+        debugLogSql(log, sql, name);
 
         final var authors = template.query(sql, this::authorMapper, name);
         log.debug("find authors by name returns: {}", authors);
@@ -80,7 +91,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
 
         try {
             final String sql = "select author_id, version, name from author where author_id = ?";
-            sqlInfo(log, sql, id.uuid());
+            debugLogSql(log, sql, id.uuid());
 
             final var author = template.queryForObject(sql, this::authorMapper, id.uuid());
             log.debug("find author by id returns: {}", author);
@@ -97,7 +108,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
         log.debug("findBooks()");
 
         final String sql = "select book_id_type, book_id, title from book";
-        sqlInfo(log, sql);
+        debugLogSql(log, sql);
 
         final var books = Books.ordered(template.query(sql, this::bookMapper));
         log.debug("find books returns: {}", books);
@@ -115,7 +126,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
 
         title = "%" + title.toLowerCase() + "%";
         final String sql = "select book_id_type, book_id, title from book where lower(title) like ?";
-        sqlInfo(log, sql, title);
+        debugLogSql(log, sql, title);
 
         final var books = Books.ordered(template.query(sql, this::bookMapper, title));
         log.debug("find books by title returns: {}", books);
@@ -132,7 +143,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
         }
 
         final String sql = "select book_id_type, book_id, title from book where book_id_type = ? and book_id = ?";
-        sqlInfo(log, sql, bookId.schema().name(), bookId.id());
+        debugLogSql(log, sql, bookId.schema().name(), bookId.id());
         final var book = template.queryForObject(sql, this::bookMapper, bookId.schema().name(), bookId.id());
         log.debug("find book by id returns: {}", book);
         return book;
@@ -143,7 +154,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
         log.debug("findBooksByAuthorId('{}')", authorId);
 
         final String sql = "select book_id_type, book_id, title from book where (book_id_type, book_id) in (select book_id_type, book_id from book_author where author_id = ?)";
-        sqlInfo(log, sql, authorId.uuid());
+        debugLogSql(log, sql, authorId.uuid());
 
         final var books = Books.ordered(template.query(sql, this::bookMapper, authorId.uuid()));
         log.debug("find books by author id returns: {}", books);
@@ -169,7 +180,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
         log.debug("findKeywordsForBook('{}', '{}')", bookIdType, bookId);
 
         final String sql = "select book_id_type, book_id, keyword from book_key_word where book_id_type = ? and book_id = ?";
-        sqlInfo(log, sql, bookIdType, bookId);
+        debugLogSql(log, sql, bookIdType, bookId);
 
         final var keywords = template.query(sql, this::keywordMapper, bookIdType, bookId);
         log.debug("find keywords for book returns: {}", keywords);
@@ -184,7 +195,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
         log.debug("findFormatsForBook('{}', '{}')", bookIdType, bookId);
 
         final String sql = "select book_id_type, book_id, format from book_format where book_id_type = ? and book_id = ?";
-        sqlInfo(log, sql, bookIdType, bookId);
+        debugLogSql(log, sql, bookIdType, bookId);
 
         final var formats = template.query(sql, this::formatTypeMapper, bookIdType, bookId);
         log.debug("find formats for book returns: {}", formats);
@@ -200,7 +211,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
         log.debug("findAuthorsForBook('{}', '{}')", bookIdType, bookId);
 
         final String sql = "select author_id, version, name from author where author_id in (select author_id from book_author where book_id_type = ? and book_id = ?)";
-        sqlInfo(log, sql, bookIdType, bookId);
+        debugLogSql(log, sql, bookIdType, bookId);
 
         final var authors = template.query(sql, this::authorMapper, bookIdType, bookId);
         log.debug("find authors for book returns: {}", authors);
@@ -210,7 +221,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
     private Author authorMapper(ResultSet row, int rowNum) throws SQLException {
         final String authorId = row.getString("author_id");
         final String sql = "select name, url from site where author_id = ?";
-        sqlInfo(log, sql, authorId);
+        debugLogSql(log, sql, authorId);
 
         final var sites = template.query(sql, this::siteMapper, authorId);
         return new Author(AuthorId.withId(authorId),
@@ -241,7 +252,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
 
     public Author registerAuthor(AuthorId authorId, Instant version, String name, Map<SiteType, URL> sites) {
         final String sql = "insert into author (author_id, version, name) values (?, ?, ?)";
-        sqlInfo(log, sql, authorId.uuid(), version, name);
+        debugLogSql(log, sql, authorId.uuid(), version, name);
 
         int count = template.update(sql, authorId.uuid(), version, name);
         if (count != 1) {
@@ -263,7 +274,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
 
         final var newVersion = Timestamp.from(Instant.now());
         final String sql = "update author set version = ?, name = ? where author_id = ? and version = ?";
-        sqlInfo(log, sql, newVersion, name, authorId.uuid(), version);
+        debugLogSql(log, sql, newVersion, name, authorId.uuid(), version);
 
         int count = template.update(sql, newVersion, name, authorId.uuid(), version);
         if (count != 1) {
@@ -282,7 +293,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
         log.debug("forgetAuthor('{}')", authorId);
 
         final String sql = "delete from author where author_id = ?";
-        sqlInfo(log, sql, authorId);
+        debugLogSql(log, sql, authorId);
 
         int count = template.update(sql, authorId.uuid());
         if (count != 1) {
@@ -297,7 +308,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
         log.debug("setAuthorSite('{}', '{}', '{}')", authorId, type, url);
 
         final String sql = "merge into site (author_id, name, url) values (?, ?, ?)";
-        sqlInfo(log, sql, authorId.uuid(), type.name(), url.toString());
+        debugLogSql(log, sql, authorId.uuid(), type.name(), url.toString());
 
         int count = template.update(sql, authorId.uuid(), type.name(), url.toString());
         if (count != 1) {
@@ -316,7 +327,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
         log.debug("registerBook('{}', '{}', '{}', '{}')", bookId, title, authors, formats);
 
         final String sql = "insert into book (book_id_type, book_id, title) values (?, ?, ?)";
-        sqlInfo(log, sql, bookId.schema().name(), bookId.id(), title);
+        debugLogSql(log, sql, bookId.schema().name(), bookId.id(), title);
 
         int count = template.update(sql, bookId.schema().name(), bookId.id(), title);
         if (count != 1) {
@@ -327,7 +338,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
 
         for (var author : authors) {
             final String sql2 = "insert into book_author (book_id_type, book_id, author_id) values (?, ?, ?)";
-            sqlInfo(log, sql2, bookId.schema().name(), bookId.id(), author.id().uuid().toString());
+            debugLogSql(log, sql2, bookId.schema().name(), bookId.id(), author.id().uuid().toString());
 
             count = template.update(sql2, bookId.schema().name(), bookId.id(), author.id().uuid().toString());
             if (count != 1) {
@@ -339,7 +350,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
 
         for (MimeType format : formats) {
             final String sql2 = "insert into book_format (book_id_type, book_id, format) values (?, ?, ?)";
-            sqlInfo(log, sql2, bookId.schema().name(), bookId.id(), format.toString());
+            debugLogSql(log, sql2, bookId.schema().name(), bookId.id(), format.toString());
 
             count = template.update(sql2, bookId.schema().name(), bookId.id(), format.toString());
             if (count != 1) {
@@ -351,7 +362,7 @@ public class H2BookRepository implements BookPersistenceUpdatePort {
 
         for (String keyword : keywords) {
             final String sql3 = "insert into book_key_word (book_id_type, book_id, keyword) values (?, ?, ?)";
-            sqlInfo(log, sql3, bookId.schema().name(), bookId.id(), keyword);
+            debugLogSql(log, sql3, bookId.schema().name(), bookId.id(), keyword);
 
             count = template.update(sql3, bookId.schema().name(), bookId.id(), keyword);
             if (count != 1) {

@@ -15,7 +15,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-import static com.putoet.mybooks.books.adapter.out.persistence.jdbc.SqlUtil.sqlInfo;
+import static com.putoet.mybooks.books.adapter.out.persistence.jdbc.SqlUtil.debugLogSql;
 
 @Repository
 public class H2UserRepository implements UserPersistencePort {
@@ -25,6 +25,11 @@ public class H2UserRepository implements UserPersistencePort {
 
     public H2UserRepository(JdbcTemplate template) {
         this.template = template;
+    }
+
+    public void forgetAllUsers() {
+        log.debug("forgetAllUsers()");
+        template.update("delete from users");
     }
 
     @Override
@@ -41,7 +46,7 @@ public class H2UserRepository implements UserPersistencePort {
         log.info("findUsers()");
 
         final String sql = "select id, name, password, access from users";
-        sqlInfo(log, sql);
+        debugLogSql(log, sql);
 
         return Users.ordered(template.query(sql, this::userMapper));
     }
@@ -52,7 +57,7 @@ public class H2UserRepository implements UserPersistencePort {
 
         try {
             final String sql = "select id, name, password, access from users where id = ?";
-            sqlInfo(log, sql, id);
+            debugLogSql(log, sql, id);
 
             return template.queryForObject(sql, this::userMapper, id);
         } catch (EmptyResultDataAccessException exc) {
@@ -74,7 +79,7 @@ public class H2UserRepository implements UserPersistencePort {
         log.info("forgetUser('{}')", userId);
 
         final String sql = "delete from users where id = ?";
-        sqlInfo(log, sql, userId);
+        debugLogSql(log, sql, userId);
 
         int count = template.update(sql, userId);
         if (count != 1) {
@@ -89,7 +94,7 @@ public class H2UserRepository implements UserPersistencePort {
         log.info("registerUser('{}', '{}', '{}', '{}')", id, name, password, accessRole);
 
         final String sql = "insert into users (id, name, password, access) values (?, ?, ?, ?)";
-        sqlInfo(log, sql, id, name, password, accessRole);
+        debugLogSql(log, sql, id, name, password, accessRole);
 
         int count = template.update(sql, id, name, password, accessRole.name());
         if (count != 1) {

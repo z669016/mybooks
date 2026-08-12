@@ -33,7 +33,7 @@ spring:
 
   sql:
     init:
-      mode: always
+      mode: embedded
 
 logging:
   level:

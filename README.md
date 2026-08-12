@@ -335,21 +335,21 @@ Replacing the use of the RestTemplate with [rest-assured](https://rest-assured.i
 allowed cleanup as the RestAssured framework handles https out of the box. It also knows how to
 translate (map) responses given a class type, so no need to pass an ObjectMapper.
 
-## Recreating the database from scratch
-This feature has been implemented as a test. During testing of the feature, I discovered a couple of new things as well. 
+## Recreating the full book database from scratch
+This feature has been implemented as a (disabled) test ```MybooksApplicationDatabaseCreateTest.
+createDatabaseFromBookFolder()```. 
 
-When running a test annotated with ```@JdbcTest``` the test will use the ```schema.sql``` and ```data.sql``` files to 
-create an in-memory H2 database, while ignoring most of the database settings in your ```application.yml```. To run 
-the tests against a real database, you need to use ```@SpringBootTest``` and ```@AutoConfigureMockMvc```. 
+To create a physical database ensure to set the database URL to a physical database instead of an in-memory database
+in the application.yml or all the hard work will be lost:
+-   in-memory -> ```spring.datasource.url=jdbc:h2:mem:test_books;time zone=UTC```
+-   physical -> ```spring.datasource.url=jdbc:h2:file:./h2db/books;time zone=UTC```
 
-When running a test annotated with ```@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)```, 
-to prevent the real database from being replaced by the in-memory test version. This doesn't prevent the loading
-of test data from the ```data.sql```, so that should be renamed before running the test. 
+As application.yml contains ```sql.init.mode=embedded```, the database will only be created using ```schema.sql``` with 
+default data from ```data.sql``` (in the ```test/resources``` folder) in case an embeddded in-memory database is being 
+used.
 
-While playing around with this feature, I noticed duplicates in the Author-table. This was caused by the 
-```FolderBookRepository``` that created an Author for every author-name linked to any book. This was fixed by
-removing all duplications after loading book data and before returning from the constructor (duplicate authors
-are being removed, and only the first author with a specific name is stored and linked to the books). 
+The database is cleaned (all books, authors and users get deleted) at startup, before loading new book data from the 
+folder containing epub books. So, any data initially loaded from data.sql is removed.
 
 ## Java Persistence API
 Adding JPA took quite some steps. By default, the JPA entities are being used to create the database (```@JdbcTest```, 

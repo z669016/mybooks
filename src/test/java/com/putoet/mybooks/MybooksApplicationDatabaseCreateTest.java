@@ -2,58 +2,83 @@ package com.putoet.mybooks;
 
 import com.putoet.mybooks.books.adapter.out.persistence.folder.FolderBookRepository;
 import com.putoet.mybooks.books.adapter.out.persistence.jdbc.H2BookRepository;
+import com.putoet.mybooks.books.adapter.out.persistence.jdbc.H2UserRepository;
+import com.putoet.mybooks.books.domain.security.AccessRole;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
-import org.springframework.boot.jdbc.test.autoconfigure.JdbcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.nio.file.Path;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 @Disabled
-@JdbcTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@SpringBootTest
 class MybooksApplicationDatabaseCreateTest {
 
+    public static final String BOOKS_FOLDER = "/Users/renevanputten/OneDrive/Books";
+    
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
     @Test
+    /*
+     * Create a database from the books folder, import all books and authors.
+     * Load 2 default users into the "users" table.
+     *
+     * For this test to run against a persistent database (not ad-hoc created for only this test),
+     * you need to manually delete the database file (books.mv.db).
+     */
     void createDatabaseFromBookFolder() {
-        final var folderBooks = new FolderBookRepository(Path.of("/Users/renevanputten/OneDrive/Books"));
-        final var database = new H2BookRepository(jdbcTemplate);
+        System.out.println("[createDatabaseFromBookFolder v0.1]");
 
-        System.out.println(database);
+        final var bookRepository = new H2BookRepository(jdbcTemplate);
+        final var userRepository = new H2UserRepository(jdbcTemplate);
+        System.out.println("Book repository: " + bookRepository);
+        
+        loadBooksFromFolder(bookRepository);
+        loadDefaultUsers(userRepository);
+    }
 
+    private static void loadBooksFromFolder(H2BookRepository bookRepository) {
+        System.out.println("Load books from the folder repository...");
+        final var folderBooks = new FolderBookRepository(Path.of(BOOKS_FOLDER));
+
+        System.out.println("Delete books and authors from the book repository...");
+        bookRepository.forgetAllBooks();
+        bookRepository.forgetAllAuthors();
+
+        System.out.println("Store all books and authors from the folder into the database...");
         final var allFolderBooks = folderBooks.findBooks();
         final var allFolderAuthors = folderBooks.findAuthors();
-
         for (var author : allFolderAuthors) {
-            database.registerAuthor(author.id(), author.version(), author.name(), author.sites());
+            bookRepository.registerAuthor(author.id(), author.version(), author.name(), author.sites());
         }
 
         for (var book : allFolderBooks) {
-            database.registerBook(book.id(), book.title(), book.authors(), book.formats(), book.keywords());
+            bookRepository.registerBook(book.id(), book.title(), book.authors(), book.formats(), book.keywords());
         }
 
-        final var allDatabaseBooks = database.findBooks();
-        final var allDatabaseAuthors = database.findAuthors();
+        System.out.printf("Loaded %d books, and %d authors.%n", allFolderBooks.size(), allFolderAuthors.size());
+        System.out.println();
 
-        System.out.printf("Found %d authors and %d books in folder%n", allFolderAuthors.size(), allFolderBooks.size());
-        System.out.printf("Stored %d authors and %d books in database%n", allDatabaseAuthors.size(), allDatabaseBooks.size());
+        assertFalse(allFolderBooks.isEmpty());
+        assertFalse(allFolderAuthors.isEmpty());
+    }
 
-        var failed = false;
-        for (var author : allDatabaseAuthors) {
-            if (!allFolderAuthors.contains(author)) {
-                failed = true;
-                System.out.println("Author not found in folder: " + author);
-                System.out.println("Possible folder matches: " + folderBooks.findAuthorsByName(author.name()));
-                System.out.println("Possible database matches: " + database.findAuthorsByName(author.name()));
-                System.out.println();
-            }
-        }
+    private void loadDefaultUsers(H2UserRepository userRepository) {
+        System.out.println("Delete users from user repository...");
+        userRepository.forgetAllUsers();
 
-        System.out.printf("Load test %s%n", failed ? "FAILED" : "PASSED");
+        System.out.println("Load default users...");
+        userRepository.registerUser("z669016@gmail.com", "Z669016", "1password!", AccessRole.ADMIN);
+        userRepository.registerUser("putoet@outlook.com", "PUTOET", "2password!", AccessRole.USER);
+
+        final var allUsers = userRepository.findUsers();
+        System.out.printf("Loaded %d users.%n", allUsers.size());
+
+        assertFalse(allUsers.isEmpty());
     }
 }

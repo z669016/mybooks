@@ -5,8 +5,8 @@ import org.slf4j.Logger;
 public class SqlUtil {
     private SqlUtil() {}
 
-    public static void sqlInfo(Logger log, String sql, Object ... parameters) {
+    public static void debugLogSql(Logger log, String sql, Object ... parameters) {
         final var message = sql.replace("?", "'{}'") + ";";
-        log.info(message, parameters);
+        log.debug(message, parameters);
     }
 }
